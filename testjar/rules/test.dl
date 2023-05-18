@@ -1,0 +1,4 @@
+.output mainAnalysis.ReachableContext
+.output mainAnalysis.ApplicationEntryPoint
+.output mainAnalysis.configuration.ContextRequest
+.output PhiNodeHead

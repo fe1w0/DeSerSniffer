@@ -25,8 +25,9 @@ OPEN_PROGRAM="--open-programs concrete-types"
 SOUFFLE_JOBS="--souffle-jobs 4"
 SOUFFLE_MODE="--souffle-mode interpreted"
 
+# 避免 mac swp 过高
 # --max-memory
-MaxMemory="--max-memory 2g"
+# MaxMemory="--max-memory 4g"
 
 # extra logic
 EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/output.dl"

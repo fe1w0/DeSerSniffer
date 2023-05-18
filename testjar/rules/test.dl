@@ -1,4 +1,12 @@
 .output mainAnalysis.ReachableContext
 .output mainAnalysis.ApplicationEntryPoint
 .output mainAnalysis.configuration.ContextRequest
-.output PhiNodeHead
+
+// .output PhiNodeHead
+
+
+// VirtualMethodInvocation_Base 居然不属于 base
+// .output VirtualMethodInvocation_Base
+
+// .output isOpaqueMethod
+

@@ -30,7 +30,8 @@ SOUFFLE_MODE="--souffle-mode interpreted"
 # MaxMemory="--max-memory 4g"
 
 # extra logic
-EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/output.dl"
+# EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/output.dl"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/definition-information.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"

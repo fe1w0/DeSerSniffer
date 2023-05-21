@@ -5,16 +5,16 @@
 
 #include "define-source-and-sink-method-name.dl"
 
-TaintSourceMethod(lable, method) :-
-	lable = INFO_FLOW_LABEL,
+TaintSourceMethod(?lable, ?method) :-
+	?lable = INFO_FLOW_LABEL,
 	DefineSourceMethodName(simpleMethodName),
 	Method_Modifier("public", ?method),
 	Method_SimpleName(?method, simpleMethodName),
 	!Method_Modifier("abstract", ?method).
 
 
-TaintSourceMethod(lable, method) :-
-	lable = INFO_FLOW_LABEL,
+TaintSinkMethod(?lable, ?method) :-
+	?lable = INFO_FLOW_LABEL,
 	DefineSourceMethodName(simpleMethodName),
 	Method_Modifier("public", ?method),
 	Method_SimpleName(?method, simpleMethodName),

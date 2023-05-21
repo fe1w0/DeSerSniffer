@@ -1,0 +1,21 @@
+// 确定 污点分析信息
+
+#define INFO_FLOW_LABEL "UnSafeSerCheck"
+
+
+#include "define-source-and-sink-method-name.dl"
+
+TaintSourceMethod(lable, method) :-
+	lable = INFO_FLOW_LABEL,
+	DefineSourceMethodName(simpleMethodName),
+	Method_Modifier("public", ?method),
+	Method_SimpleName(?method, simpleMethodName),
+	!Method_Modifier("abstract", ?method).
+
+
+TaintSourceMethod(lable, method) :-
+	lable = INFO_FLOW_LABEL,
+	DefineSourceMethodName(simpleMethodName),
+	Method_Modifier("public", ?method),
+	Method_SimpleName(?method, simpleMethodName),
+	!Method_Modifier("abstract", ?method).

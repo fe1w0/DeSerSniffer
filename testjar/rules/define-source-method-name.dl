@@ -1,0 +1,9 @@
+.decl DefineSourceMethodName(simpleNmae: symbol)
+
+DefineSourceMethodName("defineSourceMethod").
+
+
+.decl DefineSinkMethodName(simpleNmae: symbol)
+
+
+DefineSinkMethodName("maybeEvil").

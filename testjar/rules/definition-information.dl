@@ -13,7 +13,7 @@ TaintSourceMethod(?lable, ?method) :-
 	!Method_Modifier("abstract", ?method).
 
 
-TaintSinkMethod(?lable, ?method) :-
+LeakingSinkMethod(?lable, ?method) :-
 	?lable = INFO_FLOW_LABEL,
 	DefineSourceMethodName(simpleMethodName),
 	Method_Modifier("public", ?method),

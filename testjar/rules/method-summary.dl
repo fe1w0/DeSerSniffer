@@ -1,0 +1,12 @@
+// 一期计划:
+// 计算函数的 return parameter base(this) 三者关系
+
+// 主要依托 points-to 分析
+
+
+
+// 二期计划:
+// 计算 parameters 之间的关系
+
+// 三期计划:
+// 计算mock- 的关系

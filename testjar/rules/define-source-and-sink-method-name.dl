@@ -1,6 +1,6 @@
 .decl DefineSourceMethodName(simpleNmae: symbol)
 
-DefineSourceMethodName("defineSourceMethod").
+DefineSourceMethodName("source").
 
 
 .decl DefineSinkMethodName(simpleNmae: symbol)

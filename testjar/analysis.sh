@@ -37,7 +37,7 @@ EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/definition-information.dl"
 INFORMATION_FLOW="--information-flow minimal"
 
 # cfg
-# CFG="--cfg"
+CFG="--cfg"
 
 # CHA
 # CHA=""

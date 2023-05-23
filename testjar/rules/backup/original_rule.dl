@@ -2700,6 +2700,378 @@ MainMethodDeclaration(?method) :-
 .init basic = Basic
 
 
+.decl Method_FirstInstruction(?method:Method, ?insn:Instruction)
+.decl OptInstructionFromMethodIndex(?method:Method, ?index:number, ?insn:Instruction)
+.decl Instruction_Next(?i:Instruction, ?next:Instruction)
+.decl Instruction_Prev(?i:Instruction, ?prev:Instruction)
+.decl JumpTarget(?insn:Instruction, ?prev:Instruction)
+
+// Making explicit, so it can be negated.
+.decl IsJumpTarget(?insn:Instruction)
+.decl ExceptionHandlerFirstInstruction(?insn:Instruction)
+.decl FallThrough(?insn:Instruction)
+.decl BasicBlockBegin(?insn:Instruction)
+.decl BasicBlockHead(?insn:Instruction, ?headInsn:Instruction)
+.decl BasicBlockTail(?headInsn:Instruction, ?tailInsn:Instruction)
+.decl BasicBlockEnd(?insn:Instruction)
+.decl UnconditionalControlTransfer(?insn:Instruction)
+
+// This is almost but not really a "may" relation for successor
+// instructions. It does not include the targets of throw
+// instructions. Hence the predicate name, meant to remind users that
+// they should always check if the instruction is the beginning of
+// an exception handler.
+.decl MaySuccessorModuloThrow(?next:Instruction, ?prev:Instruction)
+.decl MayPredecessorModuloThrow(?prev:Instruction, ?next:Instruction)
+
+// Same concept for basic blocks. Reduces the cost significantly, since
+// subsequent computation is quadratic.
+.decl MaySuccessorBBModuloThrow(?next:Instruction, ?prev:Instruction)
+.decl MayPredecessorBBModuloThrow(?prev:Instruction, ?next:Instruction)
+
+// The Dominates relation is defined on basic blocks,
+// represented by their first instruction (head). Defining
+// a dense quadratic relation, like Dominates, on individual
+// instructions was hugely expensive.
+
+// To get to ?insn, we need to have gone through ?dominator
+.decl Dominates(?dominator:Instruction, ?insn:Instruction)
+
+// ?insn dominates its predecessor. Must be head of basic block
+// (head of a loop).
+.decl DominatesItsPredecessorInstruction(?prevInsn:Instruction, ?insn:Instruction)
+
+// A generally useful concept. Includes the case of both being in the
+// same basic block.
+.decl DominatesItsSuccessorInstruction(?insn:Instruction, ?prevInsn:Instruction)
+
+// Phi Nodes Definition. If we have SSA input, then any multiple
+// assignments to the same var are because of a Phi node. In fact,
+// these will also be consecutive.
+.decl NextInSamePhiNode(?insn1:Instruction, ?insn2:Instruction)
+.decl PhiNodeHead(?insn:Instruction, ?headInsn:Instruction)
+
+
+// Just inverting for efficiency.
+.decl InstructionInPhiNode(?insn:Instruction, ?headInsn:Instruction)
+
+// There may be multiple return instructions. This is a pain,
+// since they also represent merges of control- and data-flow.
+// We often need to define "forall" behavior over them.
+.decl NextReturn(?insn1:Instruction, ?insn2:Instruction)
+
+
+
+Method_FirstInstruction(?method, ?insn) :-
+   Instruction_Method(?insn, ?method),
+   !Instruction_Prev(?insn, _),
+   !IsJumpTarget(?insn).
+
+OptInstructionFromMethodIndex(?method, ?index, ?insn) :-
+   Instruction_Method(?insn, ?method),
+   Instruction_Index(?insn, ?index).
+
+Instruction_Next(?insn, ?next) :-
+   Instruction_Method(?insn, ?inMethod),
+   Instruction_Index(?insn, ?i),
+   OptInstructionFromMethodIndex(?inMethod, ?i + 1, ?next).
+
+Instruction_Prev(?insn, ?prev) :-
+   Instruction_Method(?insn, ?inMethod),
+   Instruction_Index(?insn, ?i),
+   OptInstructionFromMethodIndex(?inMethod, ?i - 1, ?prev).
+
+JumpTarget(?insn, ?goto) :-
+   Goto_Target(?goto, ?targetIndex),
+   Instruction_Method(?goto, ?gotoMethod),
+   OptInstructionFromMethodIndex(?gotoMethod, ?targetIndex, ?insn).
+JumpTarget(?insn, ?if) :-
+   If_Target(?if, ?targetIndex),
+   Instruction_Method(?if, ?method),
+   OptInstructionFromMethodIndex(?method, ?targetIndex, ?insn).
+JumpTarget(?insn, ?sw) :-
+   (Switch_Target(?sw, _, ?targetIndex) ; Switch_DefaultTarget(?sw, ?targetIndex)),
+   Instruction_Method(?sw, ?method),
+   OptInstructionFromMethodIndex(?method, ?targetIndex, ?insn).
+
+IsJumpTarget(?insn) :-
+   JumpTarget(?insn, _).
+
+ExceptionHandlerFirstInstruction(?insn) :-
+   ExceptionHandler_Index(?handler, ?index),
+   ExceptionHandler_Method(?handler, ?method),
+   OptInstructionFromMethodIndex(?method, ?index, ?insn).
+
+FallThrough(?insn) :-
+   isIf_Insn(?if),
+   Instruction_Next(?if, ?insn).
+// REVIEW: The next two shouldn't matter much since without a label the
+// fallthrough instruction would be dead code OR the beginning of an
+// exception handler. The latter is handled specially. For the former, we
+// consider such dead code to start a new BB, so that it doesn't accidentally
+// get considered a continuation of the previous BB.
+FallThrough(?insn) :-
+   isReturnInstruction(?ret),
+   Instruction_Next(?ret, ?insn).
+FallThrough(?insn) :-
+   isThrow_Insn(?throw),
+   Instruction_Next(?throw, ?insn).
+
+
+// First instruction of a method is a basic block beginning
+BasicBlockBegin(?insn) :-
+   OptInstructionFromMethodIndex(_, 1, ?insn).
+BasicBlockBegin(?insn) :-
+   ExceptionHandlerFirstInstruction(?insn).
+BasicBlockBegin(?insn) :-
+   JumpTarget(?insn, _).
+BasicBlockBegin(?insn) :-
+   FallThrough(?insn).
+
+.decl NextInSameBasicBlock(?insn:Instruction, ?next:Instruction)
+NextInSameBasicBlock(?insn, ?next) :-
+   Instruction_Next(?insn, ?next),
+   !BasicBlockBegin(?next).
+
+.decl PrevInSameBasicBlock(?insn:Instruction, ?prev:Instruction)
+PrevInSameBasicBlock(?insn, ?prev) :-
+   NextInSameBasicBlock(?prev, ?insn).
+
+BasicBlockHead(?insn, ?insn) :-
+   BasicBlockBegin(?insn).
+BasicBlockHead(?insn, ?headInsn) :-
+   BasicBlockHead(?prev, ?headInsn),
+   NextInSameBasicBlock(?prev, ?insn).
+
+BasicBlockTail(?headInsn, ?tailInsn) :-
+   BasicBlockHead(?tailInsn, ?headInsn),
+   !NextInSameBasicBlock(?tailInsn, _).
+
+BasicBlockEnd(?insn) :- BasicBlockTail(_, ?insn).
+
+UnconditionalControlTransfer(?insn) :-
+   isGoto_Insn(?insn) ;
+   isSwitch_Insn(?insn) ;
+   isReturnInstruction(?insn) ;
+   isThrow_Insn(?insn).
+
+MaySuccessorModuloThrow(?next, ?prev) :-
+   JumpTarget(?next, ?prev).
+MaySuccessorModuloThrow(?next, ?insn) :-
+   Instruction_Next(?insn, ?next),
+   !UnconditionalControlTransfer(?insn).
+
+MayPredecessorModuloThrow(?prev, ?next) :-
+   MaySuccessorModuloThrow(?next, ?prev).
+
+MaySuccessorBBModuloThrow(?next, ?prev) :-
+   MaySuccessorModuloThrow(?next, ?prevEnd),
+   BasicBlockEnd(?prevEnd),
+   BasicBlockBegin(?next),
+   BasicBlockHead(?prevEnd, ?prev).
+
+MayPredecessorBBModuloThrow(?prev, ?next) :-
+   MaySuccessorBBModuloThrow(?next, ?prev).
+
+// The Dominates relation is defined on basic blocks,
+// represented by their first instruction (head). Defining
+// a dense quadratic relation, like Dominates, on individual
+// instructions was hugely expensive.
+
+// Dominates(?dominator, ?insn): To get to ?insn, we need to have gone
+// through ?dominator
+Dominates(?dominator, ?insn) :-
+   SameMethodBBHeads(?dominator, ?insn),
+   !DoesNotDominate(?dominator, ?insn).
+
+// Either the first instruction...
+.decl CFGRoot(?insn:Instruction, ?method:Method)
+CFGRoot(?insn, ?method) :-
+   OptInstructionFromMethodIndex(?method, 1, ?insn).
+// or... could also be beginning of exception handler
+CFGRoot(?insn, ?method) :-
+   BBHeadInMethod(?insn, ?method),
+   !(MayPredecessorBBModuloThrow(_, ?insn)).
+
+.decl ExistsMayPredecessorBBModuloThrow(?insn:Instruction)
+ExistsMayPredecessorBBModuloThrow(?insn) :-
+   MayPredecessorBBModuloThrow(_, ?insn).
+
+// DoesNotDominate(?dominatorCandidate, ?insn): ?insn (which is a
+// basic block head) is NOT dominated by ?dominatorCandidate
+.decl DoesNotDominate(?dominatorCandidate:Instruction, ?insn:Instruction)
+DoesNotDominate(?dominatorCandidate, ?insn) :-
+   BBHeadInMethod(?dominatorCandidate, ?method),
+   CFGRoot(?insn, ?method),
+   ?dominatorCandidate != ?insn.
+
+DoesNotDominate(?dominatorCandidate, ?insn) :-
+   DoesNotDominate(?dominatorCandidate, ?otherInsn),
+   MaySuccessorBBModuloThrow(?insn, ?otherInsn),
+   ?insn != ?dominatorCandidate.
+
+
+// ?insn dominates its predecessor. ?insn must be the head of a basic
+// block (head of a loop).
+DominatesItsPredecessorInstruction(?prevInsn, ?insn) :-
+   JumpTarget(?insn, ?prevInsn),
+   BasicBlockHead(?prevInsn, ?prevInsnHead),
+   (?insn = ?prevInsnHead;
+    Dominates(?insn, ?prevInsnHead)).
+
+// KF: Currently this rules is not being used at all.
+// // Includes the case of both being in the same basic block.
+// DominatesItsSuccessorInstruction(?insn, ?prevInsn) :-
+//    MaySuccessorModuloThrow(?insn, ?prevInsn),
+//    BasicBlockHead[?prevInsn] = ?prevInsnHead,
+//    BasicBlockHead[?insn] = ?insnHead,
+//    (?insnHead = ?prevInsnHead;
+//     Dominates(?prevInsnHead, ?insnHead)).
+
+
+NextInSamePhiNode(?insn, ?nextInsn) :-
+   isAssignLocal_Insn(?insn),
+   AssignInstruction_To(?insn, ?var),
+   Instruction_Next(?insn, ?nextInsn),
+   isAssignLocal_Insn(?nextInsn),
+   AssignInstruction_To(?nextInsn, ?var).
+
+PhiNodeHead(?nextInsn, ?insn),
+PhiNodeHead(?insn, ?insn) :-
+   NextInSamePhiNode(?insn, ?nextInsn),
+   Instruction_Prev(?insn, ?prevInsn),
+   !NextInSamePhiNode(?prevInsn, ?insn).
+
+PhiNodeHead(?nextInsn, ?insn),
+PhiNodeHead(?insn, ?insn) :-
+   NextInSamePhiNode(?insn, ?nextInsn),
+   !Instruction_Prev(?insn, _).
+
+PhiNodeHead(?nextInsn, ?headInsn) :-
+   PhiNodeHead(?phiInsn, ?headInsn),
+   NextInSamePhiNode(?phiInsn, ?nextInsn).
+
+// Just inverting for efficiency.
+InstructionInPhiNode(?insn, ?headInsn) :-
+   PhiNodeHead(?insn, ?headInsn).
+
+
+///// auxiliary quick-and-dirty predicates
+.decl OptReturnInsn(?insn:Instruction, ?method:Method)
+OptReturnInsn(?insn, ?method) :-
+   isReturnInstruction(?insn),
+   Instruction_Method(?insn, ?method).
+
+.decl HigherReturnIndex(?insn:Instruction, ?indexHigher:number)
+HigherReturnIndex(?insn, ?indexHigher) :-
+   OptReturnInsn(?insn, ?method),
+   OptReturnInsn(?insnHigher, ?method),
+   Instruction_Index(?insnHigher, ?indexHigher),
+   Instruction_Index(?insn, ?index),
+   ?index < ?indexHigher.
+
+.decl NextReturnIndex(?returnInsn:Instruction, ?nextReturnIndex:number)
+NextReturnIndex(?returnInsn, ?nextReturnIndex) :-
+   isInstruction(?returnInsn), 
+   ?nextReturnIndex = min ?index : HigherReturnIndex(?returnInsn, ?index).
+
+NextReturn(?returnInsn, ?nextReturnInsn) :-
+   NextReturnIndex(?returnInsn, ?nextReturnIndex),
+   Instruction_Method(?returnInsn, ?meth),
+   OptInstructionFromMethodIndex(?meth, ?nextReturnIndex, ?nextReturnInsn).
+
+.decl ExistsPreviousReturn(?insn:Instruction)
+ExistsPreviousReturn(?insn) :-
+   NextReturn(_, ?insn).
+
+.decl BBHeadInMethod(?insn:Instruction, ?method:Method)
+BBHeadInMethod(?insn, ?method) :-
+   BasicBlockBegin(?insn),
+   Instruction_Method(?insn, ?method).
+
+.decl SameMethodBBHeads(?insn1:Instruction, ?insn2:Instruction)
+SameMethodBBHeads(?insn1, ?insn2) :-
+   BBHeadInMethod(?insn1, ?method),
+   BBHeadInMethod(?insn2, ?method).
+
+// Auxiliaries...
+
+// Quadratic, but doesn't matter, since it's so local and only
+// defined on basic blocks.
+.decl PredecessorBBsToSameBB(?insn:Instruction, ?prev1:Instruction, ?prev2:Instruction)
+PredecessorBBsToSameBB(?insn, ?prev1, ?prev2) :-
+   MayPredecessorBBModuloThrow(?prev1, ?insn),
+   MayPredecessorBBModuloThrow(?prev2, ?insn),
+   ?prev1 != ?prev2.
+
+.decl LargerPredecessorIndexToSameBB(?insn:Instruction, ?indexLarge:number, ?prevSmall:Instruction)
+LargerPredecessorIndexToSameBB(?insn, ?indexLarge, ?prevSmall) :-
+   PredecessorBBsToSameBB(?insn, ?prevLarge, ?prevSmall),
+   Instruction_Index(?prevLarge, ?indexLarge),
+   Instruction_Index(?prevSmall, ?indexSmall),
+   ?indexLarge > ?indexSmall.
+
+.decl NextPredecessorIndexToSameBB(?insn:Instruction, ?prev:Instruction, ?indexNext:number)
+.output NextPredecessorIndexToSameBB
+NextPredecessorIndexToSameBB(?insn, ?prev, ?indexNext) :-
+   LargerPredecessorIndexToSameBB(?insn, _, ?prev),
+   ?indexNext = min ?index : LargerPredecessorIndexToSameBB(?insn, ?index, ?prev).
+
+.decl NextPredecessorToSameBB(?insn:Instruction, ?pred:Instruction, ?nextPred:Instruction)
+NextPredecessorToSameBB(?insn, ?pred, ?nextPred) :-
+   NextPredecessorIndexToSameBB(?insn, ?pred, ?indexNext),
+   Instruction_Method(?insn, ?method),
+   OptInstructionFromMethodIndex(?method, ?indexNext, ?nextPred).
+
+.decl PreviousPredecessorToSameB(?insn:Instruction, ?nextPred:Instruction, ?prevPred:Instruction)
+PreviousPredecessorToSameB(?insn, ?nextPred, ?prevPred) :-
+   NextPredecessorToSameBB(?insn, ?prevPred, ?nextPred).
+
+.decl ExistsPreviousPredecessorToSameBB(?pred:Instruction, ?insn:Instruction)
+ExistsPreviousPredecessorToSameBB(?pred, ?insn) :-
+   NextPredecessorToSameBB(?insn, _, ?pred).
+
+
+// Same concepts as above, but for non-dominated (shortened to "NonDom")
+// predecessors
+.decl NonDomPredecessorBBsToSameBB(?insn:Instruction, ?prev1:Instruction, ?prev2:Instruction) 
+NonDomPredecessorBBsToSameBB(?insn, ?prev1, ?prev2) :-   
+   MayPredecessorBBModuloThrow(?prev1, ?insn),
+   MayPredecessorBBModuloThrow(?prev2, ?insn),
+   BasicBlockTail(?prev1, ?prevTail1),
+   BasicBlockTail(?prev2, ?prevTail2),
+   !DominatesItsPredecessorInstruction(?prevTail1, ?insn),
+   !DominatesItsPredecessorInstruction(?prevTail2, ?insn),
+   ?prev1 != ?prev2.
+
+.decl LargerNonDomPredecessorIndexToSameBB(?insn:Instruction, ?indexLarge:number, ?prevSmall:Instruction)
+LargerNonDomPredecessorIndexToSameBB(?insn, ?indexLarge, ?prevSmall) :-
+   NonDomPredecessorBBsToSameBB(?insn, ?prevLarge, ?prevSmall),
+   Instruction_Index(?prevLarge, ?indexLarge),
+   Instruction_Index(?prevSmall, ?indexSmall),
+   ?indexLarge > ?indexSmall.
+
+.decl NextNonDomPredecessorIndexToSameBB(?insn:Instruction, ?prev:Instruction, ?indexNext:number)
+.output NextNonDomPredecessorIndexToSameBB
+NextNonDomPredecessorIndexToSameBB(?insn, ?prev, ?indexNext) :-
+   LargerNonDomPredecessorIndexToSameBB(?insn, _, ?prev),
+   ?indexNext = min ?index : LargerNonDomPredecessorIndexToSameBB(?insn, ?index, ?prev).
+
+.decl NextNonDomPredecessorToSameBB(?insn:Instruction, ?pred:Instruction, ?nextPred:Instruction)
+NextNonDomPredecessorToSameBB(?insn, ?pred, ?nextPred) :-
+   NextNonDomPredecessorIndexToSameBB(?insn, ?pred, ?indexNext),
+   Instruction_Method(?insn, ?method),
+   OptInstructionFromMethodIndex(?method, ?indexNext, ?nextPred).
+
+.decl PreviousNonDomPredecessorToSameBB(?insn:Instruction, ?nextPred:Instruction, ?prevPred:Instruction) 
+PreviousNonDomPredecessorToSameBB(?insn, ?nextPred, ?prevPred) :-
+   NextNonDomPredecessorToSameBB(?insn, ?prevPred, ?nextPred).
+
+.decl ExistsPreviousNonDomPredecessorToSameBB(?pred:Instruction, ?insn:Instruction)
+ExistsPreviousNonDomPredecessorToSameBB(?pred, ?insn) :-
+   NextNonDomPredecessorToSameBB(?insn, _, ?pred).
+
+
 // Context-insensitive pointer analysis with on-the-fly call graph discovery
 
 
@@ -6961,6 +7333,8 @@ ClassHasPossibleOpenProgramEntryPoint(?class),
 PossibleOpenProgramEntryPoint(?method) :-
   Method_DeclaringType(?method, ?class),
   Method_Modifier("public", ?method),
+  // 修改
+  ApplicationClass(?class),
   !Method_Modifier("abstract", ?method),
 //// Remove comment for original behavior
 //   !Method_Modifier("static", ?method),
@@ -7235,41 +7609,132 @@ mainAnalysis.InitializedClass(?class) :-
   mainAnalysis.ReachableContext(_, ?method),
   Method_DeclaringType(?method, ?class).
 
-// 输出格式类似
-// method, insn, index(升序)
-.decl SpecifyMethodInstructionAndIndex(?method: Method, ?instruction: Instruction, ?index: number)
+// 加载 计算函数摘要 谓词
 
-SpecifyMethodInstructionAndIndex(?method, ?instruction, ?index) :-
-	// 确定 method - noEntry 和 class - Test
-	Method_DeclaringType(?method, ?class),
-	?class = "Test",
+// 一期计划:
+// 计算函数的 return parameter base(this) 三者关系
+// 计算 parameters 之间的关系
+
+// 主要依托 points-to 分析
+
+// index-th 可以传递到 return
+.decl ParamToRetSummarizeMethod(?method: Method, ?index: number)
+
+// index-th 参数 可以传递到 base(this)
+.decl ParamToBaseSummarizeMethod(?method: Method, ?index: number)
+
+// original_index-th 参数是 alias_index 参数的别名对象
+.decl ParamToOtherParamSummarizeMethod(?method: Method, ?original_index: number, ?alias_index: number)
+
+// base(this) 可以 传递到 index-th 参数
+.decl BaseToParamSummarizeMethod(?method: Method, ?index: number)
+
+// base(this) 可以传递到 return
+.decl BaseToRetSummarizeMethod(?method: Method)
+
+// 需要注意的是，对于原框架中，只要能得到这些函数名
+// 目前的想法是，先计算出上述信息，再根据这些信息直接推出 MethodName.
+
+.decl ParamToRetSummarizeMethodName(?method: Method)
+.decl ParamToBaseSummarizeMethodName(?method: Method)
+.decl ParamToOtherParamSummarizeMethodName(?method: Method)
+
+.decl BaseToParamSummarizeMethodName(?method: Method)
+.decl BaseToRetSummarizeMethodName(?method: Method)
+
+
+// 很不精确，只是默认认为函数参数必然会影响函数return
+// ParamToRet 最合理的判断条件:
+// ?return_var 与 ?param 之前存在依赖关系，?param 控制 ?return_var
+// 但这个基本无法在 doop 上实现
+ParamToRetSummarizeMethod(?method, ?index):-
+    // 函数内分析，确保函数在CG中。
+    // 不在CG就不分析了
+    mainAnalysis.Reachable(?method),
+    // parmam 是函数的形式参数
+    FormalParam(?index, ?method, _),
+    // return 是函数的返回值
+    Instruction_Method(_, ?method).
+
+
+ParamToRetTaintTransferMethod(?method),
+ParamToRetSummarizeMethodName(?method) :-
+    ParamToRetSummarizeMethod(?method, _).
+
+// 😡
+// 什么情况下，ParamToBase
+// 
+// ParamToBaseSummarizeMethod(?method) :-
+
+
+
+
+// ParamToBaseSummarizeMethodName(?method) :-
+//     ParamToBaseSummarizeMethod(?method).
+
+// ParamToOtherParamSummarizeMethodName(?method) :-
+//     ParamToOtherParamSummarizeMethod(?method).
+
+// BaseToParamSummarizeMethodName(?method) :-
+//     BaseToParamSummarizeMethod(?method).
+
+// BaseToRetSummarizeMethodName(?method) :-
+//     BaseToRetSummarizeMethod(?method).
+
+// 二期计划:
+// 计算mock- 的关系
+
+
+// 输出
+.output ParamToRetSummarizeMethod
+
+// 确定 污点分析信息
+
+
+
+// 设置 source 和 sink 函数名
+
+.decl DefineSourceMethodName(simpleNmae: symbol)
+
+DefineSourceMethodName("source").
+
+
+.decl DefineSinkMethodName(simpleNmae: symbol)
+
+
+DefineSinkMethodName("maybeEvil").
+
+TaintSourceMethod(?lable, ?method) :-
+	?lable = "UnSafeSerCheck",
+	DefineSourceMethodName(simpleMethodName),
 	Method_Modifier("public", ?method),
-	Method_SimpleName(?method, "noEntry"),
-	!Method_Modifier("abstract", ?method),
+	Method_SimpleName(?method, simpleMethodName),
+	!Method_Modifier("abstract", ?method).
 
-	// 确定 method 包含的所有 instructions
-	Instruction_Method(?instruction, ?method),
-	Instruction_Index(?instruction, ?index).
+LeakingSinkMethod(?lable, ?method) :-
+	?lable = "UnSafeSerCheck",
+	DefineSinkMethodName(simpleMethodName),
+	Method_Modifier("public", ?method),
+	Method_SimpleName(?method, simpleMethodName),
+	!Method_Modifier("abstract", ?method).
 
-.output SpecifyMethodInstructionAndIndex
-
-
-.output mainAnalysis.ReachableContext
-.output mainAnalysis.ApplicationEntryPoint
-.output mainAnalysis.configuration.ContextRequest
-
-// .output PhiNodeHead
-
-
-// VirtualMethodInvocation_Base 居然不属于 base
-// .output VirtualMethodInvocation_Base
-
-// .output isOpaqueMethod
-
-.output basic.MethodOverridesOther
+// 设置 : 
+// ParamToRetTaintTransferMethod
+// ParamToBaseTaintTransferMethod
+// BaseToParamTaintTransferMethod
+// BaseToRetTaintTransferMethod
+// 这里提供一种轻量且尽可能不需要设置的构造器
+// 不然需要设置的东西太多了
+// 可以参考 souffle-logic/addons/information-flow/android-taint-wrappers.dl
 
 
+.output LeakingSinkMethod
+.output TaintSourceMethod
+.output LeakingSinkVariable
+.output TaintedVarPointsTo
+.output TaintedValue
 
+.output mainAnalysis.Reachable
 // An output statement like ".output A" is just a shorthand for
 // ".output AB(IO="file",filename="A.csv",delimiter="\t")".
 

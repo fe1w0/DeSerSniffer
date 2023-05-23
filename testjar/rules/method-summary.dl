@@ -1,12 +1,76 @@
 // 一期计划:
 // 计算函数的 return parameter base(this) 三者关系
+// 计算 parameters 之间的关系
 
 // 主要依托 points-to 分析
 
+// index-th 可以传递到 return
+.decl ParamToRetSummarizeMethod(?method: Method, ?index: number)
 
+// index-th 参数 可以传递到 base(this)
+.decl ParamToBaseSummarizeMethod(?method: Method, ?index: number)
+
+// original_index-th 参数是 alias_index 参数的别名对象
+.decl ParamToOtherParamSummarizeMethod(?method: Method, ?original_index: number, ?alias_index: number)
+
+// base(this) 可以 传递到 index-th 参数
+.decl BaseToParamSummarizeMethod(?method: Method, ?index: number)
+
+// base(this) 可以传递到 return
+.decl BaseToRetSummarizeMethod(?method: Method)
+
+// 需要注意的是，对于原框架中，只要能得到这些函数名
+// 目前的想法是，先计算出上述信息，再根据这些信息直接推出 MethodName.
+
+.decl ParamToRetSummarizeMethodName(?method: Method)
+.decl ParamToBaseSummarizeMethodName(?method: Method)
+.decl ParamToOtherParamSummarizeMethodName(?method: Method)
+
+.decl BaseToParamSummarizeMethodName(?method: Method)
+.decl BaseToRetSummarizeMethodName(?method: Method)
+
+
+// 很不精确，只是默认认为函数参数必然会影响函数return
+// ParamToRet 最合理的判断条件:
+// ?return_var 与 ?param 之前存在依赖关系，?param 控制 ?return_var
+// 但这个基本无法在 doop 上实现
+ParamToRetSummarizeMethod(?method, ?index):-
+    // 函数内分析，确保函数在CG中。
+    // 不在CG就不分析了
+    mainAnalysis.Reachable(?method),
+    // parmam 是函数的形式参数
+    FormalParam(?index, ?method, _),
+    // return 是函数的返回值
+    Instruction_Method(_, ?method).
+
+
+ParamToRetTaintTransferMethod(?method),
+ParamToRetSummarizeMethodName(?method) :-
+    ParamToRetSummarizeMethod(?method, _).
+
+// 😡
+// 什么情况下，ParamToBase
+// 
+// ParamToBaseSummarizeMethod(?method) :-
+
+
+
+
+// ParamToBaseSummarizeMethodName(?method) :-
+//     ParamToBaseSummarizeMethod(?method).
+
+// ParamToOtherParamSummarizeMethodName(?method) :-
+//     ParamToOtherParamSummarizeMethod(?method).
+
+// BaseToParamSummarizeMethodName(?method) :-
+//     BaseToParamSummarizeMethod(?method).
+
+// BaseToRetSummarizeMethodName(?method) :-
+//     BaseToRetSummarizeMethod(?method).
 
 // 二期计划:
-// 计算 parameters 之间的关系
-
-// 三期计划:
 // 计算mock- 的关系
+
+
+// 输出
+.output ParamToRetSummarizeMethod

@@ -37,3 +37,5 @@ LeakingSinkMethod(?lable, ?method) :-
 .output LeakingSinkVariable
 .output TaintedVarPointsTo
 .output TaintedValue
+
+.output mainAnalysis.Reachable

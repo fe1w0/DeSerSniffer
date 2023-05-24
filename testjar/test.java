@@ -111,6 +111,7 @@ class Taint {
     }
 
     public void maybeEvil(String str){
+        name = "Evil";
         System.out.println("Evil" + str);
     }
 }

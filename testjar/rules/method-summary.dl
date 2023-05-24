@@ -5,16 +5,16 @@
 // 主要依托 points-to 分析
 
 // index-th 可以传递到 return
-.decl ParamToRetSummarizeMethod(?method: Method, ?index: number)
+.decl ParamToRetSummarizeMethod(?index:number, ?method:Method)
 
 // index-th 参数 可以传递到 base(this)
-.decl ParamToBaseSummarizeMethod(?method: Method, ?index: number)
+.decl ParamToBaseSummarizeMethod(?index:number, ?method:Method)
 
 // original_index-th 参数是 alias_index 参数的别名对象
 .decl ParamToOtherParamSummarizeMethod(?method: Method, ?original_index: number, ?alias_index: number)
 
 // base(this) 可以 传递到 index-th 参数
-.decl BaseToParamSummarizeMethod(?method: Method, ?index: number)
+.decl BaseToParamSummarizeMethod(?index:number, ?method:Method)
 
 // base(this) 可以传递到 return
 .decl BaseToRetSummarizeMethod(?method: Method)
@@ -30,43 +30,76 @@
 .decl BaseToRetSummarizeMethodName(?method: Method)
 
 
-// 很不精确，只是默认认为函数参数必然会影响函数return
-// ParamToRet 最合理的判断条件:
-// ?return_var 与 ?param 之前存在依赖关系，?param 控制 ?return_var
-// 但这个基本无法在 doop 上实现
-ParamToRetSummarizeMethod(?method, ?index):-
+ParamToRetSummarizeMethod(?index, ?method):-
     // 函数内分析，确保函数在CG中。
-    // 不在CG就不分析了
     mainAnalysis.Reachable(?method),
     // parmam 是函数的形式参数
     FormalParam(?index, ?method, _),
     // return 是函数的返回值
-    Instruction_Method(_, ?method).
+    isReturnNonvoid_Insn(?instruction),
+    Instruction_Method(?instruction, ?method).
 
 
 ParamToRetTaintTransferMethod(?method),
 ParamToRetSummarizeMethodName(?method) :-
-    ParamToRetSummarizeMethod(?method, _).
+    ParamToRetSummarizeMethod(_, ?method).
 
-// 😡
-// 什么情况下，ParamToBase
-// 
-// ParamToBaseSummarizeMethod(?method) :-
+ParamToBaseSummarizeMethod(?index, ?method) :-
+    // 函数内分析，确保函数在CG中。
+    mainAnalysis.Reachable(?method),
+    // 该 method 有函数参数
+    FormalParam(?index, ?method, _),
+    // 找到 @this
+    ThisVar(?method, ?thisVar),
+    // l0#_0 = @this
+    _AssignLocal(_, _, ?thisVar, _, ?method).
 
-
-
-
-// ParamToBaseSummarizeMethodName(?method) :-
-//     ParamToBaseSummarizeMethod(?method).
+ParamToBaseTaintTransferMethod(?index, ?method),
+ParamToBaseSummarizeMethodName(?method) :-
+    ParamToBaseSummarizeMethod(?index, ?method).
 
 // ParamToOtherParamSummarizeMethodName(?method) :-
 //     ParamToOtherParamSummarizeMethod(?method).
 
+
+// BaseToParamSummarizeMethod(?method) :- 
+//     // 函数内分析，确保函数在CG中。
+//     mainAnalysis.Reachable(?method),
+//     // 该 method 有函数参数
+//     FormalParam(?index, ?method, _),
+//     // 找到 @this
+//     ThisVar(?method, ?thisVar),
+//     // l0#_0 = @this
+//     _AssignLocal(_, _, ?thisVar, _, ?method).
+
+// 感觉有点问题
+// 主要不太理解，这个BaseToParam的形式
+// 如果 param 指的是 函数内 this 会污染到
+// BaseToParamSummarizeMethod(?method) :-
+//     ParamToBaseSummarizeMethodName(?method)
+
 // BaseToParamSummarizeMethodName(?method) :-
 //     BaseToParamSummarizeMethod(?method).
 
-// BaseToRetSummarizeMethodName(?method) :-
-//     BaseToRetSummarizeMethod(?method).
+BaseToParamTaintTransferMethod(?method),
+BaseToParamSummarizeMethodName(?method) :-
+    ParamToBaseSummarizeMethodName(?method).
+
+
+BaseToRetSummarizeMethod(?method) :-
+    // 函数内分析，确保函数在CG中。
+    mainAnalysis.Reachable(?method),
+    // 找到 @this
+    ThisVar(?method, ?thisVar),
+    // l0#_0 = @this
+    _AssignLocal(_, _, ?thisVar, _, ?method),
+    // return 是函数的返回值
+    isReturnNonvoid_Insn(?instruction),
+    Instruction_Method(?instruction, ?method).
+
+BaseToRetTaintTransferMethod(?method),
+BaseToRetSummarizeMethodName(?method) :-
+    BaseToRetSummarizeMethod(?method).
 
 // 二期计划:
 // 计算mock- 的关系
@@ -74,3 +107,7 @@ ParamToRetSummarizeMethodName(?method) :-
 
 // 输出
 .output ParamToRetSummarizeMethod
+.output ParamToBaseSummarizeMethod
+
+.output BaseToParamSummarizeMethodName
+.output BaseToRetSummarizeMethodName

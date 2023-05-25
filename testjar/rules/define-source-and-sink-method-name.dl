@@ -6,4 +6,4 @@ DefineSourceMethodName("source").
 .decl DefineSinkMethodName(simpleNmae: symbol)
 
 
-DefineSinkMethodName("maybeEvil").
+DefineSinkMethodName("evil").

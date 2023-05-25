@@ -1,0 +1,84 @@
+// 对于 反序列化 漏洞检测来说，
+// 需要考虑到子类的函数调用。
+// 但原 doop 中的 污点分析中
+
+// 首先，ContextRequest 是缺少的
+// 存在 ContextRequest，才可以分析 generalization-call-graph
+
+.decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
+.decl isMethodInSourceCallGraph(?method: Method)
+
+// 必须要递归了
+// 从 source 的 caller 开始
+fromSourceCallGraph("<Start Method>", ?fromMethod) :-
+    Instruction_Method(?invocation, ?fromMethod),
+    // sourceMethod
+    TaintSourceMethod(_, ?sourceMethod),
+    MethodInvocationInContext(_, ?invocation, ?sourceMethod),
+    Stats_Simple_Application_ReachableMethod(?fromMethod).
+
+// 开始递归
+fromSourceCallGraph(?fromMethod, ?toMethod) :-
+    fromSourceCallGraph(_, ?fromMethod),
+    mainAnalysis.AnyCallGraphEdge(?invocation, ?toMethod),
+    Instruction_Method(?invocation, ?fromMethod).
+
+isMethodInSourceCallGraph(?toMethod) :-
+    fromSourceCallGraph(_, ?toMethod).
+
+// subMethod take from souffle-logic/addons/server-logic/queries.dl
+.decl Method_Subtype(?method:Method, ?subMethod:Method)
+
+Method_Subtype(?method, ?subMethod) :-
+  Method_DeclaringType(?method, ?type),
+  Method_SimpleName(?method, ?name),
+  Method_Descriptor(?method, ?desc),
+  ?name != "<clinit>",
+  ?name != "<init>",
+  basic.SubtypeOfDifferent(?subType, ?type),
+  // _Valid_Interesting_Type(?type),
+  // _Valid_Interesting_Type(?subType),
+  Method_DeclaringType(?subMethod, ?subType),
+  Method_SimpleName(?subMethod, ?name),
+  Method_Descriptor(?subMethod, ?desc).
+
+mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
+    mainAnalysis.OptVirtualMethodInvocationBase(?invocation, ?base),
+    mainAnalysis.VarPointsTo(?hctx, ?value, ?callerCtx, ?base),
+    mainAnalysis.Value_Type(?value, ?valuetype),
+    // constructer 需要的是 subMethod
+    basic.ResolveInvocation(?valuetype, ?invocation, ?method),
+    basic.ResolveInvocation(?subValuetype, ?subInvocation, ?subMethod),
+    Method_Subtype(?method, ?subMethod),
+    isMethodInSourceCallGraph(?method).
+
+// 有点小吃惊，上面的代码居然能跑，我还有点疑惑🤔️
+// 甚至可以直接影响到 Taint指针部分
+
+// 补充 LeakingTaintedInformation
+// 主要针对以下特殊的潜在漏洞
+// 0 methodCallsink() 无函数参数，且污点源为 base(this)
+// 1. sink 无参数
+// 2. sink 中有参数，且与 source 存在关系
+// 3. sink 中有参数，都与 source 无关系
+
+// LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) :-
+//   SourceFromTaintedValue(?value, ?source),
+//   LabelFromSource(?source, ?sourceLabel),
+//   TaintedVarPointsTo(?value, ?ctx, ?var),
+//   LeakingSinkVariable(?destLabel, ?invocation, ?ctx, ?var).
+
+// 宽泛定义
+LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) :-
+    // 对于上面的特殊 Sink, 判断当前函数的 base 的 caller 中的 this 是否被污染
+    SourceFromTaintedValue(?value, ?source),
+    LabelFromSource(?source, ?sourceLabel),
+    TaintedVarPointsTo(?value, ?ctx, ?var),
+    // ?var 为 caller 的 this
+    ThisVar(?inMethod, ?var),
+    Instruction_Method(?invocation, ?inMethod),
+    MethodInvocation_Base(?invocation, ?varBase),
+    // ?varBase 为 caller 的 某个 callee 的 base/receiver
+    LeakingSinkVariable(?destLabel, ?invocation, ?ctx, ?varBase).
+
+.output fromSourceCallGraph

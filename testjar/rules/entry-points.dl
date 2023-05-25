@@ -1,0 +1,5 @@
+#define EnableDefineEntryPoints 1
+
+.decl DefineEntryPointSimpleMethod(?simplemeth: symbol)
+
+DefineEntryPointSimpleMethod("defineEntryPoints").

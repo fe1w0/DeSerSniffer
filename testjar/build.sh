@@ -1,4 +1,3 @@
-
 BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/testjar
 cd $BASE_DIR
 

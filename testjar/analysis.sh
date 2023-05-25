@@ -53,9 +53,12 @@ APP_ONLY="-app-only"
 # Log Level
 LOG="--level debug"
 
+# Entry-Points
+EXTRA_ENTRY_POINTS="-i /Users/fe1w0/Project/SoftWareAnalysis/DataSet/tools/EntryPoints/entry-points.jar"
+
 # Remember `-app-only` must be in front !
 # Strange Error!
-EXTRA_ARG="${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
+EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
 
 cd $DOOP_HOME
 

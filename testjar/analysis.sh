@@ -5,10 +5,9 @@ else
 fi
 
 echo "ID: ${ID}"
-
-BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/testjar
+BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/testjar
 INPUT=$BASE_DIR/example.jar
-DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop
+DOOP_HOME=/home/liuxr/opt/doop
 
 # Platform
 PLATFORM="--platform java_8 --use-local-java-platform ${JAVA_HOME}/jre"
@@ -22,7 +21,7 @@ JIMPLE="--generate-jimple"
 OPEN_PROGRAM="--open-programs concrete-types"
 
 # souffle
-SOUFFLE_JOBS="--souffle-jobs 4"
+SOUFFLE_JOBS="--souffle-jobs 30"
 SOUFFLE_MODE="--souffle-mode interpreted"
 
 # 避免 mac swp 过高
@@ -42,6 +41,11 @@ CFG="--cfg"
 # CHA
 # CHA=""
 
+# Reflection
+ENABLE_REFLECTION="--reflection-high-soundness-mode"
+
+# Proxy
+ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
 APP_ONLY="-app-only"
@@ -51,7 +55,7 @@ LOG="--level debug"
 
 # Remember `-app-only` must be in front !
 # Strange Error!
-EXTRA_ARG="${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG}"
+EXTRA_ARG="${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
 
 cd $DOOP_HOME
 

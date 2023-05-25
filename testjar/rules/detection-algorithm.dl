@@ -82,3 +82,36 @@ LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) 
     LeakingSinkVariable(?destLabel, ?invocation, ?ctx, ?varBase).
 
 .output fromSourceCallGraph
+
+// 添加 SerHybrid 中的部分逻辑
+// heap_flowl.dl
+#include "SerHybrid/heap_flow.dl"
+
+// 修改 SerHybrid 中的 taint.dl
+
+.decl ReachableSinks(?invocation:MethodInvocation)
+.decl ReachableTaintedSinks(?invocation:MethodInvocation, ?param:Var)
+.decl SinkVariable(?param:Var)
+
+ReachableSinks(?invocation) :-
+    LeakingTaintedInformation(_, _, _, ?invocation, _).
+
+ReachableTaintedSinks(?invocation, ?actual) :-
+    ReachableSinks(?invocation),
+    ActualParam(_, ?invocation, ?actual), // FIXME set index in sink
+    mainAnalysis.VarPointsTo(_, ?value, _, ?actual),
+    MockObject(?value, _).
+
+ReachableTaintedSinks(?invocation, ?actual) :-
+    ReachableSinks(?invocation),
+    // ?actual 为 base
+    ?actual = ?varBase,
+    MethodInvocation_Base(?invocation, ?varBase),
+    mainAnalysis.VarPointsTo(_, _, _, ?varBase).
+
+SinkVariable(?v) :-
+   ReachableTaintedSinks(_, ?v).
+
+.output SinkVariable
+.output ReachableSinks
+.output ReachableTaintedSinks

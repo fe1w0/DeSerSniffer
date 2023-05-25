@@ -1,5 +1,5 @@
 
-BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/testjar
+BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/testjar
 cd $BASE_DIR
 
 rm -rf classes/*

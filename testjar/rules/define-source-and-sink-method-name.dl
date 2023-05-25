@@ -1,9 +1,11 @@
 .decl DefineSourceMethodName(simpleNmae: symbol)
 
 DefineSourceMethodName("source").
+DefineSourceMethodName("writeObject").
 
 
 .decl DefineSinkMethodName(simpleNmae: symbol)
 
 
-DefineSinkMethodName("evil").
+// 查看 ysoserial 中的 sinkMethod
+DefineSinkMethodName("").

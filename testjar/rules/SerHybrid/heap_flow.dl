@@ -1,0 +1,99 @@
+.decl BridgeEdge(?from:Var, ?to:Var)
+.decl Flow(?type: symbol, ?from:Var, ?to:Var)
+.decl FlowPath(?type: symbol, ?to:Var, ?from:Var)
+.decl FlowFromLoad(?sig:Field, ?from:Var, ?to:Var)
+.decl FlowFromArray(?from:Var, ?to:Var)
+
+
+BridgeEdge(?from, ?to) :-
+  mainAnalysis.StoreHeapInstanceField(?signature, _, ?basevalue, _, ?from),
+  mainAnalysis.LoadHeapInstanceField(_, ?to, ?signature, _, ?basevalue).
+
+
+Flow(?type, ?from, ?to) :-
+  BridgeEdge(?from, ?to),
+  ?type = "assign".
+
+Flow(?type, ?from, ?to)  :-
+  mainAnalysis.Reachable(?inmethod),
+  AssignLocal(?from, ?to, ?inmethod),
+  ?type = "assign".
+
+Flow(?type, ?from, ?to) :-
+  mainAnalysis.Reachable(?inmethod),
+  AssignCast(_, ?from, ?to, ?inmethod),
+  ?type = "assign".
+
+FlowFromLoad(?sig, ?from, ?to),
+Flow(?sig, ?from, ?to) :-
+  LoadInstanceField(?from, ?sig, ?to, _),
+  ?type = "load".
+
+#ifndef INFORMATION_FLOW
+ //Interprocedural assigns
+Flow(?type, ?from, ?to) :-
+   mainAnalysis.OptReturnAssign(_, ?to, _, ?from),
+   ?type = "assign".
+#endif
+
+Flow(?type, ?from, ?to) :-
+   mainAnalysis.OptArgAssign(_, ?to, _, ?from, _),
+   ?type = "assign".
+
+// end interprocedural assigns
+FlowFromArray(?from, ?to),
+Flow(?type, ?from, ?to) :-
+  LoadArrayIndex(?from, ?to, _),
+  ?type = "arrayLoad".
+
+Flow(?type, ?base, ?this) :-
+  VirtualMethodInvocation_Base(?invocation, ?base),
+  mainAnalysis.CallGraphEdge(_, ?invocation, _, ?m),
+  ThisVar(?m, ?this),
+  ?type = "assign".
+
+Flow(?type, ?base, ?this) :-
+  SpecialMethodInvocation_Base(?invocation, ?base),
+  mainAnalysis.CallGraphEdge(_, ?invocation, _, ?m),
+  ThisVar(?m, ?this),
+  ?type = "assign".
+
+FlowPath(?type, ?from, ?f) :-
+  FlowPath(_, ?f, _),
+  Flow(?type, ?from, ?f).
+
+FlowPath(?t, ?f, ?p) :-
+  Flow(?t, ?f, ?p),
+  ReachableTaintedSinks(?inv, ?p).
+
+.decl AllVars(?v: Var)
+
+AllVars(?v) :-
+ FlowPath(_, _, ?v).
+
+AllVars(?v) :-
+ FlowPath(_, ?v, _).
+
+.decl FlowPathVarTypes(?type: Type, ?val: Value, ?var: Var)
+
+FlowPathVarTypes(?type, ?val, ?var) :-
+ AllVars(?var),
+ Var_Type(?var, ?type),
+ mainAnalysis.VarPointsTo(_, ?val, _, ?var).
+
+.decl IPT(?base:Value, ?sig: Field, ?fld: Value, ?t:Type)
+.decl AIPT(?base:Value, ?fld: Value, ?t:Type)
+
+IPT(?b, ?s, ?v, ?t) :-
+  mainAnalysis.InstanceFieldPointsTo(_, ?v, ?s, _, ?b),
+  mainAnalysis.Value_Type(?v, ?t).
+
+AIPT(?b, ?v, ?t) :-
+  mainAnalysis.ArrayIndexPointsTo(_, ?v, _, ?b),
+  mainAnalysis.Value_Type(?v, ?t).
+
+
+.output FlowPathVarTypes
+.output FlowPath
+.output IPT
+.output AIPT

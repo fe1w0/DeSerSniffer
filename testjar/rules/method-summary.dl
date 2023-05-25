@@ -102,7 +102,7 @@ BaseToRetSummarizeMethodName(?method) :-
     BaseToRetSummarizeMethod(?method).
 
 // 二期计划:
-// 计算mock- 的关系
+// 计算 mock- 的关系
 
 
 // 输出

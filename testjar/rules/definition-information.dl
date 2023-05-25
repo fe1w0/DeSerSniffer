@@ -1,3 +1,6 @@
+// 定制 entryPoints.
+#incldue "entry-points.dl"
+
 // 加载 CHA 算法, 提供泛化能力
 #include "detection-algorithm.dl"
 

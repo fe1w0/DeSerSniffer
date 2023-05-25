@@ -3,3 +3,4 @@
 .decl DefineEntryPointSimpleMethod(?simplemeth: symbol)
 
 DefineEntryPointSimpleMethod("defineEntryPoints").
+DefineEntryPointSimpleMethod("main").

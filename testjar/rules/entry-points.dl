@@ -1,4 +1,5 @@
-#define EnableDefineEntryPoints 1
+// 必需要在souffle-logic/addons/open-programs/entry-points.dl 中直接添加才行
+// #define EnableDefineEntryPoints 1
 
 .decl DefineEntryPointSimpleMethod(?simplemeth: symbol)
 

@@ -25,13 +25,6 @@ public class Safe {
     }
 }
 
-class SafeClass  {
-
-    public void check(SafeClass safe) {}
-
-    public void test() {}
-}
-
 class SafeOne extends SafeClass {
 
     // 该check 是安全的
@@ -44,5 +37,13 @@ class SafeTwo extends SafeClass {
     public void test() {
         System.out.println("Safe Two");
     }
+}
+
+
+class SafeClass  {
+
+    public void check(SafeClass safe) {}
+
+    public void test() {}
 }
 

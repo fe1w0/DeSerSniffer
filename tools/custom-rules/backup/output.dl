@@ -1,0 +1,19 @@
+// 输出格式类似
+// method, insn, index(升序)
+.decl SpecifyMethodInstructionAndIndex(?method: Method, ?instruction: Instruction, ?index: number)
+
+SpecifyMethodInstructionAndIndex(?method, ?instruction, ?index) :-
+	// 确定 method - noEntry 和 class - Test
+	Method_DeclaringType(?method, ?class),
+	?class = "Test",
+	Method_Modifier("public", ?method),
+	Method_SimpleName(?method, "noEntry"),
+	!Method_Modifier("abstract", ?method),
+
+	// 确定 method 包含的所有 instructions
+	Instruction_Method(?instruction, ?method),
+	Instruction_Index(?instruction, ?index).
+
+.output SpecifyMethodInstructionAndIndex
+
+#include "test.dl"

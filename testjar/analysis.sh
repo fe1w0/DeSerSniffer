@@ -5,8 +5,14 @@ else
 fi
 
 echo "ID: ${ID}"
-BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/testjar
-INPUT=$BASE_DIR/example.jar
+BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/
+
+# INPUT
+YSOSERIAL=/home/liuxr/Project/SoftwareAnalysis/DataSet/ysoserial/target/ysoserial-0.0.6-SNAPSHOT.jar
+
+INPUT=$BASE_DIR/testjar/example.jar
+# INPUT=${YSOSERIAL}
+
 DOOP_HOME=/home/liuxr/opt/doop
 
 # Platform
@@ -26,17 +32,21 @@ SOUFFLE_MODE="--souffle-mode interpreted"
 
 # 避免 mac swp 过高
 # --max-memory
-# MaxMemory="--max-memory 4g"
+# MaxMemory="--max-memory 32g"
 
 # extra logic
 # EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/output.dl"
-EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/definition-information.dl"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/definition-information.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"
 
 # cfg
-CFG="--cfg"
+# CFG="--cfg"
+
+# facts
+# FACTS="--Xignore-factgen-errors"
+FACTS="--Xignore-wrong-staticness  --report-phantoms"
 
 # CHA
 # CHA=""
@@ -50,21 +60,21 @@ ENABLE_PROXY="--reflection-dynamic-proxies"
 # app-only
 APP_ONLY="-app-only"
 
+# dependency:copy-dependencies -DoutputDirectory=lib
+LIBRARIES="-l /home/liuxr/Project/SoftwareAnalysis/DataSet/testjar/lib"
+
 # Log Level
 LOG="--level debug"
 
-# Entry-Points
-EXTRA_ENTRY_POINTS="-i /Users/fe1w0/Project/SoftWareAnalysis/DataSet/tools/EntryPoints/entry-points.jar"
-
 # Remember `-app-only` must be in front !
 # Strange Error!
-EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
+EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
 
 cd $DOOP_HOME
 
-CMD="${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
+CMD="${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${LIBRARIES} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
 echo "doop: $CMD"
-eval "${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
+eval "${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${LIBRARIES} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
 
 # 删除 cache
 rm -rf ${DOOP_HOME}/cache/*

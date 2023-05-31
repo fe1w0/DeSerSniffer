@@ -1,0 +1,20 @@
+.decl DefineSourceMethodName(simpleNmae: symbol)
+
+DefineSourceMethodName("readObject").
+
+.decl DefineSourceMethodClass(class: ReferenceType)
+
+
+DefineSourceMethodClass(class) :- 
+    class = "sun.reflect.annotation.AnnotationInvocationHandler".
+
+DefineSourceMethodClass(class) :-
+    match("", class).
+
+
+.decl DefineSinkMethodName(simpleNmae: symbol)
+
+// 查看 ysoserial 中的 sinkMethod
+DefineSinkMethodName("exec").
+DefineSinkMethodName("invoke").
+DefineSinkMethodName("getMethod").

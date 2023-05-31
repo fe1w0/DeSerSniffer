@@ -1,4 +1,4 @@
-BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/tools/EntryPoints
+BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/tools/EntryPoints
 cd $BASE_DIR
 
 rm -rf classes/*

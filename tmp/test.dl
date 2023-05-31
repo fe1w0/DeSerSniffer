@@ -1,0 +1,28 @@
+.decl SourceValue(a:number, b:number)
+.output SourceValue
+
+.decl SmallVFlow(a:number, b:number)
+.output SmallVFlow
+
+.type List = [
+tail : List,
+head : number
+]
+
+.decl B(x : List)
+.output B
+
+SourceValue(1,2).
+SmallVFlow(2,4).
+SmallVFlow(4,6).
+SmallVFlow(6,8).
+SmallVFlow(8,4).
+SmallVFlow(8,10).
+
+B([[nil,a],b]) :-
+SourceValue(a,b).
+
+B(r3) :-
+B(r1), r1=[r2, b], SmallVFlow(b, c), r3=[r1, c].
+
+.limitsize B(n=10)

@@ -1,0 +1,27 @@
+// 其他结果
+.output LeakingSinkMethod
+.output TaintSourceMethod
+.output LeakingSinkVariable
+.output TaintedVarPointsTo
+.output TaintedValue
+.output mainAnalysis.Reachable
+
+// 输出
+// 函数摘要
+.output ParamToRetSummarizeMethod
+.output ParamToBaseSummarizeMethod
+
+.output BaseToParamSummarizeMethodName
+.output BaseToRetSummarizeMethodName
+
+
+// 污点分析结果
+.output SinkVariable
+.output ReachableSinks
+.output ReachableTaintedSinks
+.output fromSourceCallGraph
+
+// 污点分析
+// Property tree
+// 直接用 .output TaintObjTransfer 会产生问题，导致 .plan 异常
+.output TaintObjTransfer

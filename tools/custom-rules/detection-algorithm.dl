@@ -7,10 +7,15 @@
 
 .decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
 .decl isMethodInSourceCallGraph(?method: Method)
+.decl EndMethodInTransfer(method: Method)
+
+EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
+EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 
 // 必须要递归了
 // 从 source 的 caller 开始
-
 // 不知道为什么 ApplicationClass
 // ApplicationClass(?class),
 // ApplicationMethod(?fromMethod),
@@ -29,6 +34,8 @@ fromSourceCallGraph("<Start Method>", ?fromMethod) :-
 // 开始递归
 fromSourceCallGraph(?fromMethod, ?toMethod) :-
     fromSourceCallGraph(_, ?fromMethod),
+    ?fromMethod != ?toMethod,
+    !EndMethodInTransfer(?fromMethod),
     mainAnalysis.AnyCallGraphEdge(?invocation, ?toMethod),
     (
       Instruction_Method(?invocation, ?fromMethod);
@@ -59,6 +66,7 @@ Method_Subtype(?method, ?subMethod) :-
   Method_DeclaringType(?method, ?type),
   Method_SimpleName(?method, ?name),
   Method_Descriptor(?method, ?desc),
+  ?method != ?subMethod,
   ?name != "<clinit>",
   ?name != "<init>",
   basic.SubtypeOfDifferent(?subType, ?type),
@@ -68,8 +76,9 @@ Method_Subtype(?method, ?subMethod) :-
   Method_SimpleName(?subMethod, ?name),
   Method_Descriptor(?subMethod, ?desc).
 
-// BUG#1
-mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
+.decl Middle_ContextRequest(?ctx:mainAnalysis.configuration.Context, ?hctx:mainAnalysis.configuration.HContext, ?invo:MethodInvocation, ?value:Value, ?method:Method, ?createCGE:number)
+
+Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
     mainAnalysis.OptVirtualMethodInvocationBase(?invocation, ?base),
     mainAnalysis.VarPointsTo(?hctx, ?value, ?callerCtx, ?base),
     mainAnalysis.Value_Type(?value, ?valuetype),
@@ -79,6 +88,13 @@ mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value
     Method_Subtype(?method, ?subMethod),
     // fromSourceCallGraph(_, ?method).
     isMethodInSourceCallGraph(?method).
+
+
+.limitsize Middle_ContextRequest(n=50)
+
+// BUG#1
+mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
+    Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1).
 
 // 有点小吃惊，上面的代码居然能跑，我还有点疑惑🤔️
 // 甚至可以直接影响到 Taint 指针部分
@@ -108,8 +124,6 @@ LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) 
     MethodInvocation_Base(?invocation, ?varBase),
     // ?varBase 为 caller 的 某个 callee 的 base/receiver
     LeakingSinkVariable(?destLabel, ?invocation, ?ctx, ?varBase).
-
-.output fromSourceCallGraph
 
 // 考虑 isOpaqueMethod 导致的屏蔽问题
 
@@ -161,7 +175,3 @@ ReachableTaintedSinks(?invocation, ?actual) :-
 
 SinkVariable(?v) :-
    ReachableTaintedSinks(_, ?v).
-
-.output SinkVariable
-.output ReachableSinks
-.output ReachableTaintedSinks

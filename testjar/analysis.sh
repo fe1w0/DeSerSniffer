@@ -20,6 +20,7 @@ PLATFORM="--platform java_8 --use-local-java-platform ${JAVA_HOME}/jre"
 
 # doop setup
 ANALYSIS="context-insensitive"
+# ANALYSIS="2-object-sensitive+heap"
 
 JIMPLE="--generate-jimple"
 
@@ -52,10 +53,14 @@ FACTS="--Xignore-wrong-staticness  --report-phantoms"
 # CHA=""
 
 # Reflection
-ENABLE_REFLECTION="--reflection-high-soundness-mode"
+# --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥
+# --reflection-classic 
+# 
+# ENABLE_REFLECTION="--reflection-classic"
+# ENABLE_REFLECTION="--light-reflection-glue" 
 
 # Proxy
-ENABLE_PROXY="--reflection-dynamic-proxies"
+# ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
 APP_ONLY="-app-only"
@@ -66,9 +71,12 @@ LIBRARIES="-l /home/liuxr/Project/SoftwareAnalysis/DataSet/testjar/lib"
 # Log Level
 LOG="--level debug"
 
+# CACHE
+CACHE="--cache"
+
 # Remember `-app-only` must be in front !
 # Strange Error!
-EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
+EXTRA_ARG="${CACHE} ${EXTRA_ENTRY_POINTS} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
 
 cd $DOOP_HOME
 
@@ -77,4 +85,4 @@ echo "doop: $CMD"
 eval "${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${LIBRARIES} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
 
 # 删除 cache
-rm -rf ${DOOP_HOME}/cache/*
+# rm -rf ${DOOP_HOME}/cache/*

@@ -1,16 +1,16 @@
 .decl DefineSourceMethodName(simpleNmae: symbol)
 
 DefineSourceMethodName("readObject").
+DefineSourceMethodName("main").
 
 .decl DefineSourceMethodClass(class: ReferenceType)
 
-
-DefineSourceMethodClass(class) :- 
-    class = "sun.reflect.annotation.AnnotationInvocationHandler".
+// DefineSourceMethodClass(class) :- 
+//     class = "sun.reflect.annotation.AnnotationInvocationHandler".
 
 DefineSourceMethodClass(class) :-
-    match("", class).
-
+    match("sources[.].*", class),
+    isClassType(class).
 
 .decl DefineSinkMethodName(simpleNmae: symbol)
 

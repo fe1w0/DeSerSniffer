@@ -1,6 +1,5 @@
 package sources;
 
-
 import java.lang.reflect.InvocationTargetException;
 
 public class Safe {
@@ -12,6 +11,7 @@ public class Safe {
     public Safe(){
         chainOne = new SafeClass();
         chainTwo = new SafeClass();
+    }
     
     public static void main(String[] args) {
         Label source = new Label();

@@ -14,6 +14,8 @@
 // 设置 source 和 sink 函数名
 #include "define-source-and-sink-method-name.dl"
 
+#include "extend-readObject.dl"
+
 TaintSourceMethod(?lable, ?method) :-
 	?lable = INFO_FLOW_LABEL,
 	DefineSourceMethodName(simpleMethodName),

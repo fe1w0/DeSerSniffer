@@ -9,10 +9,17 @@
 .decl isMethodInSourceCallGraph(?method: Method)
 .decl EndMethodInTransfer(method: Method)
 
-EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
-EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
-EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
-EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+// EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+// EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
+// EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+// EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+// EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+
+// #define StopMethodInTransfer "java[.].*"
+
+EndMethodInTransfer(method) :-
+    match("<java[.].*", method),
+    isMethod(method).
 
 // 必须要递归了
 // 从 source 的 caller 开始
@@ -20,12 +27,13 @@ EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 // ApplicationClass(?class),
 // ApplicationMethod(?fromMethod),
 fromSourceCallGraph("<Start Method>", ?fromMethod) :-
-    (
-        Instruction_Method(?invocation, ?fromMethod);
-        // 需要考虑到 mock-invo 这类问题
-        MockInvocationForEntryPoint(_, ?fromMethod, ?invocation)
-    ),
+    // (
+    //     Instruction_Method(?invocation, ?fromMethod);
+    //     // 需要考虑到 mock-invo 这类问题
+    //     MockInvocationForEntryPoint(_, ?fromMethod, ?invocation)
+    // ),
     // sourceMethod
+    ?fromMethod = ?sourceMethod,
     TaintSourceMethod(_, ?sourceMethod),
     // Method_DeclaringType(?fromMethod, ?class),
     MethodInvocationInContext(_, ?invocation, ?sourceMethod),
@@ -88,9 +96,7 @@ Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
     Method_Subtype(?method, ?subMethod),
     // fromSourceCallGraph(_, ?method).
     isMethodInSourceCallGraph(?method).
-
-
-.limitsize Middle_ContextRequest(n=50)
+// .limitsize Middle_ContextRequest(n=20)
 
 // BUG#1
 mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-

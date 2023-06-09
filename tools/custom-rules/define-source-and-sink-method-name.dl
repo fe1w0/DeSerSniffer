@@ -1,7 +1,7 @@
 .decl DefineSourceMethodName(simpleNmae: symbol)
 
 DefineSourceMethodName("readObject").
-DefineSourceMethodName("main").
+// DefineSourceMethodName("main").
 
 .decl DefineSourceMethodClass(class: ReferenceType)
 
@@ -14,7 +14,10 @@ DefineSourceMethodClass(class) :-
 
 .decl DefineSinkMethodName(simpleNmae: symbol)
 
-// 查看 ysoserial 中的 sinkMethod
-DefineSinkMethodName("exec").
-DefineSinkMethodName("invoke").
-DefineSinkMethodName("getMethod").
+// // 查看 ysoserial 中的 sinkMethod
+// DefineSinkMethodName("exec").
+// DefineSinkMethodName("invoke").
+// DefineSinkMethodName("getMethod").
+
+// Property tree
+DefineSinkMethodName("evil").

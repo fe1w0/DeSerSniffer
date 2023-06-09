@@ -57,7 +57,7 @@ FACTS="--Xignore-wrong-staticness  --report-phantoms"
 # --reflection-classic 
 # 
 # ENABLE_REFLECTION="--reflection-classic"
-# ENABLE_REFLECTION="--light-reflection-glue" 
+ENABLE_REFLECTION="--light-reflection-glue" 
 
 # Proxy
 # ENABLE_PROXY="--reflection-dynamic-proxies"

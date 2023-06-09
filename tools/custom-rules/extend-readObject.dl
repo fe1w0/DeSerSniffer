@@ -1,0 +1,51 @@
+// 需要考虑一下问题
+// $stack20 = virtualinvoke l5#_51.<java.io.ObjectInputStream: java.lang.Object readObject()>();
+// l6#_53 = (sources.serialize.UnsafeSerialize) $stack20;
+
+// 1. 完善 readObject 关系
+// <sources.serialize.UnsafeSerialize: java.lang.Object readObject()>
+// 2. 完善 污点转移
+
+// AssignCast !!!
+.decl ExtendReadObjectMiddle_ContextRequest(?ctx:mainAnalysis.configuration.Context, ?hctx:mainAnalysis.configuration.HContext, ?invo:MethodInvocation, ?value:Value, ?method:Method, ?createCGE:number)
+.decl TaintTranferToObjectField(?hctx:mainAnalysis.configuration.HContext, ?value:Value, ?ctx:mainAnalysis.configuration.Context, ?var:Var)
+
+TaintTranferToObjectField(?hctx, cat(cat(cat(cat(?invocation, "::: "), ?type), "::: "), "ASSIGN"), ?ctx, ?this),
+MethodInvocationInContext(?ctx, ?invocation, ?newMethod),
+TypeForReturnValue(?type, ?to, ?invocation),
+ExtendReadObjectMiddle_ContextRequest(?ctx, ?hctx, ?invocation, ?newValue, ?newMethod, 1) :-
+    // ?type = sources.serialize.UnsafeSerialize
+    AssignCast(?type, ?from, ?to, ?inmethod),
+    ThisVar(?newMethod, ?this),
+    ApplicationMethod(?inmethod),
+    // ?signature 是完整签名
+    ?signature = "<java.io.ObjectInputStream: java.lang.Object readObject()>",
+    // 不能直接用 VirtualMethodInvocation
+    Instruction_Method(?invocation, ?inmethod),
+    MethodInvocation_Method(?invocation, ?signature),
+    // newMethod 为 该type下，<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>
+    ?newMethod = cat("<", cat(?type, ": void readObject(java.io.ObjectInputStream)>")),
+    isMethod(?newMethod),
+    ?newValue = cat(?type, "::MockObject"),
+    ?hctx = "<<immutable-hcontext>>",
+    ?ctx = "<<immutable-context>>".
+
+.limitsize ExtendReadObjectMiddle_ContextRequest(n=20)
+
+mainAnalysis.configuration.ContextRequest(?ctx, ?hctx, ?invocation, ?value, ?method, 1) :-
+    ExtendReadObjectMiddle_ContextRequest(?ctx, ?hctx, ?invocation, ?value, ?method, 1).
+
+// readObject 中 所有的 field 理应当被污染
+mainAnalysis.VarPointsTo(?hctx, ?value, ?ctx, ?to) :-
+    TaintTranferToObjectField(?hctx, ?value, ?ctx, ?this),
+    // 这个 ?this 是抽象的，非method中具体的 this 变量
+    ThisVar(?inmethod, ?this),
+    AssignLocal(?this, ?actualThis, ?inmethod),
+    LoadInstanceField(?actualThis, _, ?to, ?inmethod).
+
+mainAnalysis.VarPointsTo(?hctx, ?value, ?ctx, ?actualThis) :-
+    TaintTranferToObjectField(?hctx, ?value, ?ctx, ?this),
+    // 这个 ?this 是抽象的，非method中具体的 this 变量
+    ThisVar(?inmethod, ?this),
+    AssignLocal(?this, ?actualThis, ?inmethod).
+

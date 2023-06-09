@@ -1,4 +1,4 @@
-package sources;
+package sources.demo;
 
 public class Label {
     // source作用

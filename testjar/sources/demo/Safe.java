@@ -1,4 +1,4 @@
-package sources;
+package sources.demo;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -11,6 +11,11 @@ public class Safe {
     public Safe(){
         chainOne = new SafeClass();
         chainTwo = new SafeClass();
+    }
+
+    public Safe(SafeClass one, SafeClass two) {
+        chainOne = one;
+        chainTwo = two;
     }
     
     public static void main(String[] args) {
@@ -39,16 +44,9 @@ class SafeOne extends SafeClass {
 }
 
 class SafeTwo extends SafeClass {
-    public void test() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public void test(String name) throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         System.out.println("Safe Two");
     }
 }
 
-
-class SafeClass  {
-
-    public void check(SafeClass safe) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {}
-
-    public void test() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {}
-}
 

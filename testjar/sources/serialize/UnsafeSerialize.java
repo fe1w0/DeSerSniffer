@@ -8,6 +8,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import sources.demo.ExpOne;
+import sources.demo.ExpTwo;
 import sources.demo.Safe;
 import sources.demo.SafeClass;
 
@@ -26,16 +28,18 @@ public class UnsafeSerialize implements Serializable {
         System.out.println("Serializing...");
     }
 
+
+    // 我们测试的目标
     private void readObject(ObjectInputStream objectInputStream) throws Exception {
         objectInputStream.defaultReadObject();
-        System.out.println("Unserializing...");
+        System.out.println("Deserializing...");
         // System.out.println(name);
         
         Safe safe = new Safe();
         safe.safe(chainOne, chainTwo);
     }
 
-    public static Object getObjectFromSerizlize(ObjectInputStream in) throws Exception {
+    public static Object getObjectFromSerialize(ObjectInputStream in) throws Exception {
         return in.readObject();  
     }
 
@@ -44,6 +48,10 @@ public class UnsafeSerialize implements Serializable {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();  
         ObjectOutputStream oos = new ObjectOutputStream(baos);  
         e.name = "new sample";
+
+        // e.chainOne = new ExpOne();
+        // e.chainTwo = new ExpTwo();
+
         oos.writeObject(e); 
 
         oos.flush();  
@@ -56,8 +64,7 @@ public class UnsafeSerialize implements Serializable {
 
         UnsafeSerialize test = (UnsafeSerialize) in.readObject();  
         
-        UnsafeSerialize ttt = (UnsafeSerialize) getObjectFromSerizlize(in);
-        
+        // UnsafeSerialize ttt = (UnsafeSerialize) getObjectFromSerizlize(in);
 
         // 需要查看，在此过程中，
         // test 中的 chainOne, chainTwo 是否被污点传播

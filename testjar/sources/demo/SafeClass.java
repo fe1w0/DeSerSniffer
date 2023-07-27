@@ -1,8 +1,9 @@
 package sources.demo;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
-public class SafeClass  {
+public class SafeClass implements Serializable {
 
     String name;
     

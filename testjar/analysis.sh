@@ -5,15 +5,38 @@ else
 fi
 
 echo "ID: ${ID}"
-BASE_DIR=/home/liuxr/Project/SoftwareAnalysis/DataSet/
 
-# INPUT
-YSOSERIAL=/home/liuxr/Project/SoftwareAnalysis/DataSet/ysoserial/target/ysoserial-0.0.6-SNAPSHOT.jar
+machine_name=$(hostname)
+# 判断当前机器名是否为 fe1w0deMacBook-Air.local
+if [ "$machine_name" = "fe1w0deMacBook-Air.local" ]; then
+    BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/
+    DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop
+
+    export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
+    PATH="$JAVA_HOME/bin:$PATH"
+    CLASSPATH="./:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar"
+
+    export JAVA_HOME
+    export PATH
+    export CLASSPATH
+
+    java -version
+
+    export DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/install/doop
+    
+
+elif [ "$machine_name" = "other" ]; then
+    BASE_DIR=/home/fe1w0/SoftwareAnalysis/DataSet/testjar
+
+fi
+
 
 INPUT=$BASE_DIR/testjar/example.jar
-# INPUT=${YSOSERIAL}
 
-DOOP_HOME=/home/liuxr/opt/doop
+
+######################
+# Parameters of doop #
+######################
 
 # Platform
 PLATFORM="--platform java_8 --use-local-java-platform ${JAVA_HOME}/jre"
@@ -66,7 +89,7 @@ ENABLE_REFLECTION="--light-reflection-glue"
 APP_ONLY="-app-only"
 
 # dependency:copy-dependencies -DoutputDirectory=lib
-LIBRARIES="-l /home/liuxr/Project/SoftwareAnalysis/DataSet/testjar/lib"
+# LIBRARIES="-l ${BASE_DIR}/lib"
 
 # Log Level
 LOG="--level debug"
@@ -74,15 +97,18 @@ LOG="--level debug"
 # CACHE
 CACHE="--cache"
 
+# Output SARIF results
+SARIF="--sarif"
+
 # Remember `-app-only` must be in front !
 # Strange Error!
-EXTRA_ARG="${CACHE} ${EXTRA_ENTRY_POINTS} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY}"
+EXTRA_ARG="${CACHE} ${EXTRA_ENTRY_POINTS} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
 
 cd $DOOP_HOME
 
-CMD="${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${LIBRARIES} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
+CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
 echo "doop: $CMD"
-eval "${DOOP_HOME}/doop -a $ANALYSIS -i ${INPUT} ${LIBRARIES} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
+eval "${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
 
 # 删除 cache
 # rm -rf ${DOOP_HOME}/cache/*

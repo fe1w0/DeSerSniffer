@@ -21,6 +21,12 @@
 .output ReachableTaintedSinks
 .output fromSourceCallGraph
 
+// Method_Descriptor
+// 优化 fromSourceCallGraph
+.output ChainPathsOutput
+
+.output PotentialVulnGraph
+
 // 反射结果
 
 .output mainAnalysis.java_lang_reflect_Method_invoke

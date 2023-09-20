@@ -16,7 +16,7 @@
 SinkMethod(method) :-
     LeakingSinkMethod(_, method).
 
-SourceMethod("<sun.reflect.annotation.AnnotationInvocationHandler: void readObject(java.io.ObjectInputStream)>").
+SourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
 
 .decl isOpaqueMethod(method: Method)
 

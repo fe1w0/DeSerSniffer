@@ -15,6 +15,8 @@
 .output BaseToRetSummarizeMethodName
 
 
+.output Middle_ContextRequest
+
 // 污点分析结果
 .output SinkVariable
 .output ReachableSinks
@@ -24,7 +26,7 @@
 // Method_Descriptor
 // 优化 fromSourceCallGraph
 .output ChainPathsOutput
-
+.output PotentialVulnGraphLabel
 .output PotentialVulnGraph
 
 // 反射结果
@@ -37,7 +39,7 @@
 
 // 污点分析
 // Property tree
-// 直接用 .output TaintObjTransfer 会产生问题，导致 .plan 异常
+// 直接用 .output TaintObjTransfer 会产生问题, 导致 .plan 异常
 .output TaintObjTransfer
 
 
@@ -50,3 +52,6 @@
 
 .output LoadInstanceField
 .output SourceFromTaintedValue
+
+// 实验 Debug
+.output mainAnalysis.InstanceFieldPointsTo

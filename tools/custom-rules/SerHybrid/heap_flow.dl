@@ -4,11 +4,10 @@
 .decl FlowFromLoad(?sig:Field, ?from:Var, ?to:Var)
 .decl FlowFromArray(?from:Var, ?to:Var)
 
-
+// 存在不精确性
 BridgeEdge(?from, ?to) :-
   mainAnalysis.StoreHeapInstanceField(?signature, _, ?basevalue, _, ?from),
   mainAnalysis.LoadHeapInstanceField(_, ?to, ?signature, _, ?basevalue).
-
 
 Flow(?type, ?from, ?to) :-
   BridgeEdge(?from, ?to),
@@ -92,7 +91,7 @@ AIPT(?b, ?v, ?t) :-
   mainAnalysis.ArrayIndexPointsTo(_, ?v, _, ?b),
   mainAnalysis.Value_Type(?v, ?t).
 
-
+.output BridgeEdge
 .output FlowPathVarTypes
 .output FlowPath
 .output IPT

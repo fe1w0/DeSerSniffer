@@ -110,5 +110,6 @@ CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXT
 echo "doop: $CMD"
 eval "${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
 
+echo "[+] Finish."
 # 删除 cache
 # rm -rf ${DOOP_HOME}/cache/*

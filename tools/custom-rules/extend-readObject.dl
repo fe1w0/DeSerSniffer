@@ -23,7 +23,7 @@ ExtendReadObjectMiddle_ContextRequest(?ctx, ?hctx, ?invocation, ?newValue, ?newM
     // 不能直接用 VirtualMethodInvocation
     Instruction_Method(?invocation, ?inmethod),
     MethodInvocation_Method(?invocation, ?signature),
-    // newMethod 为 该type下，<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>
+    // newMethod 为 该type下,<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>
     ?newMethod = cat("<", cat(?type, ": void readObject(java.io.ObjectInputStream)>")),
     isMethod(?newMethod),
     ?newValue = cat(?type, "::MockObject"),
@@ -38,14 +38,14 @@ mainAnalysis.configuration.ContextRequest(?ctx, ?hctx, ?invocation, ?value, ?met
 // readObject 中 所有的 field 理应当被污染
 mainAnalysis.VarPointsTo(?hctx, ?value, ?ctx, ?to) :-
     TaintTranferToObjectField(?hctx, ?value, ?ctx, ?this),
-    // 这个 ?this 是抽象的，非method中具体的 this 变量
+    // 这个 ?this 是抽象的,非method中具体的 this 变量
     ThisVar(?inmethod, ?this),
     AssignLocal(?this, ?actualThis, ?inmethod),
     LoadInstanceField(?actualThis, _, ?to, ?inmethod).
 
 mainAnalysis.VarPointsTo(?hctx, ?value, ?ctx, ?actualThis) :-
     TaintTranferToObjectField(?hctx, ?value, ?ctx, ?this),
-    // 这个 ?this 是抽象的，非method中具体的 this 变量
+    // 这个 ?this 是抽象的,非method中具体的 this 变量
     ThisVar(?inmethod, ?this),
     AssignLocal(?this, ?actualThis, ?inmethod).
 

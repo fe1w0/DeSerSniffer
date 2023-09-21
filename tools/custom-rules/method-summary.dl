@@ -19,8 +19,8 @@
 // base(this) 可以传递到 return
 .decl BaseToRetSummarizeMethod(?method: Method)
 
-// 需要注意的是，对于原框架中，只要能得到这些函数名
-// 目前的想法是，先计算出上述信息，再根据这些信息直接推出 MethodName.
+// 需要注意的是, 对于原框架中, 只要能得到这些函数名
+// 目前的想法是, 先计算出上述信息, 再根据这些信息直接推出 MethodName.
 
 .decl ParamToRetSummarizeMethodName(?method: Method)
 .decl ParamToBaseSummarizeMethodName(?method: Method)
@@ -31,7 +31,7 @@
 
 
 ParamToRetSummarizeMethod(?index, ?method):-
-    // 函数内分析，确保函数在CG中。
+    // 函数内分析, 确保函数在CG中。
     mainAnalysis.Reachable(?method),
     // parmam 是函数的形式参数
     FormalParam(?index, ?method, _),
@@ -45,7 +45,7 @@ ParamToRetSummarizeMethodName(?method) :-
     ParamToRetSummarizeMethod(_, ?method).
 
 ParamToBaseSummarizeMethod(?index, ?method) :-
-    // 函数内分析，确保函数在CG中。
+    // 函数内分析, 确保函数在CG中。
     mainAnalysis.Reachable(?method),
     // 该 method 有函数参数
     FormalParam(?index, ?method, _),
@@ -63,7 +63,7 @@ ParamToBaseSummarizeMethodName(?method) :-
 
 
 // BaseToParamSummarizeMethod(?method) :- 
-//     // 函数内分析，确保函数在CG中。
+//     // 函数内分析, 确保函数在CG中。
 //     mainAnalysis.Reachable(?method),
 //     // 该 method 有函数参数
 //     FormalParam(?index, ?method, _),
@@ -73,7 +73,7 @@ ParamToBaseSummarizeMethodName(?method) :-
 //     _AssignLocal(_, _, ?thisVar, _, ?method).
 
 // 感觉有点问题
-// 主要不太理解，这个BaseToParam的形式
+// 主要不太理解, 这个BaseToParam的形式
 // 如果 param 指的是 函数内 this 会污染到
 // BaseToParamSummarizeMethod(?method) :-
 //     ParamToBaseSummarizeMethodName(?method)
@@ -87,7 +87,7 @@ BaseToParamSummarizeMethodName(?method) :-
 
 
 BaseToRetSummarizeMethod(?method) :-
-    // 函数内分析，确保函数在CG中。
+    // 函数内分析, 确保函数在CG中。
     mainAnalysis.Reachable(?method),
     // 找到 @this
     ThisVar(?method, ?thisVar),

@@ -1,3 +1,5 @@
+//-----------------------------------------------------------------------------
+
 // 定制 entryPoints.
 #include "entry-points.dl"
 
@@ -8,18 +10,26 @@
 #include "method-summary.dl"
 
 // 确定 污点分析信息
-
 #define INFO_FLOW_LABEL "UnSafeSerCheck"
 
 // 设置 source 和 sink 函数名
 #include "define-source-and-sink-method-name.dl"
 
+// 完善 readObject 关系 和 污点转移
 #include "extend-readObject.dl"
+
+// 设置  ChainPaths 导出功能
+# include "property-tree/identify-chain-paths.dl"
+
+// 设置 Property Tree 设置功能
+# include "property-tree/export-property-tree.dl"
+
+//-----------------------------------------------------------------------------
 
 TaintSourceMethod(?lable, ?method) :-
 	?lable = INFO_FLOW_LABEL,
 	DefineSourceMethodName(simpleMethodName),
-	// 同样对于 unserialize，
+	// 同样对于 unserialize,
 	// 不太需要 Method_Modifier
 	// Method_Modifier("public", ?method),
 	DefineSourceMethodClass(?class),
@@ -34,6 +44,8 @@ LeakingSinkMethod(?lable, ?method) :-
 	Method_SimpleName(?method, simpleMethodName),
 	!Method_Modifier("abstract", ?method).
 
+//-----------------------------------------------------------------------------
+
 // 设置 : 
 // ParamToRetTaintTransferMethod
 // ParamToBaseTaintTransferMethod
@@ -43,6 +55,6 @@ LeakingSinkMethod(?lable, ?method) :-
 // 不然需要设置的东西太多了
 // 可以参考 souffle-logic/addons/information-flow/android-taint-wrappers.dl
 
-# include "property-tree/identify-chain-paths.dl"
+//-----------------------------------------------------------------------------
 
 #include "output.dl"

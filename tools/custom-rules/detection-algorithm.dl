@@ -1,9 +1,9 @@
-// 对于 反序列化 漏洞检测来说，
+// 对于 反序列化 漏洞检测来说,
 // 需要考虑到子类的函数调用。
 // 但原 doop 中的 污点分析中
 
-// 首先，ContextRequest 是缺少的
-// 存在 ContextRequest，才可以分析 generalization-call-graph
+// 首先,ContextRequest 是缺少的
+// 存在 ContextRequest,才可以分析 generalization-call-graph
 
 .decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
 .decl isMethodInSourceCallGraph(?method: Method)
@@ -76,7 +76,7 @@ Method_Subtype(?method, ?subMethod) :-
   Method_Descriptor(?method, ?desc),
   ?method != ?subMethod,
   ?name != "<clinit>",
-  ?name != "<init>",
+//   ?name != "<init>",
   basic.SubtypeOfDifferent(?subType, ?type),
   // _Valid_Interesting_Type(?type),
   // _Valid_Interesting_Type(?subType),
@@ -102,16 +102,15 @@ Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
 mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
     Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1).
 
-// 有点小吃惊，上面的代码居然能跑，我还有点疑惑🤔️
+// 有点小吃惊,上面的代码居然能跑,我还有点疑惑🤔️
 // 甚至可以直接影响到 Taint 指针部分
 
 // 补充 LeakingTaintedInformation
 // 主要针对以下特殊的潜在漏洞
-// 0 methodCallsink() 无函数参数，且污点源为 base(this)
+// 0 methodCallsink() 无函数参数,且污点源为 base(this)
 // 1. sink 无参数
-// 2. sink 中有参数，且与 source 存在关系
-// 3. sink 中有参数，都与 source 无关系
-
+// 2. sink 中有参数,且与 source 存在关系
+// 3. sink 中有参数,都与 source 无关系
 // LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) :-
 //   SourceFromTaintedValue(?value, ?source),
 //   LabelFromSource(?source, ?sourceLabel),
@@ -160,6 +159,8 @@ VirtualMethodInvocation_Base(?instruction, ?base) :-
 // 修改 SerHybrid 中的 taint.dl
 
 .decl ReachableSinks(?invocation:MethodInvocation)
+
+// ReachableTaintedSinks Sinks 中哪些变量是可被污染的
 .decl ReachableTaintedSinks(?invocation:MethodInvocation, ?param:Var)
 .decl SinkVariable(?param:Var)
 

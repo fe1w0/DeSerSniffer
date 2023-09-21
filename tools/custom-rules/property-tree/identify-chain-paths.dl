@@ -1,19 +1,24 @@
 //-----------------------------------------------------------------------------
 // Inline-Doop Version
-// identify-chain-paths 用于分析出 当前 fromSourceCallGraph
+// identify-chain-paths 用于分析出 当前 ChainsPath.csv 给 FuzzChains
 //-----------------------------------------------------------------------------
 .type Lable = symbol
 
 .decl SourceMethod(method: Method)
 .decl SinkMethod(method: Method)
-.decl ChainPathsOutput(MethodDeclaringType: ReferenceType , MethodSimpleName: symbol, MethodJVMDescriptor: JVMDescriptor)
-.decl isChainPathMethod(?method: Method)
 
+.decl PotentialVulnGraphLabel(label: Lable)
+
+// 返回 符合 FuzzChains的格式
+.decl ChainPathsOutput(MethodDeclaringType: ReferenceType , MethodSimpleName: symbol, MethodJVMDescriptor: JVMDescriptor)
+
+.decl isChainPathMethod(?method: Method)
 
 SinkMethod(method) :-
     LeakingSinkMethod(_, method).
 
-SourceMethod("<Start Method>").
+SourceMethod(method) :-
+    TaintSourceMethod(_, method).
 
 #define OpaqueRule "<java[.]awt.*|<javax.*"
 
@@ -34,6 +39,7 @@ isOpaqueMethodForIdentify(method) :-
 .decl PotentialVulnGraph(label: Lable, fromMethod: Method, toMethod: Method)
 
 // fromMethod -> toMethod / SinkMethod
+PotentialVulnGraphLabel(label),
 PotentialVulnGraph(label, fromMethod, toMethod) :-
     !isOpaqueMethodForIdentify(fromMethod),
     !isOpaqueMethodForIdentify(toMethod),

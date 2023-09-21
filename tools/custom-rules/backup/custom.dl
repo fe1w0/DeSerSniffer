@@ -2,13 +2,13 @@
 算法流程:
 
 1. step 
-设置入口点，只分析magicMethod
+设置入口点, 只分析magicMethod
 
 2. step
-设置magicMethod泛化范围，排除那些无用的class.method
+设置magicMethod泛化范围, 排除那些无用的class.method
 
 3. step
-设置 污点分析 配置，source
+设置 污点分析 配置, source
 
 4. step
 */

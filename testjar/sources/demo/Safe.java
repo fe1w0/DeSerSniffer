@@ -31,6 +31,7 @@ public class Safe {
 
     public void safe(SafeClass safeObjectOne, SafeClass safeObjectTwo) throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         // 在 chainOne 中 调用了 危险函数
+        // Class 发生了修改
         safeObjectOne.check(safeObjectTwo);
     }
 }

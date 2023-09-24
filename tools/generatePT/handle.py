@@ -1,7 +1,8 @@
 import csv
 import copy
 import json
-
+import os
+import shutil
 
 edges = []
 
@@ -25,7 +26,7 @@ pt_format = {
     "fields": []
 }
 
-MAX_C = 1
+MAX_C = 2
 
 # 指定CSV文件路径
 csv_file_path = 'PropertyTree.csv'  # 将 'your_file.csv' 替换为实际的文件路径
@@ -166,7 +167,7 @@ def recursive_get_PT(edges, parent_class, current_class, object_node, parent_fie
 
     if current_class in class_db:
 
-        if class_mock_number[current_class] < 0:
+        if class_mock_number[current_class] <= 0:
             return res_pt_json
 
         current_fields = object_node[current_class]
@@ -212,12 +213,14 @@ def get_all_PT_json(edges, root_class):
     res = []
 
     for object_node in tmp_o:
+        print("----------------------------------------------------------------------------------------------")
+        print("object_node:", object_node)
         tmp_pt_json = recursive_get_PT(edges=edges, parent_class=root_class,
                                        current_class=root_class,
                                        object_node=object_node,
                                        parent_field_name=None,
                                        class_mock_number=copy.deepcopy(class_mock_number))
-
+        print("tmp_pt_json:", tmp_pt_json)
         if type(tmp_pt_json) == list:
             res.extend(tmp_pt_json)
         elif type(tmp_pt_json) == dict:
@@ -240,18 +243,49 @@ def write_dict_to_json_file(data_dict, file_path):
     with open(file_path, 'w', encoding='utf-8') as json_file:
         json.dump(data_dict, json_file, ensure_ascii=False, indent=4)
 
+
+def create_folder_and_clear_contents(folder_path):
+    """
+    创建文件夹（如果不存在）并清空其内容
+
+    参数:
+    - folder_path: 要创建的文件夹路径
+
+    返回:
+    - 无
+    """
+    # 如果文件夹不存在，则创建它
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # 清空文件夹中的内容
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f"无法删除 {file_path}: {e}")
+
+
 open_csv_file(csv_file_path)
 
 refresh_all()
 
 res_pt_json = get_all_PT_json(edges, root_class)
 
-print("CACHE_OBJECT: ", CACHE_OBJECT)
+# print("CACHE_OBJECT: ", CACHE_OBJECT)
 
 print("----------------------------------------------------------------------------------------------")
 
+output_folder = "./Tree/"
+
+create_folder_and_clear_contents(output_folder)
+
 file_idx = 0
 for pt_dict in res_pt_json:
-    file_path = str(file_idx) + ".json"
+    file_path = output_folder + str(file_idx) + ".json"
     write_dict_to_json_file(pt_dict, file_path)
     file_idx += 1

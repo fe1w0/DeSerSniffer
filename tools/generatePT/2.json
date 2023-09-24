@@ -1,0 +1,13 @@
+{
+    "label": null,
+    "className": "sources.serialize.UnsafeSerialize",
+    "fieldName": null,
+    "fields": [
+        {
+            "label": "ROOT",
+            "className": "sources.demo.ExpOne",
+            "fieldName": "chainOne",
+            "fields": []
+        }
+    ]
+}

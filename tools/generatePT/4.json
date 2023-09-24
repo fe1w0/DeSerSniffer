@@ -1,0 +1,39 @@
+{
+    "label": null,
+    "className": "sources.serialize.UnsafeSerialize",
+    "fieldName": null,
+    "fields": [
+        {
+            "label": "ROOT",
+            "className": "sources.demo.ExpTwo",
+            "fieldName": "chainTwo",
+            "fields": [
+                {
+                    "label": "PRIORITY",
+                    "className": "int",
+                    "fieldName": "size",
+                    "fields": []
+                }
+            ]
+        },
+        {
+            "label": "ROOT",
+            "className": "sources.demo.ExpOne",
+            "fieldName": "chainOne",
+            "fields": [
+                {
+                    "label": "ORDINARY",
+                    "className": "java.lang.Integer",
+                    "fieldName": "size",
+                    "fields": []
+                },
+                {
+                    "label": "ORDINARY",
+                    "className": "sources.demo.ExpTwo",
+                    "fieldName": "chainTwo",
+                    "fields": []
+                }
+            ]
+        }
+    ]
+}

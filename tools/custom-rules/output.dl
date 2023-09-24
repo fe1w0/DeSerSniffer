@@ -53,5 +53,9 @@
 .output LoadInstanceField
 .output SourceFromTaintedValue
 
+// PropertyTree
+.output Special_Field_Type
+.output PropertyTree
+
 // 实验 Debug
 .output mainAnalysis.InstanceFieldPointsTo

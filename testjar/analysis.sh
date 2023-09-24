@@ -16,6 +16,8 @@ if [ "$machine_name" = "fe1w0deMacBook-Air.local" ]; then
     PATH="$JAVA_HOME/bin:$PATH"
     CLASSPATH="./:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar"
 
+    FuzzChainsPath=/Users/fe1w0/Project/SoftWareAnalysis/Dynamic/FuzzChains/
+
     export JAVA_HOME
     export PATH
     export CLASSPATH
@@ -43,6 +45,10 @@ PLATFORM="--platform java_8 --use-local-java-platform ${JAVA_HOME}/jre"
 
 # doop setup
 ANALYSIS="context-insensitive"
+
+# ------------------------------------------
+# Todo 上下文敏感度有问题，需要提升
+# ------------------------------------------
 # ANALYSIS="2-object-sensitive+heap"
 
 JIMPLE="--generate-jimple"
@@ -113,3 +119,18 @@ eval "${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EX
 echo "[+] Finish."
 # 删除 cache
 # rm -rf ${DOOP_HOME}/cache/*
+
+# 分析:
+# 1. PropertyTree.csv
+# 2. 转移 ChainPathsOutput.csv
+
+ChainPathsFilePath="${DOOP_HOME}/out/${ID}/database/ChainPathsOutput.csv"
+PropertyTreeFilePath="${DOOP_HOME}/out/${ID}/database/PropertyTree.csv"
+
+echo "[+] ChainPathsFilePath:\t ${ChainPathsFilePath}"
+echo "[+] PropertyTreeFilePath:\t ${PropertyTreeFilePath}"
+
+cp "${ChainPathsFilePath}" "${FuzzChainsPath}/DataSet/paths.csv"
+echo "[+] Copy: ${ChainPathsFilePath} -> ${FuzzChainsPath}/DataSet/paths.csv"
+cp "${PropertyTreeFilePath}" "${BASE_DIR}/tools/generatePT/PropertyTree.csv"
+echo "[+] Copy: ${PropertyTreeFilePath} -> ${BASE_DIR}/tools/generatePT/PropertyTree.csv"

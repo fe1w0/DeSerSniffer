@@ -101,7 +101,7 @@ APP_ONLY="-app-only"
 LOG="--level debug"
 
 # CACHE
-CACHE="--cache"
+# CACHE="--cache"
 
 # Output SARIF results
 SARIF="--sarif"
@@ -127,10 +127,18 @@ echo "[+] Finish."
 ChainPathsFilePath="${DOOP_HOME}/out/${ID}/database/ChainPathsOutput.csv"
 PropertyTreeFilePath="${DOOP_HOME}/out/${ID}/database/PropertyTree.csv"
 
+OutputInstrumentationMethodPath="${DOOP_HOME}/out/${ID}/database/OutputInstrumentationMethod.csv"
+
 echo "[+] ChainPathsFilePath:\t ${ChainPathsFilePath}"
 echo "[+] PropertyTreeFilePath:\t ${PropertyTreeFilePath}"
 
-cp "${ChainPathsFilePath}" "${FuzzChainsPath}/DataSet/paths.csv"
+
 echo "[+] Copy: ${ChainPathsFilePath} -> ${FuzzChainsPath}/DataSet/paths.csv"
-cp "${PropertyTreeFilePath}" "${BASE_DIR}/tools/generatePT/PropertyTree.csv"
+cp "${ChainPathsFilePath}" "${FuzzChainsPath}/DataSet/paths.csv"
+
+
 echo "[+] Copy: ${PropertyTreeFilePath} -> ${BASE_DIR}/tools/generatePT/PropertyTree.csv"
+cp "${PropertyTreeFilePath}" "${BASE_DIR}/tools/generatePT/PropertyTree.csv"
+
+echo "[+] Copy: ${OutputInstrumentationMethodPath} -> ${FuzzChainsPath}/DataSet/sinks.csv"
+cp "${OutputInstrumentationMethodPath}" "${FuzzChainsPath}/DataSet/sinks.csv"

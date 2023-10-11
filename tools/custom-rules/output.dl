@@ -17,6 +17,9 @@
 
 .output Middle_ContextRequest
 
+// 插桩的数据
+.output OutputInstrumentationMethod
+
 // 污点分析结果
 .output SinkVariable
 .output ReachableSinks

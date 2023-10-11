@@ -19,10 +19,10 @@
 #include "extend-readObject.dl"
 
 // 设置  ChainPaths 导出功能
-# include "property-tree/identify-chain-paths.dl"
+#include "property-tree/identify-chain-paths.dl"
 
 // 设置 Property Tree 设置功能
-# include "property-tree/export-property-tree.dl"
+#include "property-tree/export-property-tree.dl"
 
 //-----------------------------------------------------------------------------
 
@@ -43,6 +43,10 @@ LeakingSinkMethod(?lable, ?method) :-
 	// Method_Modifier("public", ?method),
 	Method_SimpleName(?method, simpleMethodName),
 	!Method_Modifier("abstract", ?method).
+
+
+// 导出用于插桩的信息
+#include "output-instrumentation.dl"
 
 //-----------------------------------------------------------------------------
 

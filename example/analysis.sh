@@ -1,5 +1,5 @@
 if [ $# -eq 0 ]; then
-    ID="test"
+    ID="example"
 else
     ID=$1
 fi
@@ -33,7 +33,7 @@ elif [ "$machine_name" = "other" ]; then
 fi
 
 
-INPUT=$BASE_DIR/testjar/example.jar
+INPUT=$BASE_DIR/testjars/example.jar
 
 
 ######################
@@ -142,3 +142,5 @@ cp "${PropertyTreeFilePath}" "${BASE_DIR}/tools/generatePT/PropertyTree.csv"
 
 echo "[+] Copy: ${OutputInstrumentationMethodPath} -> ${FuzzChainsPath}/DataSet/sinks.csv"
 cp "${OutputInstrumentationMethodPath}" "${FuzzChainsPath}/DataSet/sinks.csv"
+
+echo "[+] Finish"

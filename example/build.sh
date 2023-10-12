@@ -11,16 +11,12 @@ fi
 cd $BASE_DIR
 
 # build class
-javac sources/*/*.java -d classes
-
-# copy exmaple.jar to FuzzChains
+mvn clean package -DskipTests=true
 
 rm -rf ${TARGETPATH}/*
 
-cd ${BASE_DIR}
+cp ./target/example.jar ${TARGETPATH}/xyz-xzaslxr-1.0.jar
 
-# mkdir -p ${TARGETPATH}/xyz/xzaslxr/Example/1.0/
-
-cp ./example.jar ${TARGETPATH}/xyz-xzaslxr-1.0.jar
+cp ./target/example.jar ../testjars/
 
 echo "[+] Finish."

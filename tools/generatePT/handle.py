@@ -29,7 +29,7 @@ pt_format = {
 MAX_C = 2
 
 # 指定CSV文件路径
-csv_file_path = 'PropertyTree.csv'  # 将 'your_file.csv' 替换为实际的文件路径
+csv_file_path = 'tools/generatePT/PropertyTree.csv'  # 将 'your_file.csv' 替换为实际的文件路径
 
 
 # 检查是否field_type的选项只有一个
@@ -49,8 +49,12 @@ def get_all_pt_from_objects(objects):
         field_idx = 0
         if check_field_type_is_single(root_object):
             # 只执行一次
+            # 已修复 Node：class -> field 时， field缺失问题
+            tmp_node = {}
+            tmp_node[object_name] = {}
             for key, value in root_object.items():
-                final_result.append({object_name: {key: value[0]}})
+                tmp_node[object_name][key] = value[0]
+            final_result.append(tmp_node)
         else:
             for field_name in root_object:
                 tmp_result = []
@@ -194,7 +198,7 @@ def recursive_get_PT(edges, parent_class, current_class, object_node, parent_fie
                                                  copy.deepcopy(class_mock_number))
                 res_pt_json["fields"].append(child_pt_json)
 
-                # 处理 diverse_children_pt_json
+        # 处理 diverse_children_pt_json
         if len(diverse_children_pt_json) != 0:
             final_res_pt_json = []
             for child_pt_json in diverse_children_pt_json:

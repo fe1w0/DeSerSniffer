@@ -8,9 +8,10 @@ DefineSourceMethodName("readObject").
 // DefineSourceMethodClass(class) :- 
 //     class = "sun.reflect.annotation.AnnotationInvocationHandler".
 
-DefineSourceMethodClass(class) :-
-    match("sources[.].*", class),
-    isClassType(class).
+// DefineSourceMethodClass(class) :-
+//     match("sources[.].*", class),
+//     isClassType(class).
+
 
 .decl DefineSinkMethodName(simpleNmae: symbol)
 
@@ -21,3 +22,11 @@ DefineSourceMethodClass(class) :-
 
 // Property tree
 DefineSinkMethodName("evil").
+
+.decl DefineSinkMethod(method: symbol)
+
+// <sun.reflect.annotation.AnnotationInvocationHandler: void readObject(java.io.ObjectInputStream)>
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
+DefineSinkMethod("<org.apache.commons.collections.functors.ChainedTransformer: java.lang.Object transform(java.lang.Object)>").
+DefineSinkMethod("<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>").
+DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").

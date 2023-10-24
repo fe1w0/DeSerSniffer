@@ -2,7 +2,7 @@
 // 需要考虑到子类的函数调用。
 // 但原 doop 中的 污点分析中
 
-// 首先,ContextRequest 是缺少的
+// 首先, ContextRequest 是缺少的
 // 存在 ContextRequest,才可以分析 generalization-call-graph
 
 .decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
@@ -17,9 +17,9 @@
 
 // #define StopMethodInTransfer "java[.].*"
 
-EndMethodInTransfer(method) :-
-    match("<java[.].*", method),
-    isMethod(method).
+// EndMethodInTransfer(method) :-
+//     match("<java[.].*", method),
+//     isMethod(method).
 
 // 必须要递归了
 // 从 source 的 caller 开始
@@ -43,7 +43,7 @@ fromSourceCallGraph("<Start Method>", ?fromMethod) :-
 fromSourceCallGraph(?fromMethod, ?toMethod) :-
     fromSourceCallGraph(_, ?fromMethod),
     ?fromMethod != ?toMethod,
-    !EndMethodInTransfer(?fromMethod),
+    // !EndMethodInTransfer(?fromMethod),
     mainAnalysis.AnyCallGraphEdge(?invocation, ?toMethod),
     (
       Instruction_Method(?invocation, ?fromMethod);

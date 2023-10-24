@@ -29,8 +29,7 @@ ExtendReadObjectMiddle_ContextRequest(?ctx, ?hctx, ?invocation, ?newValue, ?newM
     ?newValue = cat(?type, "::MockObject"),
     ?hctx = "<<immutable-hcontext>>",
     ?ctx = "<<immutable-context>>".
-
-.limitsize ExtendReadObjectMiddle_ContextRequest(n=20)
+// .limitsize ExtendReadObjectMiddle_ContextRequest(n=40)
 
 mainAnalysis.configuration.ContextRequest(?ctx, ?hctx, ?invocation, ?value, ?method, 1) :-
     ExtendReadObjectMiddle_ContextRequest(?ctx, ?hctx, ?invocation, ?value, ?method, 1).

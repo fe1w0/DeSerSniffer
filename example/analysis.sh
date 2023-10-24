@@ -128,7 +128,7 @@ eval "${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${CA
 
 echo "[+] Finish."
 # 删除 cache
-# rm -rf ${DOOP_HOME}/cache/*
+rm -rf ${DOOP_HOME}/cache/*
 
 # 分析:
 # 1. PropertyTree.csv

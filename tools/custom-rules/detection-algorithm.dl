@@ -5,105 +5,100 @@
 // 首先, ContextRequest 是缺少的
 // 存在 ContextRequest,才可以分析 generalization-call-graph
 
-.decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
-.decl isMethodInSourceCallGraph(?method: Method)
+.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method)
+.decl isMethodInSourceCallGraph(method: Method)
 .decl EndMethodInTransfer(method: Method)
-
-// EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
-// EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
-// EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
-// EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
-// EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
-
-// #define StopMethodInTransfer "java[.].*"
 
 // EndMethodInTransfer(method) :-
 //     match("<java[.].*", method),
 //     isMethod(method).
 
-// 必须要递归了
-// 从 source 的 caller 开始
-// 不知道为什么 ApplicationClass
-// ApplicationClass(?class),
-// ApplicationMethod(?fromMethod),
-fromSourceCallGraph("<Start Method>", ?fromMethod) :-
-    // (
-    //     Instruction_Method(?invocation, ?fromMethod);
-    //     // 需要考虑到 mock-invo 这类问题
-    //     MockInvocationForEntryPoint(_, ?fromMethod, ?invocation)
-    // ),
+EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
+EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+
+fromSourceCallGraph("<Start Method>", sourceMethod) :-
     // sourceMethod
-    ?fromMethod = ?sourceMethod,
-    TaintSourceMethod(_, ?sourceMethod),
-    // Method_DeclaringType(?fromMethod, ?class),
-    MethodInvocationInContext(_, ?invocation, ?sourceMethod),
-    mainAnalysis.Reachable(?fromMethod).
+    TaintSourceMethod(_, sourceMethod),
+    MethodInvocationInContext(_, invocation, sourceMethod),
+    mainAnalysis.Reachable(sourceMethod).
 
 // 开始递归
-fromSourceCallGraph(?fromMethod, ?toMethod) :-
-    fromSourceCallGraph(_, ?fromMethod),
-    ?fromMethod != ?toMethod,
-    // !EndMethodInTransfer(?fromMethod),
-    mainAnalysis.AnyCallGraphEdge(?invocation, ?toMethod),
+fromSourceCallGraph(fromMethod, toMethod) :-
+    fromSourceCallGraph(_, fromMethod),
+    fromMethod != toMethod,
+    !EndMethodInTransfer(fromMethod),
+    mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
     (
-      Instruction_Method(?invocation, ?fromMethod);
-      MockInvocationForEntryPoint(_, ?fromMethod, ?invocation)
+      Instruction_Method(invocation, fromMethod);
+    //  忘记了 MockInvocationForEntryPoint 的作用了
+      MockInvocationForEntryPoint(_, fromMethod, invocation)
     ).
 
-isMethodInSourceCallGraph(?toMethod) :-
-    fromSourceCallGraph(_, ?toMethod).
+isMethodInSourceCallGraph(toMethod) :-
+    fromSourceCallGraph(_, toMethod).
 
-isStaticMethodInvocation_Insn(?instruction) :-
-    _StaticMethodInvocation(?instruction, _, _, ?method),
-    isMethodInSourceCallGraph(?method).
+isStaticMethodInvocation_Insn(instruction) :-
+    _StaticMethodInvocation(instruction, _, _, method),
+    isMethodInSourceCallGraph(method).
 
-isSpecialMethodInvocation_Insn(?instruction),
-SpecialMethodInvocation_Base(?instruction, ?base) :-
-    _SpecialMethodInvocation(?instruction, _, _, ?base, ?method),
-    isMethodInSourceCallGraph(?method).
+isSpecialMethodInvocation_Insn(instruction),
+SpecialMethodInvocation_Base(instruction, base) :-
+    _SpecialMethodInvocation(instruction, _, _, base, method),
+    isMethodInSourceCallGraph(method).
 
-isVirtualMethodInvocation_Insn(?instruction),
-VirtualMethodInvocation_Base(?instruction, ?base) :-
-    _VirtualMethodInvocation(?instruction, _, _, ?base, ?method),
-    isMethodInSourceCallGraph(?method).
+isVirtualMethodInvocation_Insn(instruction),
+VirtualMethodInvocation_Base(instruction, base) :-
+    _VirtualMethodInvocation(instruction, _, _, base, method),
+    isMethodInSourceCallGraph(method).
 
 // subMethod take from souffle-logic/addons/server-logic/queries.dl
-.decl Method_Subtype(?method:Method, ?subMethod:Method)
+.decl Method_Subtype(method:Method, subMethod:Method)
 
-Method_Subtype(?method, ?subMethod) :-
-  Method_DeclaringType(?method, ?type),
-  Method_SimpleName(?method, ?name),
-  Method_Descriptor(?method, ?desc),
-  ?method != ?subMethod,
-  ?name != "<clinit>",
-//   ?name != "<init>",
-  basic.SubtypeOfDifferent(?subType, ?type),
-  // _Valid_Interesting_Type(?type),
-  // _Valid_Interesting_Type(?subType),
-  Method_DeclaringType(?subMethod, ?subType),
-  Method_SimpleName(?subMethod, ?name),
-  Method_Descriptor(?subMethod, ?desc).
 
-.decl Middle_ContextRequest(?ctx:mainAnalysis.configuration.Context, ?hctx:mainAnalysis.configuration.HContext, ?invo:MethodInvocation, ?value:Value, ?method:Method, ?createCGE:number)
+// 检测当前invocation中的 base 是否为污点源，或者被Transform的变量，用于控制 Method_Subtype 和 Middle_ContextRequest
+.decl CheckThisTaint(invocation: MethodInvocation)
 
-Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
-    mainAnalysis.OptVirtualMethodInvocationBase(?invocation, ?base),
-    mainAnalysis.VarPointsTo(?hctx, ?value, ?callerCtx, ?base),
-    mainAnalysis.Value_Type(?value, ?valuetype),
+CheckThisTaint(invocation) :-
+    // 获得当前的 base
+    mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
+    // 检测 base 是否在 Taint
+    TaintedVarPointsTo(_, _, base).
+
+// Todo: 控制 Method_Subtype
+Method_Subtype(method, subMethod) :-
+    Method_DeclaringType(method, type),
+    Method_SimpleName(method, name),
+    Method_Descriptor(method, desc),
+    method != subMethod,
+    name != "<clinit>",
+    //   name != "<init>",
+    basic.SubtypeOfDifferent(subType, type),
+    // _Valid_Interesting_Type(type),
+    // _Valid_Interesting_Type(subType),
+    Method_DeclaringType(subMethod, subType),
+    Method_SimpleName(subMethod, name),
+    Method_Descriptor(subMethod, desc).
+
+.decl Middle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
+
+basic.ResolveInvocation(subType, invocation, subMethod),
+Middle_ContextRequest(callerCtx, hctx, invocation, value, subMethod, 1) :-
+    CheckThisTaint(invocation),
+    mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
+    mainAnalysis.VarPointsTo(hctx, value, callerCtx, base),
+    mainAnalysis.Value_Type(value, valuetype),
     // constructer 需要的是 subMethod
-    basic.ResolveInvocation(?valuetype, ?invocation, ?method),
-    basic.ResolveInvocation(?subValuetype, ?subInvocation, ?subMethod),
-    Method_Subtype(?method, ?subMethod),
-    // fromSourceCallGraph(_, ?method).
-    isMethodInSourceCallGraph(?method).
-// .limitsize Middle_ContextRequest(n=20)
+    basic.ResolveInvocation(valuetype, invocation, method),
+    Method_DeclaringType(subMethod, subType),
+    Method_Subtype(method, subMethod),
+    isMethodInSourceCallGraph(method).
+// .limitsize Middle_ContextRequest(n=40)
 
-// BUG#1
-mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1) :-
-    Middle_ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?subMethod, 1).
-
-// 有点小吃惊,上面的代码居然能跑,我还有点疑惑🤔️
-// 甚至可以直接影响到 Taint 指针部分
+mainAnalysis.configuration.ContextRequest(callerCtx, hctx, invocation, value, subMethod, 1) :-
+    Middle_ContextRequest(callerCtx, hctx, invocation, value, subMethod, 1).
 
 // 补充 LeakingTaintedInformation
 // 主要针对以下特殊的潜在漏洞
@@ -111,46 +106,46 @@ mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value
 // 1. sink 无参数
 // 2. sink 中有参数,且与 source 存在关系
 // 3. sink 中有参数,都与 source 无关系
-// LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) :-
-//   SourceFromTaintedValue(?value, ?source),
-//   LabelFromSource(?source, ?sourceLabel),
-//   TaintedVarPointsTo(?value, ?ctx, ?var),
-//   LeakingSinkVariable(?destLabel, ?invocation, ?ctx, ?var).
+// LeakingTaintedInformation(sourceLabel, destLabel, ctx, invocation, source) :-
+//   SourceFromTaintedValue(value, source),
+//   LabelFromSource(source, sourceLabel),
+//   TaintedVarPointsTo(value, ctx, var),
+//   LeakingSinkVariable(destLabel, invocation, ctx, var).
 
 // 宽泛定义
-LeakingTaintedInformation(?sourceLabel, ?destLabel, ?ctx, ?invocation, ?source) :-
+LeakingTaintedInformation(sourceLabel, destLabel, ctx, invocation, source) :-
     // 对于上面的特殊 Sink, 判断当前函数的 base 的 caller 中的 this 是否被污染
-    SourceFromTaintedValue(?value, ?source),
-    LabelFromSource(?source, ?sourceLabel),
-    TaintedVarPointsTo(?value, ?ctx, ?var),
-    // ?var 为 caller 的 this
-    ThisVar(?inMethod, ?var),
-    Instruction_Method(?invocation, ?inMethod),
-    MethodInvocation_Base(?invocation, ?varBase),
-    // ?varBase 为 caller 的 某个 callee 的 base/receiver
-    LeakingSinkVariable(?destLabel, ?invocation, ?ctx, ?varBase).
+    SourceFromTaintedValue(value, source),
+    LabelFromSource(source, sourceLabel),
+    TaintedVarPointsTo(value, ctx, var),
+    // var 为 caller 的 this
+    ThisVar(inMethod, var),
+    Instruction_Method(invocation, inMethod),
+    MethodInvocation_Base(invocation, varBase),
+    // varBase 为 caller 的 某个 callee 的 base/receiver
+    LeakingSinkVariable(destLabel, invocation, ctx, varBase).
 
 // 考虑 isOpaqueMethod 导致的屏蔽问题
 
-isStaticMethodInvocation_Insn(?instruction) :-
-    _StaticMethodInvocation(?instruction, _, ?signature, _),
-    (!isOpaqueMethod(?signature);
-    isMethodInSourceCallGraph(?signature)
-    ).
+// isStaticMethodInvocation_Insn(instruction) :-
+//     _StaticMethodInvocation(instruction, _, signature, _),
+//     (!isOpaqueMethod(signature);
+//     isMethodInSourceCallGraph(signature)
+//     ).
 
-isSpecialMethodInvocation_Insn(?instruction),
-SpecialMethodInvocation_Base(?instruction, ?base) :-
-    _SpecialMethodInvocation(?instruction, _, ?signature, ?base, _),
-    (!isOpaqueMethod(?signature);
-    isMethodInSourceCallGraph(?signature)
-    ).
+// isSpecialMethodInvocation_Insn(instruction),
+// SpecialMethodInvocation_Base(instruction, base) :-
+//     _SpecialMethodInvocation(instruction, _, signature, base, _),
+//     (!isOpaqueMethod(signature);
+//     isMethodInSourceCallGraph(signature)
+//     ).
 
-isVirtualMethodInvocation_Insn(?instruction),
-VirtualMethodInvocation_Base(?instruction, ?base) :-
-    _VirtualMethodInvocation(?instruction, _, ?signature, ?base, _),
-    (!isOpaqueMethod(?signature);
-    isMethodInSourceCallGraph(?signature)
-    ).
+// isVirtualMethodInvocation_Insn(instruction),
+// VirtualMethodInvocation_Base(instruction, base) :-
+//     _VirtualMethodInvocation(instruction, _, signature, base, _),
+//     (!isOpaqueMethod(signature);
+//     isMethodInSourceCallGraph(signature)
+//     ).
 
 // 添加 SerHybrid 中的部分逻辑
 // heap_flowl.dl
@@ -158,27 +153,27 @@ VirtualMethodInvocation_Base(?instruction, ?base) :-
 
 // 修改 SerHybrid 中的 taint.dl
 
-.decl ReachableSinks(?invocation:MethodInvocation)
+.decl ReachableSinks(invocation:MethodInvocation)
 
 // ReachableTaintedSinks Sinks 中哪些变量是可被污染的
-.decl ReachableTaintedSinks(?invocation:MethodInvocation, ?param:Var)
-.decl SinkVariable(?param:Var)
+.decl ReachableTaintedSinks(invocation:MethodInvocation, param:Var)
+.decl SinkVariable(param:Var)
 
-ReachableSinks(?invocation) :-
-    LeakingTaintedInformation(_, _, _, ?invocation, _).
+ReachableSinks(invocation) :-
+    LeakingTaintedInformation(_, _, _, invocation, _).
 
-ReachableTaintedSinks(?invocation, ?actual) :-
-    ReachableSinks(?invocation),
-    ActualParam(_, ?invocation, ?actual), // FIXME set index in sink
-    mainAnalysis.VarPointsTo(_, ?value, _, ?actual),
-    MockObject(?value, _).
+ReachableTaintedSinks(invocation, actual) :-
+    ReachableSinks(invocation),
+    ActualParam(_, invocation, actual), // FIXME set index in sink
+    mainAnalysis.VarPointsTo(_, value, _, actual),
+    MockObject(value, _).
 
-ReachableTaintedSinks(?invocation, ?actual) :-
-    ReachableSinks(?invocation),
-    // ?actual 为 base
-    ?actual = ?varBase,
-    MethodInvocation_Base(?invocation, ?varBase),
-    mainAnalysis.VarPointsTo(_, _, _, ?varBase).
+ReachableTaintedSinks(invocation, actual) :-
+    ReachableSinks(invocation),
+    // actual 为 base
+    actual = varBase,
+    MethodInvocation_Base(invocation, varBase),
+    mainAnalysis.VarPointsTo(_, _, _, varBase).
 
-SinkVariable(?v) :-
-   ReachableTaintedSinks(_, ?v).
+SinkVariable(v) :-
+   ReachableTaintedSinks(_, v).

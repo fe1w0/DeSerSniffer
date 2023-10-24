@@ -1,16 +1,14 @@
-// 必需要在souffle-logic/addons/open-programs/entry-points.dl 中直接添加才行
+// 需要在: souffle-logic/addons/open-programs/entry-points.dl 中直接添加才行
 // #define EnableDefineEntryPoints 1
 .decl DefineEntryPointSimpleMethod(?simplemeth: symbol)
 
-// DefineEntryPointSimpleMethod("defineEntryPoints").
-// DefineEntryPointSimpleMethod("main").
 DefineEntryPointSimpleMethod("readObject").
 
 ClassHasPossibleOpenProgramEntryPoint(?class),
 PossibleOpenProgramEntryPoint(?method) :-
     Method_DeclaringType(?method, ?class),
-    // Method_Modifier("public", ?method),
+    Method_Modifier("public", ?method),
     DefineEntryPointSimpleMethod(?simpleMethodName),
     Method_SimpleName(?method, ?simpleMethodName),
-    !Method_Modifier("abstract", ?method).
-    // !ClassModifier("private", ?class).
+    !Method_Modifier("abstract", ?method),
+    !ClassModifier("private", ?class).

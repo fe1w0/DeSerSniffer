@@ -1,32 +1,20 @@
-.decl DefineSourceMethodName(simpleNmae: symbol)
-
-DefineSourceMethodName("readObject").
-// DefineSourceMethodName("main").
-
-.decl DefineSourceMethodClass(class: ReferenceType)
-
-// DefineSourceMethodClass(class) :- 
-//     class = "sun.reflect.annotation.AnnotationInvocationHandler".
-
-// DefineSourceMethodClass(class) :-
-//     match("sources[.].*", class),
-//     isClassType(class).
-
-
-.decl DefineSinkMethodName(simpleNmae: symbol)
-
-// // 查看 ysoserial 中的 sinkMethod
-// DefineSinkMethodName("exec").
-// DefineSinkMethodName("invoke").
-// DefineSinkMethodName("getMethod").
-
-// Property tree
-DefineSinkMethodName("evil").
-
 .decl DefineSinkMethod(method: symbol)
 
-// <sun.reflect.annotation.AnnotationInvocationHandler: void readObject(java.io.ObjectInputStream)>
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
 DefineSinkMethod("<org.apache.commons.collections.functors.ChainedTransformer: java.lang.Object transform(java.lang.Object)>").
 DefineSinkMethod("<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>").
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
+
+.decl DefineSourceMethod(method: symbol)
+
+DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
+DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
+
+TaintSourceMethod(label, method) :-
+	label = INFO_FLOW_LABEL,
+    DefineSourceMethod(method).
+	
+LeakingSinkMethod(label, method) :-
+	label = INFO_FLOW_LABEL,
+	DefineSinkMethod(method).

@@ -24,36 +24,6 @@
 // 设置 Property Tree 设置功能
 #include "property-tree/export-property-tree.dl"
 
-//-----------------------------------------------------------------------------
-
-// TaintSourceMethod(label, method) :-
-// 	label = INFO_FLOW_LABEL,
-// 	DefineSourceMethodName(simpleMethodName),
-// 	// 同样对于 unserialize,
-// 	// 不太需要 Method_Modifier
-// 	// Method_Modifier("public", method),
-// 	DefineSourceMethodClass(class),
-// 	Method_DeclaringType(method, class),
-// 	Method_SimpleName(method, simpleMethodName),
-// 	!Method_Modifier("abstract", method).
-
-// 若DefineSourceMethodClass不存在
-TaintSourceMethod(label, method) :-
-	label = INFO_FLOW_LABEL,
-	method = "<java.util.HashSet: void readObject(java.io.ObjectInputStream)>".
-
-// 定义 Sink Method
-// LeakingSinkMethod(label, method) :-
-// 	label = INFO_FLOW_LABEL,
-// 	DefineSinkMethodName(simpleMethodName),
-// 	// Method_Modifier("public", method),
-// 	Method_SimpleName(method, simpleMethodName),
-// 	!Method_Modifier("abstract", method).
-
-LeakingSinkMethod(label, method) :-
-	label = INFO_FLOW_LABEL,
-	DefineSinkMethod(method).
-
 // 导出用于插桩的信息
 #include "output-instrumentation.dl"
 

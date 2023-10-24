@@ -1,47 +1,57 @@
-if [ $# -eq 0 ]; then
-    ID="example"
-else
-    ID=$1
-fi
+#!/bin/bash
 
-echo "ID: ${ID}"
+ID=$1
+INPUT=$2
+DOOP_HOME=$3
+BASE_DIR=$4
+FuzzChainsPath=$5
+JAVA_HOME=$6
+JAVA_VERSION=$7
+# JRE_PLATFORM=$8
 
-machine_name=$(hostname)
-# 判断当前机器名是否为 fe1w0deMacBook-Air.local
-if [ "$machine_name" = "fe1w0deMacBook-Air.local" ]; then
-    BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/
-    DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop
+function help() {
+    echo "analysis.sh [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION]"
+    echo "\
+    ID: doop 分析的 ID值
+    INPUT: 需要分析的Jar文件
+    DOOP_HOME: doop 的地址
+    BASE_DIR: 包含自定义的 rules
+    FuzzChainsPath: FuzzChains的地址
+    JAVA_HOME: java 的 home 地址
+    JAVA_VERSION: 需要分析的版本，需要注意，要与JAVA_HOME版本一致，如 java_8
+    "
+    # JRE_PLATFORM: 导入 JRE_PLATFORM，需要分析的JAVA版本
+}
 
-    export JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
-    PATH="$JAVA_HOME/bin:$PATH"
-    CLASSPATH="./:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar"
-
-    FuzzChainsPath=/Users/fe1w0/Project/SoftWareAnalysis/Dynamic/FuzzChains/
-
-    export JAVA_HOME
-    export PATH
-    export CLASSPATH
-
-    java -version
-
-    export DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/install/doop
-
-
-elif [ "$machine_name" = "other" ]; then
-    BASE_DIR=/home/fe1w0/SoftwareAnalysis/DataSet/testjar
-
+if [[ $# -lt 7 ]]; then
+    echo "Error: Not enough arguments"
+    help
+    exit 1
 fi
 
 
-INPUT=$BASE_DIR/testjars/example.jar
+# echo "\tCurrent_ENV:\tJRE_PLATFORM\t${JRE_PLATFORM}"
+# echo "\tCurrent_ENV:\tJRE_PLATFORM\t${JRE_PLATFORM}"
+
+# 配置 JVM 环境
+echo "Export JVM ENV."
+PATH="$JAVA_HOME/bin:$PATH"
+CLASSPATH="./:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar"
+
+export JAVA_HOME
+export PATH
+export CLASSPATH
+
+# 配置 DOOP 地址
+export DOOP_HOME
 
 
 ######################
 # Parameters of doop #
 ######################
 
-# Platform
-PLATFORM="--platform java_8 --use-local-java-platform ${JAVA_HOME}/jre"
+# 利用 doop-benchmarks 导出 本地的 JRE 环境包
+PLATFORM="--platform ${JAVA_VERSION} --use-local-java-platform ${JAVA_HOME}"
 
 # doop setup
 ANALYSIS="context-insensitive"

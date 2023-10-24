@@ -1,9 +1,0 @@
-ROOT	sources.serialize.UnsafeSerialize	sources.demo.ExpTwo	chainOne	sources.serialize.UnsafeSerialize#chainOne
-ROOT	sources.serialize.UnsafeSerialize	sources.demo.ExpTwo	chainTwo	sources.serialize.UnsafeSerialize#chainTwo
-ROOT	sources.serialize.UnsafeSerialize	sources.demo.ExpOne	chainOne	sources.serialize.UnsafeSerialize#chainOne
-ROOT	sources.serialize.UnsafeSerialize	sources.demo.ExpOne	chainTwo	sources.serialize.UnsafeSerialize#chainTwo
-ORDINARY	sources.demo.SafeClass	java.lang.String	name	sources.demo.SafeClass#name
-ORDINARY	sources.demo.ExpOne	java.lang.Integer	size	sources.demo.ExpOne#size
-ORDINARY	sources.demo.ExpOne	java.util.List	tmpClasses	sources.demo.ExpOne#tmpClasses
-ORDINARY	sources.demo.ExpOne	sources.demo.SafeClass	chainTwo	sources.demo.ExpOne#chainTwo
-PRIORITY	sources.demo.ExpTwo	int	size	sources.demo.ExpTwo#size

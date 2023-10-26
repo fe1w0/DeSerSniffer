@@ -13,7 +13,7 @@ DOOP_HOME=/doop/build/install/doop
 
 BASE_DIR=/data/DataSet-Software/
 FuzzChainsPath=/data/FuzzChains/
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 JAVA_VERSION=java_8
 
 export DOOP_PLATFORMS_LIB=/doop-benchmarks/

@@ -12,3 +12,7 @@ PossibleOpenProgramEntryPoint(?method) :-
     Method_SimpleName(?method, ?simpleMethodName),
     !Method_Modifier("abstract", ?method),
     !ClassModifier("private", ?class).
+
+
+ClassHasPossibleOpenProgramEntryPoint("java.util.HashSet").
+PossibleOpenProgramEntryPoint("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").

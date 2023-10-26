@@ -13,8 +13,10 @@ DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.
 
 TaintSourceMethod(label, method) :-
 	label = INFO_FLOW_LABEL,
+	isMethod(method),
     DefineSourceMethod(method).
 	
 LeakingSinkMethod(label, method) :-
 	label = INFO_FLOW_LABEL,
+	isMethod(method),
 	DefineSinkMethod(method).

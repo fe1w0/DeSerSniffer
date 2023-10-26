@@ -51,7 +51,8 @@ export DOOP_HOME
 ######################
 
 # 利用 doop-benchmarks 导出 本地的 JRE 环境包
-PLATFORM="--platform ${JAVA_VERSION} --use-local-java-platform ${JAVA_HOME}"
+# PLATFORM="--platform ${JAVA_VERSION} --use-local-java-platform ${JAVA_HOME}"
+PLATFORM="--platform ${JAVA_VERSION}"
 
 # doop setup
 ANALYSIS="context-insensitive"
@@ -67,15 +68,14 @@ JIMPLE="--generate-jimple"
 OPEN_PROGRAM="--open-programs concrete-types"
 
 # souffle
-SOUFFLE_JOBS="--souffle-jobs 30"
+SOUFFLE_JOBS="--souffle-jobs 6"
 SOUFFLE_MODE="--souffle-mode interpreted"
 
 # 避免 mac swp 过高
 # --max-memory
-# MaxMemory="--max-memory 32g"
+# MaxMemory="--max-memory 8g"
 
 # extra logic
-# EXTRA_LOGIC="--extra-logic $BASE_DIR/rules/output.dl"
 EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/definition-information.dl"
 
 # Information-flow
@@ -87,9 +87,6 @@ INFORMATION_FLOW="--information-flow minimal"
 # facts
 # FACTS="--Xignore-factgen-errors"
 FACTS="--Xignore-wrong-staticness  --report-phantoms"
-
-# CHA
-# CHA=""
 
 # Reflection
 # --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥

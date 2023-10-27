@@ -76,7 +76,7 @@ SOUFFLE_MODE="--souffle-mode interpreted"
 # MaxMemory="--max-memory 8g"
 
 # extra logic
-EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/definition-information.dl"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/analysis.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"
@@ -99,7 +99,8 @@ ENABLE_REFLECTION="--light-reflection-glue"
 # ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
-APP_ONLY="-app-only"
+# DOOP-BUG: -app-only  的效果与 --app-only 一样
+APP_ONLY="--app-only"
 
 # dependency:copy-dependencies -DoutputDirectory=lib
 # LIBRARIES="-l ${BASE_DIR}/lib"

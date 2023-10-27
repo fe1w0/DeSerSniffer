@@ -76,7 +76,7 @@ SOUFFLE_MODE="--souffle-mode interpreted"
 # MaxMemory="--max-memory 8g"
 
 # extra logic
-EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/definition-information.dl"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/analysis.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"

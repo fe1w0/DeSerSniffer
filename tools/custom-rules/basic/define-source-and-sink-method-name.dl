@@ -1,3 +1,4 @@
+// Sink Method
 .decl DefineSinkMethod(method: symbol)
 
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
@@ -6,6 +7,7 @@ DefineSinkMethod("<org.apache.commons.collections.functors.InvokerTransformer: j
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
 DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
 
+// Source Method
 .decl DefineSourceMethod(method: symbol)
 
 DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").

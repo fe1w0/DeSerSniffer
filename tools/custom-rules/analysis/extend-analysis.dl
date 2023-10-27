@@ -1,0 +1,149 @@
+/**
+ * 对于 反序列化 漏洞检测来说, 需要考虑到子类的函数调用。
+ * 但原 doop 中的 污点分析中，常规选择下无法实现对应的功能。
+ * Idea:
+ * 通过构建 ContextRequest 和 PointsTo 关系，避免分析缺失的情况。
+*/
+
+/**
+ * 分析从 source 的 CallGraph
+*/
+.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method)
+
+/**
+ * 检测函数是否在从Source开始的CallGraph中
+*/
+.decl isMethodInSourceCallGraph(method: Method)
+
+/**
+ * method 被认为 无法在 fromSourceCallGraph中传递，只能作为 End 结点。
+*/
+.decl EndMethodInTransfer(method: Method)
+
+// EndMethodInTransfer(method) :-
+//     match("<java[.].*", method),
+//     isMethod(method).
+
+EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
+EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+
+fromSourceCallGraph("<Start Method>", sourceMethod) :-
+    // sourceMethod
+    TaintSourceMethod(_, sourceMethod),
+    MethodInvocationInContext(_, invocation, sourceMethod),
+    mainAnalysis.Reachable(sourceMethod).
+
+// 开始递归
+fromSourceCallGraph(fromMethod, toMethod) :-
+    fromSourceCallGraph(_, fromMethod),
+    fromMethod != toMethod,
+    !EndMethodInTransfer(fromMethod),
+    mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
+    // 修改为 Response
+    mainAnalysis.configuration.ContextRequest(_, _, invocation, _, fromMethod, _).
+
+isMethodInSourceCallGraph(toMethod) :-
+    fromSourceCallGraph(_, toMethod).
+
+/**
+ * Doop 中 isStaticMethodInvocation_Insn 等 rules 需要 为 ApplicationMethod 才补充。 
+*/
+// isStaticMethodInvocation_Insn(instruction) :-
+//     _StaticMethodInvocation(instruction, _, _, method),
+//     isMethodInSourceCallGraph(method).
+
+// isSpecialMethodInvocation_Insn(instruction),
+// SpecialMethodInvocation_Base(instruction, base) :-
+//     _SpecialMethodInvocation(instruction, _, _, base, method),
+//     isMethodInSourceCallGraph(method).
+
+// isVirtualMethodInvocation_Insn(instruction),
+// VirtualMethodInvocation_Base(instruction, base) :-
+//     _VirtualMethodInvocation(instruction, _, _, base, method),
+//     isMethodInSourceCallGraph(method).
+
+
+/**
+ * 在 app-only 下，存在 VarPointsTo 缺失的情况
+ * 只有符合CheckThisTaint条件的base，才重新考虑新的 VarPoinstTo
+*/
+
+
+/**
+ * 添加 VarPointsTo 信息
+*/
+MockObject(value, valueType),
+Value_Type(value, valueType),
+mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
+    // 检测当前invocation中的 base 是否为污点源，或者被Transform的变量
+    mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
+    TaintedVarPointsTo(_, _, base),
+    // Copy 之前的 上下文 信息
+    mainAnalysis.VarPointsTo(hctx, _, callerCtx, base),
+    value = cat(valueType, "::MockObject"),
+    basic.ResolveInvocation(valueType, invocation, _).
+
+/**
+ * LeakingTaintedInformation: 用于判断是否存在漏洞，即SinkMethod被污点传播的判断规则
+ * 根据doop源代码分析，实际由 LeakingSinkVariable。
+ * 原逻辑中分析了：
+ * 1. sink 无参数，污点源为 base
+ * 2. sink 有参数，且与 source 存在关系
+ * 但还需要考虑，
+ * 1. sink 有参数，污点源为 base
+*/
+
+LeakingSinkVariable(label, invocation, ctx, var) :-
+    LeakingSinkMethod(label, tomethod),
+    MethodInvocationInContextInApplication(ctx, invocation, tomethod),
+    MethodInvocation_Base(invocation, var).
+
+// 考虑 isOpaqueMethod 导致的屏蔽问题
+
+isStaticMethodInvocation_Insn(instruction) :-
+    _StaticMethodInvocation(instruction, _, signature, _),
+    (!isOpaqueMethod(signature);
+    isMethodInSourceCallGraph(signature)
+    ).
+
+isSpecialMethodInvocation_Insn(instruction),
+SpecialMethodInvocation_Base(instruction, base) :-
+    _SpecialMethodInvocation(instruction, _, signature, base, _),
+    (!isOpaqueMethod(signature);
+    isMethodInSourceCallGraph(signature)
+    ).
+
+isVirtualMethodInvocation_Insn(instruction),
+VirtualMethodInvocation_Base(instruction, base) :-
+    _VirtualMethodInvocation(instruction, _, signature, base, _),
+    (!isOpaqueMethod(signature);
+    isMethodInSourceCallGraph(signature)
+    ).
+
+.decl ReachableSinks(invocation:MethodInvocation)
+
+// ReachableTaintedSinks Sinks 中哪些变量是可被污染的
+.decl ReachableTaintedSinks(invocation:MethodInvocation, param:Var)
+.decl SinkVariable(param:Var)
+
+ReachableSinks(invocation) :-
+    LeakingTaintedInformation(_, _, _, invocation, _).
+
+ReachableTaintedSinks(invocation, actual) :-
+    ReachableSinks(invocation),
+    ActualParam(_, invocation, actual), // FIXME set index in sink
+    mainAnalysis.VarPointsTo(_, value, _, actual),
+    MockObject(value, _).
+
+ReachableTaintedSinks(invocation, actual) :-
+    ReachableSinks(invocation),
+    // actual 为 base
+    actual = varBase,
+    MethodInvocation_Base(invocation, varBase),
+    mainAnalysis.VarPointsTo(_, _, _, varBase).
+
+SinkVariable(v) :-
+   ReachableTaintedSinks(_, v).

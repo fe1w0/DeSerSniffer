@@ -1,8 +1,19 @@
-// 一期计划:
-// 计算函数的 return parameter base(this) 三者关系
-// 计算 parameters 之间的关系
+/**
+ * 函数摘要的实现参考 souffle-logic/addons/information-flow/android-taint-wrappers.dl
+ * 污点分析的Transform需要手动提供以下关系:
+ * - BaseToRetTaintTransferMethod
+ * - BaseToParamTaintTransferMethod
+ * - ParamToBaseTaintTransferMethod
+ * - ParamToRetTaintTransferMethod
+ * 
+ * method-summary 主要依托 points-to 分析， 计算 return parameter base(this) 的 三者关系
+ * 提供了一种轻量且尽可能不需要设置的构造器，避免手动设置。
+ * 
+ * Todo:
+ *     - MockBaseToRetTaintTransferMethod
+ *     - MockParamToRetTaintTransferMethod
 
-// 主要依托 points-to 分析
+ */
 
 // index-th 可以传递到 return
 .decl ParamToRetSummarizeMethod(?index:number, ?method:Method)
@@ -19,16 +30,21 @@
 // base(this) 可以传递到 return
 .decl BaseToRetSummarizeMethod(?method: Method)
 
-// 需要注意的是, 对于原框架中, 只要能得到这些函数名
-// 目前的想法是, 先计算出上述信息, 再根据这些信息直接推出 MethodName.
+/**
+* 需要注意的是, 对于原框架中, 只要能得到这些函数名
+* 目前的想法是, 先计算出上述信息, 再根据这些信息直接推出 MethodName.
+*/
 
+// 记录 ParamToRetSummarize 的函数名
 .decl ParamToRetSummarizeMethodName(?method: Method)
+
 .decl ParamToBaseSummarizeMethodName(?method: Method)
+
 .decl ParamToOtherParamSummarizeMethodName(?method: Method)
 
 .decl BaseToParamSummarizeMethodName(?method: Method)
-.decl BaseToRetSummarizeMethodName(?method: Method)
 
+.decl BaseToRetSummarizeMethodName(?method: Method)
 
 ParamToRetSummarizeMethod(?index, ?method):-
     // 函数内分析, 确保函数在CG中。
@@ -58,29 +74,6 @@ ParamToBaseTaintTransferMethod(?index, ?method),
 ParamToBaseSummarizeMethodName(?method) :-
     ParamToBaseSummarizeMethod(?index, ?method).
 
-// ParamToOtherParamSummarizeMethodName(?method) :-
-//     ParamToOtherParamSummarizeMethod(?method).
-
-
-// BaseToParamSummarizeMethod(?method) :- 
-//     // 函数内分析, 确保函数在CG中。
-//     mainAnalysis.Reachable(?method),
-//     // 该 method 有函数参数
-//     FormalParam(?index, ?method, _),
-//     // 找到 @this
-//     ThisVar(?method, ?thisVar),
-//     // l0#_0 = @this
-//     _AssignLocal(_, _, ?thisVar, _, ?method).
-
-// 感觉有点问题
-// 主要不太理解, 这个BaseToParam的形式
-// 如果 param 指的是 函数内 this 会污染到
-// BaseToParamSummarizeMethod(?method) :-
-//     ParamToBaseSummarizeMethodName(?method)
-
-// BaseToParamSummarizeMethodName(?method) :-
-//     BaseToParamSummarizeMethod(?method).
-
 BaseToParamTaintTransferMethod(?method),
 BaseToParamSummarizeMethodName(?method) :-
     ParamToBaseSummarizeMethodName(?method).
@@ -100,6 +93,3 @@ BaseToRetSummarizeMethod(?method) :-
 BaseToRetTaintTransferMethod(?method),
 BaseToRetSummarizeMethodName(?method) :-
     BaseToRetSummarizeMethod(?method).
-
-// 二期计划:
-// 计算 mock- 的关系

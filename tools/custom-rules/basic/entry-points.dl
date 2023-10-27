@@ -1,0 +1,13 @@
+/**
+ * 原始的rules: souffle-logic/addons/open-programs/entry-points.dl
+*/
+
+// 设置入口函数的 SimpleMethod
+.decl DefineEntryPointSimpleMethod(?simplemeth: symbol)
+
+DefineEntryPointSimpleMethod("readObject").
+
+// 手动添加 ClassHasPossibleOpenProgramEntryPoint 和 PossibleOpenProgramEntryPoint 信息
+
+// ClassHasPossibleOpenProgramEntryPoint("java.util.HashSet").
+// PossibleOpenProgramEntryPoint("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").

@@ -58,13 +58,12 @@ PropertyTree(label, parent_object_class, field_object_class, field_name, whole_n
 
 Special_Field_Type(signature, field_name, new_type) :-
     PotentialVulnGraph(_, _, to_method),
-    // Method_Subtype(method, to_method),
     // value 为 Point-To 的地址
-    Middle_ContextRequest(_, _, invocation, value, to_method, 1),
+    basic.ResolveInvocation(_, invocation, to_method),
     // 得到 invocation 的 base 信息
     VirtualMethodInvocation_Base(invocation, base),
     mainAnalysis.VarPointsTo(_, value, _, base),
     // base 得到 PointsTo 中的 Value, 并得到为 Field 信息
     mainAnalysis.InstanceFieldPointsTo(_, value, signature, _, _),
     Field_SimpleName(signature, field_name),
-    Method_DeclaringType(to_method, new_type). 
+    Method_DeclaringType(to_method, new_type).  

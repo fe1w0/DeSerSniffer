@@ -43,7 +43,7 @@ fromSourceCallGraph(fromMethod, toMethod) :-
     !EndMethodInTransfer(fromMethod),
     mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
     // 修改为 Response
-    mainAnalysis.configuration.ContextRequest(_, _, invocation, _, fromMethod, _).
+    Instruction_Method(invocation, fromMethod).
 
 isMethodInSourceCallGraph(toMethod) :-
     fromSourceCallGraph(_, toMethod).
@@ -75,8 +75,9 @@ isMethodInSourceCallGraph(toMethod) :-
 /**
  * 添加 VarPointsTo 信息
 */
+mainAnalysis.Value_isMock(value),
 MockObject(value, valueType),
-Value_Type(value, valueType),
+mainAnalysis.Value_Type(value, valueType),
 mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
     // 检测当前invocation中的 base 是否为污点源，或者被Transform的变量
     mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),

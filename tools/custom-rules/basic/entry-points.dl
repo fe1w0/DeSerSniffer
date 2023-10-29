@@ -8,6 +8,7 @@
 DefineEntryPointSimpleMethod("readObject").
 
 // 手动添加 ClassHasPossibleOpenProgramEntryPoint 和 PossibleOpenProgramEntryPoint 信息
-
-// ClassHasPossibleOpenProgramEntryPoint("java.util.HashSet").
-// PossibleOpenProgramEntryPoint("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
+ApplicationClass("java.util.HashMap").
+ApplicationClass("java.util.HashSet").
+ClassHasPossibleOpenProgramEntryPoint("java.util.HashSet").
+PossibleOpenProgramEntryPoint("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").

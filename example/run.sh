@@ -1,4 +1,4 @@
-ID=fix
+ID=fuck
 INPUT=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/example/target/example.jar
 # INPUT=org.apache.commons:commons-collections4:4.4
 # INPUT=org.apache.commons:commons-collections4:4.4
@@ -9,6 +9,7 @@ INPUT=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/example/target/example.jar
 # DOOP_HOME=/Volumes/FE1W0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/install/doop
 
 # original doop
+# DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/install/doop
 DOOP_HOME=/Volumes/FE1W0/Project/SoftWareAnalysis/StaticAnalysis/backup/doop-mirror/build/install/doop
 
 BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet

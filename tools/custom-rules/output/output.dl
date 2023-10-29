@@ -10,12 +10,8 @@
 // 函数摘要
 .output ParamToRetSummarizeMethod
 .output ParamToBaseSummarizeMethod
-
 .output BaseToParamSummarizeMethodName
 .output BaseToRetSummarizeMethodName
-
-
-.output Middle_ContextRequest
 
 // 插桩的数据
 .output OutputInstrumentationMethod
@@ -43,10 +39,8 @@
 
 
 // 污点分析
-// Property tree
 // 直接用 .output TaintObjTransfer 会产生问题, 导致 .plan 异常
 // .output TaintObjTransfer
-
 
 // 拓展反射能力
 .output Method_DeclaringType
@@ -64,10 +58,7 @@
 
 // 实验 Debug
 .output mainAnalysis.InstanceFieldPointsTo
-
 .output basic.SubtypeOfDifferent
-
 .output mainAnalysis.configuration.ContextRequest
 .output mainAnalysis.configuration.ContextResponse
-
 .output mainAnalysis.OptVirtualMethodInvocationBase

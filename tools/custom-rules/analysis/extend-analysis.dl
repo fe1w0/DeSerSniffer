@@ -50,21 +50,21 @@ isMethodInSourceCallGraph(toMethod) :-
 
 /**
  * Doop 中 isStaticMethodInvocation_Insn 等 rules 需要 为 ApplicationMethod 才补充。 
+ * 注意: 以下三条rules，绝对不可以忽略掉
 */
-// isStaticMethodInvocation_Insn(instruction) :-
-//     _StaticMethodInvocation(instruction, _, _, method),
-//     isMethodInSourceCallGraph(method).
+isStaticMethodInvocation_Insn(instruction) :-
+    _StaticMethodInvocation(instruction, _, _, method),
+    isMethodInSourceCallGraph(method).
 
-// isSpecialMethodInvocation_Insn(instruction),
-// SpecialMethodInvocation_Base(instruction, base) :-
-//     _SpecialMethodInvocation(instruction, _, _, base, method),
-//     isMethodInSourceCallGraph(method).
+isSpecialMethodInvocation_Insn(instruction),
+SpecialMethodInvocation_Base(instruction, base) :-
+    _SpecialMethodInvocation(instruction, _, _, base, method),
+    isMethodInSourceCallGraph(method).
 
-// isVirtualMethodInvocation_Insn(instruction),
-// VirtualMethodInvocation_Base(instruction, base) :-
-//     _VirtualMethodInvocation(instruction, _, _, base, method),
-//     isMethodInSourceCallGraph(method).
-
+isVirtualMethodInvocation_Insn(instruction),
+VirtualMethodInvocation_Base(instruction, base) :-
+    _VirtualMethodInvocation(instruction, _, _, base, method),
+    isMethodInSourceCallGraph(method).
 
 /**
  * 在 app-only 下，存在 VarPointsTo 缺失的情况
@@ -101,28 +101,6 @@ LeakingSinkVariable(label, invocation, ctx, var) :-
     LeakingSinkMethod(label, tomethod),
     MethodInvocationInContextInApplication(ctx, invocation, tomethod),
     MethodInvocation_Base(invocation, var).
-
-// 考虑 isOpaqueMethod 导致的屏蔽问题
-
-isStaticMethodInvocation_Insn(instruction) :-
-    _StaticMethodInvocation(instruction, _, signature, _),
-    (!isOpaqueMethod(signature);
-    isMethodInSourceCallGraph(signature)
-    ).
-
-isSpecialMethodInvocation_Insn(instruction),
-SpecialMethodInvocation_Base(instruction, base) :-
-    _SpecialMethodInvocation(instruction, _, signature, base, _),
-    (!isOpaqueMethod(signature);
-    isMethodInSourceCallGraph(signature)
-    ).
-
-isVirtualMethodInvocation_Insn(instruction),
-VirtualMethodInvocation_Base(instruction, base) :-
-    _VirtualMethodInvocation(instruction, _, signature, base, _),
-    (!isOpaqueMethod(signature);
-    isMethodInSourceCallGraph(signature)
-    ).
 
 .decl ReachableSinks(invocation:MethodInvocation)
 

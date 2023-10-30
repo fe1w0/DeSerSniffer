@@ -62,3 +62,8 @@
 .output mainAnalysis.configuration.ContextRequest
 .output mainAnalysis.configuration.ContextResponse
 .output mainAnalysis.OptVirtualMethodInvocationBase
+
+.output StaticMethodInvocation
+.output isStaticMethodInvocation_Insn
+.output isSpecialMethodInvocation_Insn
+.output isVirtualMethodInvocation_Insn

@@ -4,7 +4,7 @@
  # @Author: fe1w0 xzasliuxinrong@gmail.com
  # @Date: 2023-10-29 17:25:28
  # @LastEditors: fe1w0 xzasliuxinrong@gmail.com
- # @LastEditTime: 2023-10-29 18:30:45
+ # @LastEditTime: 2023-10-30 14:47:16
  # @FilePath: /DataSet/tools/overwrite.sh
  # @Description: 覆盖原doop中的 soufflé-rules
 ### 
@@ -26,8 +26,10 @@ function overwrite() {
     cd "$(dirname "$0")"
 
     # backup
-    cp -r $DOOP_HOME/souffle-logic $DOOP_HOME/souffle-logic-backup
-    
+    if [ ! -d $DOOP_HOME/souffle-logic-backup ] ; then
+        cp -r $DOOP_HOME/souffle-logic $DOOP_HOME/souffle-logic-backup
+    fi
+
     # overwrite
     overwrite_rules=("entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl")
     

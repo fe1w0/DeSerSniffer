@@ -2,18 +2,13 @@
 .decl PossibleOpenProgramEntryPoint(?method:Method)
 .decl ClassHasPossibleOpenProgramEntryPoint(?class:ReferenceType)
 
-#define EnableDefineEntryPoints 1
-
 ClassHasPossibleOpenProgramEntryPoint(?class),
 PossibleOpenProgramEntryPoint(?method) :-
   Method_DeclaringType(?method, ?class),
   Method_Modifier("public", ?method),
-  // 修改
-  #ifdef EnableDefineEntryPoints
-    ApplicationClass(?class),
-    DefineEntryPointSimpleMethod(?simpleMethodName),
-    Method_SimpleName(?method, simpleMethodName),
-  #endif
+  ApplicationClass(?class),
+  DefineEntryPointSimpleMethod(?simpleMethodName),
+  Method_SimpleName(?method, simpleMethodName),
   !Method_Modifier("abstract", ?method),
 //// Remove comment for original behavior
 //   !Method_Modifier("static", ?method),

@@ -4,7 +4,7 @@
 
 ```bash
 cd /path/to/Docker
-docker build -t doop:4.24.11-pure .
+docker build --network=host -t doop:4.24.11-pure .  --no-cache
 ```
 
 ## container

@@ -23,13 +23,13 @@ function help() {
     "
 }
 
-if [ $# -lt 7] then
+if [ $# -lt 7 ]; then
     echo "Error: Not enough arguments"
     help
     exit 1
-elif [ $# == 7] then
+elif [ $# == 7 ]; then
     JOBS=8
-elif [ $# == 8] then
+elif [ $# == 8 ]; then
     JOBS=$8
 fi
 

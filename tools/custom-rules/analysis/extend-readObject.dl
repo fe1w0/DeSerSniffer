@@ -92,6 +92,9 @@ TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")),
 SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  invo), LabelFromSource( invo,  label),
 mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
 mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
+    // 将该 method 的 this(抽象的)，放入 Taint Value 中
+    ThisVar(inmethod, to),
+    
     // 设置新的 label
     label = "MINING",
     

@@ -77,7 +77,7 @@ ReflectiveMethodCall(?m, ?callerCtx, ?calleeCtx, ?this, ?args, ?invocation) :-
 configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?method, 1) :-
   ?hctx != "<<null pseudo heap>>",
   VarPointsTo(?hctx, ?value, ?calleeCtx, ?this),
-  ReflectiveMethodCall(?method, ?callerCtx, ?calleeCtx, ?this, ?args, ?invocation).
+  ReflectiveMethodCall(?method, ?callerCtx, ?calleeCtx, ?this, _, ?invocation).
 
 ReachableContext(?calleeCtx, ?m) :-
   ReflectiveMethodCall(?m, _, ?calleeCtx, _, _, _).
@@ -160,7 +160,7 @@ VarPointsTo(?hctx, NewInstanceMockObj(?type), ?ctx, ?thisVar) :-
   ReifiedClass(?type, ?classVal),
   ApplicationClass(?type),
   // ?constrVar 为 可以是构造函数，也可以是 class variable
-  java_lang_reflect_NewInstance(?invocation, ?newVar, ?constrVar),
+  java_lang_reflect_NewInstance(_, ?newVar, ?constrVar),
   basic.ClassConstructor(?init, ?type),
   ThisVar(?init, ?thisVar),
   isImmutableContext(?calleeCtx).

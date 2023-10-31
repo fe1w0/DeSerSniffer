@@ -33,7 +33,6 @@ EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
     // sourceMethod
     TaintSourceMethod(label, sourceMethod),
-    MethodInvocationInContext(_, invocation, sourceMethod),
     mainAnalysis.Reachable(sourceMethod).
 
 // 开始递归

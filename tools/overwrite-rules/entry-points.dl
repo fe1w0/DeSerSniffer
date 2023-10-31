@@ -12,9 +12,9 @@ PossibleOpenProgramEntryPoint(?method) :-
     ApplicationClass(?class),
   #endif
   DefineEntryPointSimpleMethod(?simpleMethodName),
-  Method_SimpleName(?method, simpleMethodName),
+  Method_SimpleName(?method, ?simpleMethodName),
   !Method_Modifier("abstract", ?method),
-  !ClassModifier("public", ?class).
+  ClassModifier("public", ?class).
   // !ClassModifier("private", ?class).
 
 // Find highest level in the naming hierarchy that contains public

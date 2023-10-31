@@ -85,8 +85,8 @@ INFORMATION_FLOW="--information-flow minimal"
 # CFG="--cfg"
 
 # facts
-# FACTS="--Xignore-factgen-errors"
-FACTS="--Xignore-wrong-staticness  --report-phantoms"
+# FACTS="--Xignore-factgen-errors --Xignore-wrong-staticness"
+FACTS="--report-phantoms --fact-gen-cores ${JOBS}"
 
 # Reflection
 # --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥
@@ -108,8 +108,10 @@ APP_ONLY="--app-only"
 # Log Level
 LOG="--level debug"
 
+
 # CACHE
-CACHE="--cache"
+# CACHE="--cache"
+CACHE="--dont-cache-facts"
 
 # Output SARIF results
 SARIF="--sarif"

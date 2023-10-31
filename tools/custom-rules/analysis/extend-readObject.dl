@@ -18,7 +18,7 @@ MethodInvocationInContext(ctx, invocation, newMethod),
 TypeForReturnValue(type, to, invocation),
 ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, newValue, newMethod, 1) :-
     // type = sources.serialize.UnsafeSerialize
-    AssignCast(type, from, to, inmethod),
+    AssignCast(type, _, to, inmethod),
     ThisVar(newMethod, this),
     ApplicationMethod(inmethod),
     // signature 是完整签名
@@ -93,7 +93,7 @@ SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN
 mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
 mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
     // 将该 method 的 this(抽象的)，放入 Taint Value 中
-    ThisVar(inmethod, to),
+    ThisVar(method, to),
     
     // 设置新的 label
     label = "MINING",

@@ -8,7 +8,7 @@
 /**
  * 分析从 source 的 CallGraph
 */
-.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method)
+.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method, label: Lable)
 
 /**
  * 检测函数是否在从Source开始的CallGraph中
@@ -30,15 +30,15 @@ EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.l
 EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
-fromSourceCallGraph("<Start Method>", sourceMethod) :-
+fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
     // sourceMethod
-    TaintSourceMethod(_, sourceMethod),
+    TaintSourceMethod(label, sourceMethod),
     MethodInvocationInContext(_, invocation, sourceMethod),
     mainAnalysis.Reachable(sourceMethod).
 
 // 开始递归
-fromSourceCallGraph(fromMethod, toMethod) :-
-    fromSourceCallGraph(_, fromMethod),
+fromSourceCallGraph(fromMethod, toMethod, label) :-
+    fromSourceCallGraph(_, fromMethod, label),
     fromMethod != toMethod,
     !EndMethodInTransfer(fromMethod),
     mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
@@ -46,7 +46,7 @@ fromSourceCallGraph(fromMethod, toMethod) :-
     Instruction_Method(invocation, fromMethod).
 
 isMethodInSourceCallGraph(toMethod) :-
-    fromSourceCallGraph(_, toMethod).
+    fromSourceCallGraph(_, toMethod, _).
 
 /**
  * Doop 中 isStaticMethodInvocation_Insn 等 rules 需要 为 ApplicationMethod 才补充。 

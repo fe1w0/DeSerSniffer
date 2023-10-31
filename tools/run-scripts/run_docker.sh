@@ -16,7 +16,7 @@ JAVA_VERSION=java_8
 
 
 # overwrite doop
-bash ../tools/overwrite.sh $DOOP_HOME
+bash $BASE_DIR/tools/overwrite.sh $DOOP_HOME
 echo "[+] Finish: OverWrite"
 
 # analysis

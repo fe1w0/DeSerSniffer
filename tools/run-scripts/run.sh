@@ -1,4 +1,4 @@
-ID=test14
+ID=test
 
 INPUT=/Users/fe1w0/Project/SoftWareAnalysis/DataSet/example/target/example.jar
 # INPUT=org.apache.commons:commons-collections4:4.4
@@ -14,15 +14,15 @@ DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/instal
 
 BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet
 FuzzChainsPath=/Users/fe1w0/Project/SoftWareAnalysis/Dynamic/FuzzChains
-JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-11.jdk/Contents/Home
-JAVA_VERSION=java_11
+JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
+JAVA_VERSION=java_8
 
 # overwrite doop
-bash ../tools/overwrite.sh $DOOP_HOME
+bash $BASE_DIR/tools/overwrite.sh $DOOP_HOME
 echo "[+] Finish: OverWrite"
 
 export DOOP_PLATFORMS_LIB=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop-benchmarks/
 # bash ./analysis.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION
 
-bash ./original.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION
+bash ./original.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION 8
 echo "[+] Finish: Analysis"

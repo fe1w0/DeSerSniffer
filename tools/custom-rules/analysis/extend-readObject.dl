@@ -49,3 +49,69 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
     // 这个 this 是抽象的,非method中具体的 this 变量
     ThisVar(inmethod, this),
     AssignLocal(this, actualThis, inmethod).
+
+#define ENABLE_MINING 1
+
+/**
+ * 需要考虑漏洞挖掘情况下，当前 application 中不存在调用，但也需要查找潜在的利用链:
+ * 算法如下:
+ * 1. 获得 readObject 函数，当发现无实际的 invocation 时，
+ *      1. 设置新的 Label， Label=MINING
+ *      2. 构建污点源和指针信息
+ *      3. 构建新的 fromSourceMethod
+ * 2. 获得 reaObject 函数，且存在实际的 invocation 时，由默认的漏洞分析模块(extend-analysis)处理。
+ * 此外，还需要分析 chains 是由 application 中代码导致的，还是 libraries 中的代码导致的。
+ * 当前的分析，为了效率，设置了 Analysis 从 Application 中的 `readObject` 函数开始分析。
+ * 当上述分析，遇到断开情况时，即 base 的 不在 application 中时，会导致 三类 Invocation_Instruction 缺失（被屏蔽），
+ * 且 VarPointsTo 信息缺失。这两个问题已在 extend-analysis 中得到修复。
+ * 所以，还需要 对于 readObject 无实际调用的 source 函数，也需要完善指针分析和污点分析。
+*/
+
+// mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+// isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+// mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  type), 
+// mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), "java.lang.Object"), 
+// TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+// SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  invo), LabelFromSource( invo,  label),
+// mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
+// mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
+//     CallTaintingMethod(label, ctx, invo),
+//     mainAnalysis.isImmutableHContext(hctx),
+//     TypeForReturnValue(type, to, invo),
+//     Instruction_Method(invo, method),
+//     Method_DeclaringType(method, declaringType).
+
+#ifdef ENABLE_MINING
+
+TaintSourceMethod(label, method),
+mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  type), 
+mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), "java.lang.Object"), 
+TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  invo), LabelFromSource( invo,  label),
+mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
+mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
+    // 设置新的 label
+    label = "MINING",
+    
+    // type
+    type = declaringType,
+
+    // create invo
+    Method_DeclaringType(method, declaringType),
+    invo = cat(method, "::MockObject"),
+
+    // mainAnalysis.isImmutableHContext(hctx),
+    hctx = "<<immutable-hcontext>>",
+    ctx = "<<immutable-context>>",
+
+    TaintSourceMethod(_, method),
+
+    // 不存在 调用 method 的 MethodInvocation
+    !(_StaticMethodInvocation(_, _, method, _);
+    _SpecialMethodInvocation(_, _, method, _, _);
+    _VirtualMethodInvocation(_, _, method, _, _);
+    _SuperMethodInvocation(_, _, method, _, _)).
+
+#endif

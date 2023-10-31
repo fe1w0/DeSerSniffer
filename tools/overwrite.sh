@@ -4,7 +4,7 @@
  # @Author: fe1w0 xzasliuxinrong@gmail.com
  # @Date: 2023-10-29 17:25:28
  # @LastEditors: fe1w0 xzasliuxinrong@gmail.com
- # @LastEditTime: 2023-10-30 14:47:16
+ # @LastEditTime: 2023-10-30 16:24:39
  # @FilePath: /DataSet/tools/overwrite.sh
  # @Description: 覆盖原doop中的 soufflé-rules
 ### 
@@ -47,7 +47,7 @@ function overwrite() {
     cp overwrite-rules/app-only.dl $DOOP_HOME/souffle-logic/main/app-only.dl
 
     #
-    echo "[+] Finish"
+    echo "[+] Finish."
 }
 
 

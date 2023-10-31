@@ -7,10 +7,10 @@ BASE_DIR=$4
 FuzzChainsPath=$5
 JAVA_HOME=$6
 JAVA_VERSION=$7
-# JRE_PLATFORM=$8
+
 
 function help() {
-    echo "analysis.sh [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION]"
+    echo "analysis.sh [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS]"
     echo "\
     ID: doop 分析的 ID值
     INPUT: 需要分析的Jar文件
@@ -19,19 +19,19 @@ function help() {
     FuzzChainsPath: FuzzChains的地址
     JAVA_HOME: java 的 home 地址
     JAVA_VERSION: 需要分析的版本，需要注意，要与JAVA_HOME版本一致，如 java_8
+    JOBS: Souffle 平行进程数量
     "
-    # JRE_PLATFORM: 导入 JRE_PLATFORM，需要分析的JAVA版本
 }
 
-if [[ $# -lt 7 ]]; then
+if [ $# -lt 7] then
     echo "Error: Not enough arguments"
     help
     exit 1
+elif [ $# == 7] then
+    JOBS=8
+elif [ $# == 8] then
+    JOBS=$8
 fi
-
-
-# echo "\tCurrent_ENV:\tJRE_PLATFORM\t${JRE_PLATFORM}"
-# echo "\tCurrent_ENV:\tJRE_PLATFORM\t${JRE_PLATFORM}"
 
 # 配置 JVM 环境
 echo "Export JVM ENV."
@@ -68,7 +68,7 @@ JIMPLE="--generate-jimple"
 OPEN_PROGRAM="--open-programs concrete-types"
 
 # souffle
-SOUFFLE_JOBS="--souffle-jobs 6"
+SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
 SOUFFLE_MODE="--souffle-mode interpreted"
 
 # 避免 mac swp 过高

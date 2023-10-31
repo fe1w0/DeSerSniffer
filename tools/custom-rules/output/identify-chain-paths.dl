@@ -29,30 +29,30 @@ isOpaqueMethodForIdentify(method) :-
     match(OpaqueRule, method).
 
 isOpaqueMethodForIdentify(method) :-
-    fromSourceCallGraph(_, method),
+    fromSourceCallGraph(_, method, _),
     match(OpaqueRule, method).
 
 isOpaqueMethodForIdentify(method) :-
-    fromSourceCallGraph(method, _),
+    fromSourceCallGraph(method, _, _),
     match(OpaqueRule, method).
 
 .decl PotentialVulnGraph(label: Lable, fromMethod: Method, toMethod: Method)
 
 // fromMethod -> toMethod / SinkMethod
-PotentialVulnGraphLabel(label),
-PotentialVulnGraph(label, fromMethod, toMethod) :-
+PotentialVulnGraphLabel(newlabel),
+PotentialVulnGraph(newlabel, fromMethod, toMethod) :-
     !isOpaqueMethodForIdentify(fromMethod),
     !isOpaqueMethodForIdentify(toMethod),
     SinkMethod(toMethod),
-    fromSourceCallGraph(fromMethod, toMethod),
+    fromSourceCallGraph(fromMethod, toMethod, lable),
     SourceMethod(sourceMethod),
-    label = cat(cat(sourceMethod, " -> "), toMethod).
+    newlabel = cat(lable, cat("::", cat(cat(sourceMethod, " -> "))), toMethod).
 
 // fromMethod -> toMethod / oldFromMethod -> ... -> toMethod / SinkMethod
 PotentialVulnGraph(label, fromMethod, toMethod) :-
     !isOpaqueMethodForIdentify(fromMethod),
     PotentialVulnGraph(label, toMethod, _),
-    fromSourceCallGraph(fromMethod, toMethod).
+    fromSourceCallGraph(fromMethod, toMethod, _).
 
 isChainPathMethod(toMethod),
 isChainPathMethod(fromMethod) :-

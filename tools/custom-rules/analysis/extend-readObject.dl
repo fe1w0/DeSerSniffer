@@ -102,6 +102,8 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
     // 设置新的 label
     label = "MINING",
     
+    old_label != label,
+
     // type
     type = declaringType,
 
@@ -112,13 +114,10 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
     // mainAnalysis.isImmutableHContext(hctx),
     hctx = "<<immutable-hcontext>>",
     ctx = "<<immutable-context>>",
-
-    TaintSourceMethod(_, method),
+    
+    TaintSourceMethod(old_label, method),
 
     // 不存在 调用 method 的 MethodInvocation
-    !(_StaticMethodInvocation(_, _, method, _);
-    _SpecialMethodInvocation(_, _, method, _, _);
-    _VirtualMethodInvocation(_, _, method, _, _);
-    _SuperMethodInvocation(_, _, method, _, _)).
+    !MethodInvocation_Method(_, method).
 
 #endif

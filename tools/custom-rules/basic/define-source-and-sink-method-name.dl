@@ -5,7 +5,6 @@ DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>"
 DefineSinkMethod("<org.apache.commons.collections.functors.ChainedTransformer: java.lang.Object transform(java.lang.Object)>").
 DefineSinkMethod("<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>").
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
-
 DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
 
 // Source Method

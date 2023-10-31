@@ -71,7 +71,7 @@
 
 .output TaintTranferToObjectField
 
-.output ClassHasPossibleOpenProgramEntryPoint
+// .output ClassHasPossibleOpenProgramEntryPoint
 
 
-.output basic.ResolveInvocation
+// .output basic.ResolveInvocation

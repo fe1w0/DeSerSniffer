@@ -58,7 +58,7 @@ PLATFORM="--platform ${JAVA_VERSION}"
 ANALYSIS="context-insensitive"
 
 # ------------------------------------------
-# Todo 上下文敏感度有问题，需要提升
+# Todo 上下文敏感度有问题，需要提升 
 # ------------------------------------------
 # ANALYSIS="2-object-sensitive+heap"
 
@@ -70,6 +70,7 @@ OPEN_PROGRAM="--open-programs concrete-types"
 # souffle
 SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
 SOUFFLE_MODE="--souffle-mode interpreted"
+SOUFFLE_PROFILE="--souffle-profile"
 
 # 避免 mac swp 过高
 # --max-memory
@@ -80,6 +81,9 @@ EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/analysis.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"
+
+# TIMEOUT
+TIMEOUT="--timeout 1440"
 
 # cfg
 # CFG="--cfg"
@@ -99,7 +103,6 @@ ENABLE_REFLECTION="--light-reflection-glue"
 # ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
-# DOOP-BUG: -app-only  的效果与 --app-only 一样
 APP_ONLY="--app-only"
 
 # dependency:copy-dependencies -DoutputDirectory=lib
@@ -110,15 +113,14 @@ LOG="--level debug"
 
 
 # CACHE
-# CACHE="--cache"
-CACHE="--dont-cache-facts"
+CACHE="--cache"
+# CACHE="--dont-cache-facts"
 
 # Output SARIF results
-SARIF="--sarif"
+# SARIF="--sarif"
 
-# Remember `-app-only` must be in front !
 # Strange Error!
-EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
+EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${TIMEOUT} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
 
 cd $DOOP_HOME
 

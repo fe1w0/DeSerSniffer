@@ -6,14 +6,14 @@
 
 ClassHasPossibleOpenProgramEntryPoint(?class),
 PossibleOpenProgramEntryPoint(?method) :-
-  Method_Modifier("public", ?method),
+  Method_Modifier("private", ?method),
   Method_DeclaringType(?method, ?class),
   #ifndef ENABLE_MINING
     ApplicationClass(?class),
   #endif
   DefineEntryPointSimpleMethod(?simpleMethodName),
   Method_SimpleName(?method, ?simpleMethodName),
-  !Method_Modifier("abstract", ?method),
+  // !Method_Modifier("abstract", ?method),
   ClassModifier("public", ?class).
   // !ClassModifier("private", ?class).
 

@@ -15,9 +15,11 @@
 .decl isChainPathMethod(?method: Method)
 
 SinkMethod(method) :-
+    isMethod(method),
     LeakingSinkMethod(_, method).
 
 SourceMethod(method) :-
+    isMethod(method),
     TaintSourceMethod(_, method).
 
 #define OpaqueRule "<java[.]awt.*|<javax.*"

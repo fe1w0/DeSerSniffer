@@ -70,7 +70,6 @@ VirtualMethodInvocation_Base(instruction, base) :-
  * 只有符合CheckThisTaint条件的base，才重新考虑新的 VarPoinstTo
 */
 
-
 /**
  * 添加 VarPointsTo 信息
 */
@@ -84,6 +83,8 @@ mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
     // Copy 之前的 上下文 信息
     mainAnalysis.VarPointsTo(hctx, _, callerCtx, base),
     value = cat(valueType, "::MockObject"),
+    // 依赖于 basic.ResolveInvocation 中是否有解
+    // 如果 没有 该 valueType信息，说明存在问题
     basic.ResolveInvocation(valueType, invocation, _).
 
 /**

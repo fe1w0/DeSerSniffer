@@ -20,7 +20,8 @@ ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, newValue, newMethod
     // type = sources.serialize.UnsafeSerialize
     AssignCast(type, _, to, inmethod),
     ThisVar(newMethod, this),
-    ApplicationMethod(inmethod),
+    // 注意需要修改
+    // ApplicationMethod(inmethod),
     // signature 是完整签名
     signature = "<java.io.ObjectInputStream: java.lang.Object readObject()>",
     // 不能直接用 VirtualMethodInvocation
@@ -95,22 +96,18 @@ mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: ")
 mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
     TaintSourceMethod(old_label, method),
     // 不存在 调用 method 的 MethodInvocation
-    !MethodInvocation_Method(_, method),
+    // 确实对于 readObject 来说，确实没有直接的对应的 MethodInvocation_Method
+    !ExtendReadObjectMiddle_ContextRequest(_, _, _, _, method, _),
     old_label != label,
-
     // 对于 readObject 来说 需要将 第一个
     FormalParam(0, method, to),
-    
     // 设置新的 label
     label = "MINING",
-    
     // type
     type = declaringType,
-
     // create invo
     Method_DeclaringType(method, declaringType),
     invo = cat(method, "::MockObject"),
-
     // mainAnalysis.isImmutableHContext(hctx),
     hctx = "<<immutable-hcontext>>",
     ctx = "<<immutable-context>>".

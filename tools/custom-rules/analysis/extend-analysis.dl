@@ -33,7 +33,7 @@ EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
 // Todo: 优化，循环卡住
 
-.decl TaintedInvocation(invocation: Method)
+.decl TaintedInvocation(invocation: symbol)
 
 TaintedInvocation(invocation) :-
     TaintedVarPointsTo(_, _, base),
@@ -106,12 +106,12 @@ VirtualMethodInvocation_Base(instruction, base) :-
  * 添加 VarPointsTo 信息，采用 non-recursive 的方式来分析
 */
 Extend_VarPointsTo(valueType, invocation, base),
-mainAnalysis.Value_isMock(value),
+mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, valueType), mainAnalysis.Value_DeclaringType(value, valueType),
 MockObject(value, valueType),
-mainAnalysis.Value_Type(value, valueType),
 mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
+    TaintedInvocation(invocation),
     // Copy 之前的 上下文 信息
-    mainAnalysis.VarPointsTo(hctx, _, callerCtx, _),
+    mainAnalysis.VarPointsTo(hctx, _, callerCtx, base),
     // 依赖于 basic.ResolveInvocation 中是否有解
     // 如果 没有 该 valueType信息，说明存在问题
     basic.ResolveInvocation(valueType, invocation, _),
@@ -120,7 +120,7 @@ mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
 
 .output Extend_VarPointsTo
 
-.limitsize Extend_VarPointsTo(n=100)
+.limitsize Extend_VarPointsTo(n=200)
 
 /**
  * LeakingTaintedInformation: 用于判断是否存在漏洞，即SinkMethod被污点传播的判断规则

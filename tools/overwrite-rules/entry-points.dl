@@ -2,7 +2,7 @@
 .decl PossibleOpenProgramEntryPoint(?method:Method)
 .decl ClassHasPossibleOpenProgramEntryPoint(?class:ReferenceType)
 
-#define ENABLE_MINING 1
+// #define ENABLE_MINING 1
 
 ClassHasPossibleOpenProgramEntryPoint(?class),
 PossibleOpenProgramEntryPoint(?method) :-

@@ -23,7 +23,6 @@
 .output fromSourceCallGraph
 
 // Method_Descriptor
-// 优化 fromSourceCallGraph
 .output ChainPathsOutput
 .output PotentialVulnGraphLabel
 .output PotentialVulnGraph

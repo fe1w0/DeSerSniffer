@@ -11,10 +11,8 @@ PossibleOpenProgramEntryPoint(?method) :-
   #ifndef ENABLE_MINING
     ApplicationClass(?class),
   #endif
-  // ?class = "java.util.HashSet",
   DefineEntryPointSimpleMethod(?simpleMethodName),
   Method_SimpleName(?method, ?simpleMethodName),
-  // !Method_Modifier("abstract", ?method),
   ClassModifier("public", ?class).
   // !ClassModifier("private", ?class).
 

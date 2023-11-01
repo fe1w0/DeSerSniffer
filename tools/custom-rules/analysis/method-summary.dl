@@ -16,19 +16,19 @@
  */
 
 // index-th 可以传递到 return
-.decl ParamToRetSummarizeMethod(?index:number, ?method:Method)
+.decl ParamToRetSummarizeMethod(index:number, method:Method)
 
 // index-th 参数 可以传递到 base(this)
-.decl ParamToBaseSummarizeMethod(?index:number, ?method:Method)
+.decl ParamToBaseSummarizeMethod(index:number, method:Method)
 
 // original_index-th 参数是 alias_index 参数的别名对象
-.decl ParamToOtherParamSummarizeMethod(?method: Method, ?original_index: number, ?alias_index: number)
+.decl ParamToOtherParamSummarizeMethod(method: Method, original_index: number, alias_index: number)
 
 // base(this) 可以 传递到 index-th 参数
-.decl BaseToParamSummarizeMethod(?index:number, ?method:Method)
+.decl BaseToParamSummarizeMethod(index:number, method:Method)
 
 // base(this) 可以传递到 return
-.decl BaseToRetSummarizeMethod(?method: Method)
+.decl BaseToRetSummarizeMethod(method: Method)
 
 /**
 * 需要注意的是, 对于原框架中, 只要能得到这些函数名
@@ -36,54 +36,52 @@
 */
 
 // 记录 ParamToRetSummarize 的函数名
-.decl ParamToRetSummarizeMethodName(?method: Method)
+.decl ParamToRetSummarizeMethodName(method: Method)
 
-.decl ParamToBaseSummarizeMethodName(?method: Method)
+.decl ParamToBaseSummarizeMethodName(method: Method)
 
-.decl ParamToOtherParamSummarizeMethodName(?method: Method)
+.decl ParamToOtherParamSummarizeMethodName(method: Method)
 
-.decl BaseToParamSummarizeMethodName(?method: Method)
+.decl BaseToParamSummarizeMethodName(method: Method)
 
-.decl BaseToRetSummarizeMethodName(?method: Method)
+.decl BaseToRetSummarizeMethodName(method: Method)
 
-// 优化
-ParamToRetSummarizeMethod(?index, ?method):-
+ParamToRetSummarizeMethod(index, method):-
     // parmam 是函数的形式参数
-    FormalParam(?index, ?method, _),
+    FormalParam(index, method, _),
     // 函数是否存在返回值
     Method_ReturnType(method, type),
     type != "void".
 
-ParamToRetTaintTransferMethod(?method),
-ParamToRetSummarizeMethodName(?method) :-
-    ParamToRetSummarizeMethod(_, ?method).
+ParamToRetTaintTransferMethod(method),
+ParamToRetSummarizeMethodName(method) :-
+    ParamToRetSummarizeMethod(_, method).
 
-ParamToBaseSummarizeMethod(?index, ?method) :-
+ParamToBaseSummarizeMethod(index, method) :-
     // 该 method 有函数参数
-    FormalParam(?index, ?method, _),
+    FormalParam(index, method, _),
     // 找到 @this
-    ThisVar(?method, ?thisVar),
+    ThisVar(method, thisVar),
     // l0#_0 = @this
-    _AssignLocal(_, _, ?thisVar, _, ?method).
+    _AssignLocal(_, _, thisVar, _, method).
 
-ParamToBaseTaintTransferMethod(?index, ?method),
-ParamToBaseSummarizeMethodName(?method) :-
-    ParamToBaseSummarizeMethod(?index, ?method).
+ParamToBaseTaintTransferMethod(index, method),
+ParamToBaseSummarizeMethodName(method) :-
+    ParamToBaseSummarizeMethod(index, method).
 
-BaseToParamTaintTransferMethod(?method),
-BaseToParamSummarizeMethodName(?method) :-
-    ParamToBaseSummarizeMethodName(?method).
+BaseToParamTaintTransferMethod(method),
+BaseToParamSummarizeMethodName(method) :-
+    ParamToBaseSummarizeMethodName(method).
 
-// 优化
-BaseToRetSummarizeMethod(?method) :-
+BaseToRetSummarizeMethod(method) :-
     // 找到 @this
-    ThisVar(?method, ?thisVar),
+    ThisVar(method, thisVar),
     // l0#_0 = @this
-    _AssignLocal(_, _, ?thisVar, _, ?method),
+    _AssignLocal(_, _, thisVar, _, method),
     // 函数是否存在返回值
     Method_ReturnType(method, type),
     type != "void".
 
-BaseToRetTaintTransferMethod(?method),
-BaseToRetSummarizeMethodName(?method) :-
-    BaseToRetSummarizeMethod(?method).
+BaseToRetTaintTransferMethod(method),
+BaseToRetSummarizeMethodName(method) :-
+    BaseToRetSummarizeMethod(method).

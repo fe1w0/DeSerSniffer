@@ -103,17 +103,15 @@ VirtualMethodInvocation_Base(instruction, base) :-
 
 // Todo: 必须优化
 /**
- * 添加 VarPointsTo 信息
+ * 添加 VarPointsTo 信息，采用 non-recursive 的方式来分析
 */
 Extend_VarPointsTo(valueType, invocation, base),
 mainAnalysis.Value_isMock(value),
 MockObject(value, valueType),
 mainAnalysis.Value_Type(value, valueType),
 mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
-    // 检测当前invocation中的 base 是否为污点源，或者被Transform的变量
-    TaintedVarPointsTo(_, _, base),
     // Copy 之前的 上下文 信息
-    mainAnalysis.VarPointsTo(hctx, _, callerCtx, base),
+    mainAnalysis.VarPointsTo(hctx, _, callerCtx, _),
     // 依赖于 basic.ResolveInvocation 中是否有解
     // 如果 没有 该 valueType信息，说明存在问题
     basic.ResolveInvocation(valueType, invocation, _),
@@ -122,7 +120,7 @@ mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
 
 .output Extend_VarPointsTo
 
-.limitsize Extend_VarPointsTo(n=300)
+.limitsize Extend_VarPointsTo(n=100)
 
 /**
  * LeakingTaintedInformation: 用于判断是否存在漏洞，即SinkMethod被污点传播的判断规则

@@ -46,23 +46,19 @@
 
 .decl BaseToRetSummarizeMethodName(?method: Method)
 
+// 优化
 ParamToRetSummarizeMethod(?index, ?method):-
-    // 函数内分析, 确保函数在CG中。
-    mainAnalysis.Reachable(?method),
     // parmam 是函数的形式参数
     FormalParam(?index, ?method, _),
-    // return 是函数的返回值
-    isReturnNonvoid_Insn(?instruction),
-    Instruction_Method(?instruction, ?method).
-
+    // 函数是否存在返回值
+    Method_ReturnType(method, type),
+    type != "void".
 
 ParamToRetTaintTransferMethod(?method),
 ParamToRetSummarizeMethodName(?method) :-
     ParamToRetSummarizeMethod(_, ?method).
 
 ParamToBaseSummarizeMethod(?index, ?method) :-
-    // 函数内分析, 确保函数在CG中。
-    mainAnalysis.Reachable(?method),
     // 该 method 有函数参数
     FormalParam(?index, ?method, _),
     // 找到 @this
@@ -78,17 +74,15 @@ BaseToParamTaintTransferMethod(?method),
 BaseToParamSummarizeMethodName(?method) :-
     ParamToBaseSummarizeMethodName(?method).
 
-
+// 优化
 BaseToRetSummarizeMethod(?method) :-
-    // 函数内分析, 确保函数在CG中。
-    mainAnalysis.Reachable(?method),
     // 找到 @this
     ThisVar(?method, ?thisVar),
     // l0#_0 = @this
     _AssignLocal(_, _, ?thisVar, _, ?method),
-    // return 是函数的返回值
-    isReturnNonvoid_Insn(?instruction),
-    Instruction_Method(?instruction, ?method).
+    // 函数是否存在返回值
+    Method_ReturnType(method, type),
+    type != "void".
 
 BaseToRetTaintTransferMethod(?method),
 BaseToRetSummarizeMethodName(?method) :-

@@ -95,7 +95,6 @@ FACTS="--report-phantoms --fact-gen-cores ${JOBS}"
 # Reflection
 # --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥
 # --reflection-classic
-#
 # ENABLE_REFLECTION="--reflection-classic"
 ENABLE_REFLECTION="--light-reflection-glue"
 
@@ -111,16 +110,18 @@ APP_ONLY="--app-only"
 # Log Level
 LOG="--level debug"
 
+# --no-merges
+NoMerges="--no-merges"
 
 # CACHE
 CACHE="--cache"
 # CACHE="--dont-cache-facts"
 
 # Output SARIF results
-# SARIF="--sarif"
+SARIF="--sarif"
 
 # Strange Error!
-EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${TIMEOUT} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
+EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${TIMEOUT} ${NoMerges} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
 
 cd $DOOP_HOME
 

@@ -101,6 +101,7 @@ VirtualMethodInvocation_Base(instruction, base) :-
 
 .decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
 
+// Todo: 必须优化
 /**
  * 添加 VarPointsTo 信息
 */

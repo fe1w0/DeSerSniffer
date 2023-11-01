@@ -88,6 +88,8 @@ VarPointsTo(?hctx, ?argVal, ?calleeCtx, ?param) :-
   ArrayIndexPointsTo(?hctx, ?argVal, _, ?argsVal),
   FormalParam(_, ?m, ?param).
 
+// 需要注意 <java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+
 HeapInterproceduralAssign(?calleeCtx, ?thisParam, ?callerCtx, ?this) :-
   ReflectiveMethodCall(?m, ?callerCtx, ?calleeCtx, ?this, _, _),
   ThisVar(?m, ?thisParam).
@@ -96,6 +98,8 @@ HeapInterproceduralAssign(?calleeCtx, ?to, ?callerCtx, ?from) :-
   ReflectiveMethodCall(?m, ?callerCtx, ?calleeCtx, _, _, ?invocation),
   ReturnVar(?from, ?m),
   AssignReturnValue(?invocation, ?to).
+
+.output ReflectiveMethodCall
 
 // ** Pattern 2: local reflective construction invocation **
 

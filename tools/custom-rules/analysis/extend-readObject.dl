@@ -93,17 +93,17 @@ SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN
 LabelFromSource( invo,  label),
 mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
 mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
-    // 将该 method 的 this(抽象的)，放入 Taint Value 中
-    // ThisVar(method, to),
-    
+    TaintSourceMethod(old_label, method),
+    // 不存在 调用 method 的 MethodInvocation
+    !MethodInvocation_Method(_, method),
+    old_label != label,
+
     // 对于 readObject 来说 需要将 第一个
     FormalParam(0, method, to),
     
     // 设置新的 label
     label = "MINING",
     
-    old_label != label,
-
     // type
     type = declaringType,
 
@@ -113,11 +113,5 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
 
     // mainAnalysis.isImmutableHContext(hctx),
     hctx = "<<immutable-hcontext>>",
-    ctx = "<<immutable-context>>",
-    
-    TaintSourceMethod(old_label, method),
-
-    // 不存在 调用 method 的 MethodInvocation
-    !MethodInvocation_Method(_, method).
-
+    ctx = "<<immutable-context>>".
 #endif

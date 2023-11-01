@@ -30,6 +30,27 @@ EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.l
 EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
+
+// Todo: 优化，循环卡住
+
+.decl TaintedInvocation(invocation: Method)
+
+TaintedInvocation(invocation) :-
+    TaintedVarPointsTo(_, _, base),
+    MethodInvocation_Base(invocation, base).
+
+TaintedInvocation(invocation) :-
+    TaintedVarPointsTo(_, _, var),
+    ActualParam(_, invocation, var).
+
+TaintedInvocation(invocation) :-
+    MethodInvocation_Method(invocation, "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>"),
+    TaintedVarPointsTo(_, _, base_var),
+    ActualParam(_, invocation, var),
+    StoreArrayIndex(base_var, var, _).
+
+.output TaintedInvocation
+
 fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
     // sourceMethod
     TaintSourceMethod(label, sourceMethod),
@@ -37,55 +58,70 @@ fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
 
 // 开始递归
 fromSourceCallGraph(fromMethod, toMethod, label) :-
+    mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
+    TaintedInvocation(invocation),
     fromSourceCallGraph(_, fromMethod, label),
     fromMethod != toMethod,
-    !EndMethodInTransfer(fromMethod),
-    mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
     // 修改为 Response
-    Instruction_Method(invocation, fromMethod).
+    Instruction_Method(invocation, fromMethod),
+    !EndMethodInTransfer(fromMethod).
 
 isMethodInSourceCallGraph(toMethod) :-
     fromSourceCallGraph(_, toMethod, _).
 
 /**
- * Doop 中 isStaticMethodInvocation_Insn 等 rules 需要 为 ApplicationMethod 才补充。 
+ * Doop 中 isStaticMethodInvocation_Insn 等 rules 需要 为 非 ApplicationMethod 才补充。 
  * 注意: 以下三条rules，绝对不可以忽略掉
 */
-isStaticMethodInvocation_Insn(instruction) :-
-    _StaticMethodInvocation(instruction, _, _, method),
-    isMethodInSourceCallGraph(method).
+.decl Extend_Obtain_Invocation(instruction: symbol)
 
+// Todo: 优化
+Extend_Obtain_Invocation(instruction),
+isStaticMethodInvocation_Insn(instruction) :-
+    isMethodInSourceCallGraph(method),
+    _StaticMethodInvocation(instruction, _, _, method).
+
+Extend_Obtain_Invocation(instruction),
 isSpecialMethodInvocation_Insn(instruction),
 SpecialMethodInvocation_Base(instruction, base) :-
-    _SpecialMethodInvocation(instruction, _, _, base, method),
-    isMethodInSourceCallGraph(method).
+    isMethodInSourceCallGraph(method),
+    _SpecialMethodInvocation(instruction, _, _, base, method).
 
+Extend_Obtain_Invocation(instruction),
 isVirtualMethodInvocation_Insn(instruction),
 VirtualMethodInvocation_Base(instruction, base) :-
-    _VirtualMethodInvocation(instruction, _, _, base, method),
-    isMethodInSourceCallGraph(method).
+    isMethodInSourceCallGraph(method),
+    _VirtualMethodInvocation(instruction, _, _, base, method).
 
+.output Extend_Obtain_Invocation
 /**
  * 在 app-only 下，存在 VarPointsTo 缺失的情况
  * 只有符合CheckThisTaint条件的base，才重新考虑新的 VarPoinstTo
 */
 
+.decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
+
 /**
  * 添加 VarPointsTo 信息
 */
+Extend_VarPointsTo(valueType, invocation, base),
 mainAnalysis.Value_isMock(value),
 MockObject(value, valueType),
 mainAnalysis.Value_Type(value, valueType),
 mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
     // 检测当前invocation中的 base 是否为污点源，或者被Transform的变量
-    mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
     TaintedVarPointsTo(_, _, base),
     // Copy 之前的 上下文 信息
     mainAnalysis.VarPointsTo(hctx, _, callerCtx, base),
-    value = cat(valueType, "::MockObject"),
     // 依赖于 basic.ResolveInvocation 中是否有解
     // 如果 没有 该 valueType信息，说明存在问题
-    basic.ResolveInvocation(valueType, invocation, _).
+    basic.ResolveInvocation(valueType, invocation, _),
+    mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
+    value = cat(valueType, "::MockObject").
+
+.output Extend_VarPointsTo
+
+.limitsize Extend_VarPointsTo(n=300)
 
 /**
  * LeakingTaintedInformation: 用于判断是否存在漏洞，即SinkMethod被污点传播的判断规则

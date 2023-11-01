@@ -2,7 +2,7 @@
 .decl PossibleOpenProgramEntryPoint(?method:Method)
 .decl ClassHasPossibleOpenProgramEntryPoint(?class:ReferenceType)
 
-// #define ENABLE_MINING 1
+#define ENABLE_MINING 1
 
 ClassHasPossibleOpenProgramEntryPoint(?class),
 PossibleOpenProgramEntryPoint(?method) :-
@@ -11,7 +11,7 @@ PossibleOpenProgramEntryPoint(?method) :-
   #ifndef ENABLE_MINING
     ApplicationClass(?class),
   #endif
-  ?class = "java.util.HashSet",
+  // ?class = "java.util.HashSet",
   DefineEntryPointSimpleMethod(?simpleMethodName),
   Method_SimpleName(?method, ?simpleMethodName),
   // !Method_Modifier("abstract", ?method),

@@ -11,7 +11,7 @@ DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
 .decl DefineSourceMethod(method: symbol)
 
 // DefineSourceMethod("<org.apache.commons.collections.keyvalue.TiedMapEntry: int hashCode()>").
-DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
+// DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
 DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
 
 TaintSourceMethod(label, method) :-

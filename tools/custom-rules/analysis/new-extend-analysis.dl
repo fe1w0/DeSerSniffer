@@ -1,0 +1,98 @@
+/**
+ * 对于 反序列化 漏洞检测来说, 需要考虑到子类的函数调用。
+ * 但原 doop 中的 污点分析中，常规选择下无法实现对应的功能。
+ * Idea:
+ * 通过构建 ContextRequest 和 PointsTo 关系，避免分析缺失的情况。
+*/
+
+/**
+ * 从 readObject 开始，将当前 Object 的 所有 field 指向的 Value 标记为 PotentialValue。
+*/
+.decl PotentialValue(value: symbol, type: symbol)
+
+// Todo: 优化
+// 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
+PotentialValue(value, potential_type) :-
+    DefineSourceMethod(method),
+    // 函数 存在于 哪些 class 中
+    Method_DeclaringType(method, class),
+    // field 存在于 哪些 class 中
+    Field_DeclaringType(field_signature, class),
+    // field 属于 什么类型
+    Field_Type(field_signature, field_type),
+    // potential_type 是 field_type 的子类
+    basic.SubtypeOf(potential_type, field_type),
+    !isPrimitiveType(field_type),
+    !_StringConstant(value),
+    !HeapAllocation_Null(value),
+    !isNullType(potential_type),
+    mainAnalysis.InstanceFieldPointsTo(_, value, field_signature, _, _).
+
+// 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialValue
+PotentialValue(value, potential_type) :-
+    PotentialValue(original_value, original_value_type),
+    // original_value_type 中的 所有可能的 next_field_signature
+    Field_DeclaringType(next_field_signature, original_value_type),
+    Field_Type(next_field_signature, next_field_type),
+    // potential_type 是 field_type 的子类
+    basic.SubtypeOf(potential_type, field_type),
+    !isPrimitiveType(next_field_type),
+    !isPrimitiveType(field_type),
+    !_StringConstant(value),
+    !HeapAllocation_Null(value),
+    !isNullType(potential_type),
+    mainAnalysis.InstanceFieldPointsTo(_, value, next_field_signature, _, _).
+    
+.output PotentialValue
+
+.decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
+
+/**
+ * 添加 VarPointsTo 信息，采用 non-recursive 的方式来分析,
+ * 以下 rules 实现 泛化函数功能。
+*/
+Extend_VarPointsTo(valueType, invocation, base),
+mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, valueType), mainAnalysis.Value_DeclaringType(value, valueType),
+MockObject(value, valueType),
+mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
+    // Copy 之前的 上下文 信息
+    mainAnalysis.VarPointsTo(hctx, potential_value, callerCtx, base),
+    // 依赖于 basic.ResolveInvocation 中是否有解
+    // valueType 为 泛化后的 class 类型
+    basic.ResolveInvocation(valueType, invocation, _),
+    VirtualMethodInvocation_Base(invocation, base),
+    PotentialValue(potential_value, _),
+    // 构造新的value
+    value = cat(valueType, "::MockObject").
+
+.output Extend_VarPointsTo
+.output basic.ResolveInvocation
+
+/**
+ * Doop 中 isStaticMethodInvocation_Insn 等 rules 需要 为 非 ApplicationMethod 才补充。 
+ * 注意: 以下三条rules，绝对不可以忽略掉
+*/
+.decl Extend_Obtain_Invocation(instruction: symbol)
+
+// // Todo: 优化
+// Extend_Obtain_Invocation(instruction),
+// isStaticMethodInvocation_Insn(instruction) :-
+//     PotentialValue(_, type),
+//     Method_DeclaringType(inmethod, type),
+//     _StaticMethodInvocation(instruction, _, _, inmethod).
+
+// Extend_Obtain_Invocation(instruction),
+// isSpecialMethodInvocation_Insn(instruction),
+// SpecialMethodInvocation_Base(instruction, base) :-
+//     PotentialValue(_, type),
+//     Method_DeclaringType(inmethod, type),
+//     _SpecialMethodInvocation(instruction, _, _, base, inmethod).
+
+// Extend_Obtain_Invocation(instruction),
+// isVirtualMethodInvocation_Insn(instruction),
+// VirtualMethodInvocation_Base(instruction, base) :-
+//     PotentialValue(_, type),
+//     Method_DeclaringType(inmethod, type),
+//     _VirtualMethodInvocation(instruction, _, _, base, inmethod).
+
+// .output Extend_Obtain_Invocation

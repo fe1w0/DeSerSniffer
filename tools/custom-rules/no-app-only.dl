@@ -1,0 +1,45 @@
+//-----------------------------------------------------------------------------
+// Start Custom rules
+//-----------------------------------------------------------------------------
+
+// --- basic ---
+// 设置 entryPoints, 注意 override 部分已经修改原 doop 的 entryPoints
+#include "basic/entry-points.dl"
+
+// 设置 FLOW_LABEL
+#define INFO_FLOW_LABEL "UnSafeSerCheck"
+
+// 设置 source 和 sink 函数名
+#include "basic/define-source-and-sink-method-name.dl"
+
+// --- analysis ---
+// 完善 污点分析和指针分析
+
+// 加载 计算函数摘要 谓词，实现 污点分析的 may 分析
+// 解决 原doop框架中，需要手动设置污点传播的问题
+#include "analysis/method-summary.dl"
+
+// 原 doop 在 app-only 下，无法分析 泛化问题
+// 需要添加 CHA算法（doop）中有，且根据 污点源 进行优化
+// 同时需要避免掉原rules在--app-only中，指针分析缺失的情况
+// #include "analysis/extend-analysis.dl"
+#include "analysis/new-extend-analysis.dl"
+
+// 完善 readObject 关系 和 污点转移
+// #include "analysis/extend-readObject.dl"
+
+// --- Output ---
+// 导出用于插桩的信息
+// #include "output/output-instrumentation.dl"
+
+// 添加 ChainPaths 导出功能
+// #include "output/identify-chain-paths.dl"
+
+// 添加 Property Tree 导出工具，用于生成属性树
+// #include "output/export-property-tree.dl"
+
+// 加载 output
+// #include "output/output.dl"
+//-----------------------------------------------------------------------------
+// End. Custome rules
+//-----------------------------------------------------------------------------

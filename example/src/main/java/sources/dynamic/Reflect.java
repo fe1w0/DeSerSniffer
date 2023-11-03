@@ -16,9 +16,14 @@ public class Reflect {
         exec(code);
     }
 
+    public Object getObject(String code) {
+        return (Object) code;
+    }
+
     public void exec(String code) {
+        Object tmpObject = getObject(code);
+        tmpObject.hashCode();
         EvilObject evilObject = new EvilObject();
         evilObject.evil(code);
     }
-
 }

@@ -13,6 +13,8 @@
 */
 .decl PotentialType(type: symbol)
 
+.decl PotenticalField(field: symbol)
+
 .decl PotentialOnlyType(type: symbol)
 
 .decl AbortClass(type: symbol)
@@ -49,6 +51,7 @@ AbortClass(type) :-
 
 // Todo: 优化
 // 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
+PotenticalField(field_signature),
 PotentialType(potential_type) :-
     DefineSourceMethod(method),
     // 函数 存在于 哪些 class 中
@@ -66,6 +69,7 @@ PotentialType(potential_type) :-
     !AbortClass(potential_type).
 
 // 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialType
+PotenticalField(next_field_signature),
 PotentialType(potential_type) :-
     PotentialType(original_value_type),
     Field_DeclaringType(next_field_signature, original_value_type),
@@ -84,36 +88,7 @@ PotentialOnlyType("java.lang.Class").
 .output PotentialOnlyType
 .output basic.SubtypeOf
 .output PotentialType
-
-
-/**
- * 在 app-only 模式中，以下数据必须要得到分析，
-*/
-.decl Extend_Obtain_Invocation(instruction: symbol)
-
-
-
-Extend_Obtain_Invocation(instruction),
-isStaticMethodInvocation_Insn(instruction) :-
-    PotentialOnlyType(type),
-    Method_DeclaringType(inmethod, type),
-    _StaticMethodInvocation(instruction, _, _, inmethod).
-
-Extend_Obtain_Invocation(instruction),
-isSpecialMethodInvocation_Insn(instruction),
-SpecialMethodInvocation_Base(instruction, base) :-
-    PotentialOnlyType(type),
-    Method_DeclaringType(signature, type),
-    _SpecialMethodInvocation(instruction, _, signature, base, _).
-
-Extend_Obtain_Invocation(instruction),
-isVirtualMethodInvocation_Insn(instruction),
-VirtualMethodInvocation_Base(instruction, base) :-
-    PotentialOnlyType(type),
-    Method_DeclaringType(signature, type),
-    _VirtualMethodInvocation(instruction, _, signature, base, _).
-
-.output Extend_Obtain_Invocation
+.output PotenticalField
 
 /**
  * 添加 VarPointsTo 信息，采用 non-recursive 的方式来分析,
@@ -141,4 +116,3 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
 
 .output Extend_VarPointsTo
 .output basic.ResolveInvocation
-

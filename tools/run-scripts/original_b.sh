@@ -77,7 +77,7 @@ SOUFFLE_PROFILE="--souffle-profile"
 # MaxMemory="--max-memory 8g"
 
 # extra logic
-EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/no-app-only.dl"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/app-only.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"

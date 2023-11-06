@@ -102,7 +102,7 @@ ENABLE_REFLECTION="--light-reflection-glue"
 # ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
-APP_ONLY="--app-only"
+# APP_ONLY="--app-only"
 
 # Log Level
 LOG="--level debug"

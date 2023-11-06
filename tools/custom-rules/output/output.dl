@@ -6,20 +6,10 @@
 .output TaintedValue
 .output mainAnalysis.Reachable
 
-// 输出
-// 函数摘要
-.output ParamToRetSummarizeMethod
-.output ParamToBaseSummarizeMethod
-.output BaseToParamSummarizeMethodName
-.output BaseToRetSummarizeMethodName
-
 // 插桩的数据
 .output OutputInstrumentationMethod
 
 // 污点分析结果
-.output SinkVariable
-.output ReachableSinks
-.output ReachableTaintedSinks
 .output fromSourceCallGraph
 
 // Method_Descriptor

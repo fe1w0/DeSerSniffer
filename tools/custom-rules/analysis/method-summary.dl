@@ -85,3 +85,9 @@ BaseToRetSummarizeMethod(method) :-
 BaseToRetTaintTransferMethod(method),
 BaseToRetSummarizeMethodName(method) :-
     BaseToRetSummarizeMethod(method).
+
+// 输出函数摘要
+.output ParamToRetSummarizeMethod
+.output ParamToBaseSummarizeMethod
+.output BaseToParamSummarizeMethodName
+.output BaseToRetSummarizeMethodName

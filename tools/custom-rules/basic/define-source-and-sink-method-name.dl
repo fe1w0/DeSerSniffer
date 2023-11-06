@@ -22,3 +22,52 @@ LeakingSinkMethod(label, method) :-
 	label = INFO_FLOW_LABEL,
 	isMethod(method),
 	DefineSinkMethod(method).
+
+.output LeakingSinkMethod
+.output TaintSourceMethod
+.output TaintedVarPointsTo
+
+/**
+ * LeakingTaintedInformation: 用于判断是否存在漏洞，即SinkMethod被污点传播的判断规则
+ * 根据doop源代码分析，实际由 LeakingSinkVariable。
+ * 原逻辑中分析了：
+ * 1. sink 无参数，污点源为 base
+ * 2. sink 有参数，且与 source 存在关系
+ * 但还需要考虑，
+ * 1. sink 有参数，污点源为 base
+*/
+
+LeakingSinkVariable(label, invocation, ctx, var) :-
+    LeakingSinkMethod(label, tomethod),
+    MethodInvocationInContextInApplication(ctx, invocation, tomethod),
+    MethodInvocation_Base(invocation, var).
+
+.decl ReachableSinks(invocation:MethodInvocation)
+
+// ReachableTaintedSinks Sinks 中哪些变量是可被污染的
+.decl ReachableTaintedSinks(invocation:MethodInvocation, param:Var)
+.decl SinkVariable(param:Var)
+
+ReachableSinks(invocation) :-
+    LeakingTaintedInformation(_, _, _, invocation, _).
+
+ReachableTaintedSinks(invocation, actual) :-
+    ReachableSinks(invocation),
+    ActualParam(_, invocation, actual), // FIXME set index in sink
+    mainAnalysis.VarPointsTo(_, value, _, actual),
+    MockObject(value, _).
+
+ReachableTaintedSinks(invocation, actual) :-
+    ReachableSinks(invocation),
+    // actual 为 base
+    actual = varBase,
+    MethodInvocation_Base(invocation, varBase),
+    mainAnalysis.VarPointsTo(_, _, _, varBase).
+
+SinkVariable(v) :-
+   ReachableTaintedSinks(_, v).
+
+// 污点分析结果
+.output SinkVariable
+.output ReachableSinks
+.output ReachableTaintedSinks

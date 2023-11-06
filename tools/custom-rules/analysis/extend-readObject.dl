@@ -9,6 +9,8 @@
 
 .decl ExtendReadObjectMiddle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
 
+.decl ExtendReadObjectMiddle_ContextRequest_Method(method: Method)
+
 .decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
 
 mainAnalysis.Value_isMock(newValue),
@@ -16,6 +18,7 @@ MockObject(newValue, type),
 TaintTranferToObjectField(hctx, cat(cat(cat(cat(invocation, "::: "), type), "::: "), "ASSIGN"), ctx, this),
 MethodInvocationInContext(ctx, invocation, newMethod),
 TypeForReturnValue(type, to, invocation),
+ExtendReadObjectMiddle_ContextRequest_Method(newMethod),
 ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, newValue, newMethod, 1) :-
     // type = sources.serialize.UnsafeSerialize
     AssignCast(type, _, to, inmethod),
@@ -52,7 +55,6 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
     AssignLocal(this, actualThis, inmethod).
 
 #define ENABLE_MINING 1
-
 /**
  * 需要考虑漏洞挖掘情况下，当前 application 中不存在调用，但也需要查找潜在的利用链:
  * 算法如下:
@@ -97,7 +99,7 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
     TaintSourceMethod(old_label, method),
     // 不存在 调用 method 的 MethodInvocation
     // 确实对于 readObject 来说，确实没有直接的对应的 MethodInvocation_Method
-    !ExtendReadObjectMiddle_ContextRequest(_, _, _, _, method, _),
+    !ExtendReadObjectMiddle_ContextRequest_Method(method),
     old_label != label,
     // 对于 readObject 来说 需要将 第一个
     FormalParam(0, method, to),
@@ -111,4 +113,5 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
     // mainAnalysis.isImmutableHContext(hctx),
     hctx = "<<immutable-hcontext>>",
     ctx = "<<immutable-context>>".
+
 #endif

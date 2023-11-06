@@ -9,7 +9,9 @@
  * PotentialType 主要为 函数泛化 提供支持。
  * 认为可泛化点存在两个条件:
  * 1. 被反序列化控制，即从 readObject 开始
- * 2. 
+ * 2. PotentialType 为所有的的子类（含自身）
+ * 从 1、 2 中可以推断出，若存在泛化导致的污点分析，最直接的原因是因为反序列化导致的类型泛化，也即是 field 上的泛化问题
+ *（还有一种可能，控制流的不同，导致的泛化，但不是本研究的重点
 */
 .decl PotentialType(type: symbol)
 
@@ -64,7 +66,7 @@ PotentialType(potential_type) :-
     Field_Type(field_signature, field_type),
     // potential_type 是 field_type 的子类
     basic.SubtypeOf(potential_type, field_type),
-    _ClassType(potential_type),
+    // _ClassType(potential_type),
     !AbortClass(field_type),
     !AbortClass(potential_type).
 
@@ -75,7 +77,7 @@ PotentialType(potential_type) :-
     Field_DeclaringType(next_field_signature, original_value_type),
     Field_Type(next_field_signature, next_field_type),
     basic.SubtypeOf(potential_type, next_field_type),
-    _ClassType(potential_type),
+    // _ClassType(potential_type),
     !AbortClass(potential_type).
 
 PotentialOnlyType(type) :-
@@ -89,30 +91,120 @@ PotentialOnlyType("java.lang.Class").
 .output basic.SubtypeOf
 .output PotentialType
 .output PotenticalField
+.output Field_DeclaringType
 
 /**
- * 添加 VarPointsTo 信息，采用 non-recursive 的方式来分析,
- * 以下 rules 实现 泛化函数功能。
- * 需要注意，有些 type 是 java.lang.Object, 利用 ResolveInvocation 降低空间。
+ * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
+ * 需要注意，对于 type 是 java.lang.Object, 不能使用 PotentialType。
 */
 .decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
 
 /**
- * Todo: 优化 
+ * Extend_VarPointsTo 当前版本存在计算错误
+ * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
+ * 注意：
+ * - 坑点：basic.MethodLookup 查找不全，裂开
+ * Log: 目前已经修复
 */
 Extend_VarPointsTo(valueType, invocation, base),
 mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, valueType), mainAnalysis.Value_DeclaringType(value, valueType),
 MockObject(value, valueType),
 mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
-    VirtualMethodInvocation_SimpleName(invocation, simplename),
-    VirtualMethodInvocation_Descriptor(invocation, descriptor),
-    basic.MethodLookup(simplename, descriptor, valueType, to_method),
     PotentialOnlyType(valueType),
     mainAnalysis.isImmutableContext(ctx),
     mainAnalysis.isImmutableHContext(hctx),
-    _VirtualMethodInvocation(invocation, _, to_method, base, _),
+    basic.ResolveInvocation(valueType, invocation, _),
+    _VirtualMethodInvocation(invocation, _, _, base, _),
     // 构造新的value
     value = cat(valueType, "::MockObject").
 
 .output Extend_VarPointsTo
 .output basic.ResolveInvocation
+.output basic.MethodLookup
+
+
+/**
+ * 以下内容是来解决 ApplicationClass 问题。
+ * 具体的优化问题如下: 
+ * - 在doop框架中， `--app-only` 选项下， 不会认为 rt.jar 这类底层组件是 application
+ * - 但对于 反序列化来说，最常用和最可能的利用链中，就可以存在于 rt.jar 中，如 java.util.hashMap, java.util.hashSet
+ * 如果直接不采用 `--app-only`，主要是分析的空间会爆炸，时间成本也高。
+*/
+
+/**
+ * 目前的版本，是手动的将一些需要考虑的 Method 添加进去 到 Accept_Extend_Obtain_Method 中。
+ * Todo: 从一个压缩且完备的Domain空间中，对其中所有的invocation进行分析。
+ * 对应的压缩且完备的Domain空间，预计定义为: 从 source_method，到其中 invocation 的 所有子类 signature
+ * 这也是为什么 不能直接用 PotentialType 构建压缩空间的原因。
+ * 且需要注意，一定不能构建 CallGraph, recursive-exection 一定不能存在。
+ * 且为了避免分析中的爆炸问题，需要构建一个 whole-may-call-graph ，以此自动得到所有的 Accept_Extend_Obtain_Method
+ * 否则还是陷入到 recursive-exection 爆炸。
+*/
+.decl Accept_Extend_Obtain_Method(method: Method)
+.decl Accept_Extend_Obtain_Class(class: symbol)
+.decl Extend_Obtain_Invocation(instruction: symbol)
+
+
+/**
+ * 最困难的地方，需要提出一个 whole-may-call-graph，从污点源开始。
+ * 在readObect中，存在两种不同分析路径和污点源设置，
+ * 第一种：readObject在inmethod中，后面在inmethod中分析
+ * 第二种: 从 <Class>: readObject 中分析调用
+ * 本项目中，选择第二种分析方式，认为最具有普遍分析价值。
+*/
+.decl WHOLE_MAY_CALL_GRAPH(invocation:Instruction, to_method: Method)
+
+// // 从 source_method: readObject
+// WHOLE_MAY_CALL_GRAPH(invocation, tmp_to_method),
+// WHOLE_MAY_CALL_GRAPH(invocation, to_method) :- 
+//     TaintSourceMethod(_, in_source_method),
+//     Instruction_Method(invocation, in_source_method),
+//     // 需要注意 to_method 可能需要指针分析的分析
+//     MethodInvocation_Method(invocation, tmp_to_method),
+//     // MethodOverridesOther 缺失
+//     basic.MethodOverridesOther(to_method, tmp_to_method).
+
+// // 从 to_method 中 继续构造 WHOLE_MAY_CALL_GRAPH
+// WHOLE_MAY_CALL_GRAPH(invocation, tmp_next_to_method),
+// WHOLE_MAY_CALL_GRAPH(invocation, next_to_method) :-
+//     WHOLE_MAY_CALL_GRAPH(pre_invocation, to_method),
+//     pre_invocation != invocation,
+//     Instruction_Method(invocation, to_method),
+//     MethodInvocation_Method(invocation, tmp_next_to_method),
+//     basic.MethodOverridesOther(next_to_method, tmp_next_to_method).
+
+// Accept_Extend_Obtain_Method(method) :-
+//     WHOLE_MAY_CALL_GRAPH(_, method).
+    
+Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+Accept_Extend_Obtain_Method("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>").
+Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>").
+Accept_Extend_Obtain_Method("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>").
+Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Object newInstance()>").
+
+/**
+ * 采用 Accept_Extend_Obtain_Method 是因为，signature 的空间比 instruction 要小很多。
+*/
+Extend_Obtain_Invocation(instruction),
+isStaticMethodInvocation_Insn(instruction) :-
+    Accept_Extend_Obtain_Method(signature),
+    _StaticMethodInvocation(instruction, _, signature, inmethod).
+
+Extend_Obtain_Invocation(instruction),
+isSpecialMethodInvocation_Insn(instruction),
+SpecialMethodInvocation_Base(instruction, base) :-
+    Accept_Extend_Obtain_Method(signature),
+    _SpecialMethodInvocation(instruction, _, signature, base, inmethod).
+
+Extend_Obtain_Invocation(instruction),
+isVirtualMethodInvocation_Insn(instruction),
+VirtualMethodInvocation_Base(instruction, base) :-
+    Accept_Extend_Obtain_Method(signature),
+    _VirtualMethodInvocation(instruction, _, signature, base, inmethod).
+
+.output basic.MethodOverridesOther
+.output WHOLE_MAY_CALL_GRAPH
+.output Accept_Extend_Obtain_Method
+.output Extend_Obtain_Invocation

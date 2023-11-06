@@ -26,11 +26,11 @@
 #include "analysis/new-extend-analysis.dl"
 
 // 完善 readObject 关系 和 污点转移
-// #include "analysis/extend-readObject.dl"
+#include "analysis/extend-readObject.dl"
 
 // --- Output ---
 // 导出用于插桩的信息
-// #include "output/output-instrumentation.dl"
+#include "output/output-instrumentation.dl"
 
 // 添加 ChainPaths 导出功能
 // #include "output/identify-chain-paths.dl"

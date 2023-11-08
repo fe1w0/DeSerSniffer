@@ -51,6 +51,9 @@ AbortClass(type) :-
 AbortClass(type) :-
     isPrimitiveType(type).
 
+AbortClass("java.util.Set").
+
+
 // Todo: 优化
 // 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
 PotenticalField(field_signature),
@@ -66,25 +69,25 @@ PotentialType(potential_type) :-
     Field_Type(field_signature, field_type),
     // potential_type 是 field_type 的子类
     basic.SubtypeOf(potential_type, field_type),
-    // _ClassType(potential_type),
+    _ClassType(potential_type),
     !AbortClass(field_type),
     !AbortClass(potential_type).
 
-// 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialType
-PotenticalField(next_field_signature),
-PotentialType(potential_type) :-
-    PotentialType(original_value_type),
-    Field_DeclaringType(next_field_signature, original_value_type),
-    Field_Type(next_field_signature, next_field_type),
-    basic.SubtypeOf(potential_type, next_field_type),
-    // _ClassType(potential_type),
-    !AbortClass(potential_type).
+// // 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialType
+// PotenticalField(next_field_signature),
+// PotentialType(potential_type) :-
+//     PotentialType(original_value_type),
+//     Field_DeclaringType(next_field_signature, original_value_type),
+//     Field_Type(next_field_signature, next_field_type),
+//     basic.SubtypeOf(potential_type, next_field_type),
+//     _ClassType(potential_type),
+//     !AbortClass(potential_type).
 
 PotentialOnlyType(type) :-
     PotentialType(type).
 
-PotentialOnlyType("java.lang.Object").
-PotentialOnlyType("java.lang.Class").
+// PotentialOnlyType("java.lang.Object").
+// PotentialOnlyType("java.lang.Class").
 
 .output AbortClass
 .output PotentialOnlyType
@@ -104,7 +107,7 @@ PotentialOnlyType("java.lang.Class").
  * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
  * 注意：
  * - 坑点：basic.MethodLookup 查找不全，裂开
- * Log: 目前已经修复
+ * Log: 针对 
 */
 Extend_VarPointsTo(valueType, invocation, base),
 mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, valueType), mainAnalysis.Value_DeclaringType(value, valueType),
@@ -175,7 +178,9 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
 
 // Accept_Extend_Obtain_Method(method) :-
 //     WHOLE_MAY_CALL_GRAPH(_, method).
-    
+
+
+// 反射相关
 Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
 Accept_Extend_Obtain_Method("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
 Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
@@ -183,6 +188,17 @@ Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Method getDecla
 Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>").
 Accept_Extend_Obtain_Method("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>").
 Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Object newInstance()>").
+
+// <java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>
+
+// 反序列化相关
+Accept_Extend_Obtain_Method(method) :-
+    (
+        method = "<java.io.ObjectInputStream: java.lang.Object readObject()>";
+        method = "<java.io.ObjectInputStream: float readFloat()>";
+        method= "<java.io.ObjectInputStream: float readFloat()>"
+    ).
+
 
 /**
  * 采用 Accept_Extend_Obtain_Method 是因为，signature 的空间比 instruction 要小很多。

@@ -4,7 +4,7 @@
  # @Author: fe1w0 xzasliuxinrong@gmail.com
  # @Date: 2023-10-29 17:25:28
  # @LastEditors: fe1w0 xzasliuxinrong@gmail.com
- # @LastEditTime: 2023-11-03 11:10:08
+ # @LastEditTime: 2023-11-13 20:46:09
  # @FilePath: /DataSet/tools/overwrite.sh
  # @Description: 覆盖原doop中的 soufflé-rules
 ### 
@@ -31,7 +31,7 @@ function overwrite() {
     fi
 
     # overwrite
-    overwrite_rules=("entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl")
+    overwrite_rules=("entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl", "implicit-reachable")
     
     echo -e "overwrite-rules:"
     for overwrite_rule in "${overwrite_rules[@]}"
@@ -51,6 +51,8 @@ function overwrite() {
 
     # 优化分析速度
     cp overwrite-rules/native-reflection.dl $DOOP_HOME/souffle-logic/main/reflection/native-reflection.dl
+    
+    cp overwrite-rules/implicit-reachable.dl $DOOP_HOME/souffle-logic/main/implicit-reachable.dl
 
     echo "[+] Finish."
 }

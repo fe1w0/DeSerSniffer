@@ -1,0 +1,44 @@
+/**
+ * 导出需要的call-graph
+*/
+
+/**
+ * 分析从 source 的 CallGraph
+*/
+.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method, label: InformationLabel)
+
+/**
+ * 检测函数是否在从Source开始的CallGraph中
+*/
+.decl isMethodInSourceCallGraph(method: Method)
+
+/**
+ * method 被认为 无法在 fromSourceCallGraph中传递，只能作为 End 结点。
+*/
+.decl EndMethodInTransfer(method: Method)
+
+EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
+EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+
+fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
+    (
+        !TaintSourceMethod(MINING_LABEL, sourceMethod),TaintSourceMethod(INFO_FLOW_LABEL, sourceMethod);
+        TaintSourceMethod(MINING_LABEL, sourceMethod)
+    ),
+    mainAnalysis.Reachable(sourceMethod).
+
+fromSourceCallGraph(fromMethod, toMethod, label) :-
+    mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
+    fromSourceCallGraph(_, fromMethod, label),
+    fromMethod != toMethod,
+    Instruction_Method(invocation, fromMethod),
+    !EndMethodInTransfer(fromMethod).
+
+isMethodInSourceCallGraph(toMethod) :-
+    fromSourceCallGraph(_, toMethod, _).
+
+.output fromSourceCallGraph
+.output isMethodInSourceCallGraph

@@ -65,7 +65,7 @@ ANALYSIS="context-insensitive"
 JIMPLE="--generate-jimple"
 
 # OPEN PROGRAM
-OPEN_PROGRAM="--open-programs concrete-types"
+# OPEN_PROGRAM="--open-programs concrete-types"
 
 # souffle
 SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
@@ -94,8 +94,6 @@ FACTS="--report-phantoms --fact-gen-cores ${JOBS}"
 
 # Reflection
 # --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥
-# --reflection-classic
-# ENABLE_REFLECTION="--reflection-classic"
 ENABLE_REFLECTION="--light-reflection-glue"
 
 # Proxy

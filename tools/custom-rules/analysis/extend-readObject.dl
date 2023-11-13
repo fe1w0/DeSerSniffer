@@ -13,6 +13,8 @@
 
 .decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
 
+// 强制产生 上下文
+mainAnalysis.ForcedReachable(method),
 mainAnalysis.Value_isMock(newValue),
 MockObject(newValue, type),
 TaintTranferToObjectField(hctx, cat(cat(cat(cat(invocation, "::: "), type), "::: "), "ASSIGN"), ctx, this),
@@ -55,6 +57,7 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
     AssignLocal(this, actualThis, inmethod).
 
 #define ENABLE_MINING 1
+
 /**
  * 需要考虑漏洞挖掘情况下，当前 application 中不存在调用，但也需要查找潜在的利用链:
  * 算法如下:
@@ -70,41 +73,27 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
  * 所以，还需要 对于 readObject 无实际调用的 source 函数，也需要完善指针分析和污点分析。
 */
 
-// mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-// isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-// mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  type), 
-// mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), "java.lang.Object"), 
-// TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-// SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  invo), LabelFromSource( invo,  label),
-// mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
-// mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
-//     CallTaintingMethod(label, ctx, invo),
-//     mainAnalysis.isImmutableHContext(hctx),
-//     TypeForReturnValue(type, to, invo),
-//     Instruction_Method(invo, method),
-//     Method_DeclaringType(method, declaringType).
-
 #ifdef ENABLE_MINING
 
 TaintSourceMethod(label, method),
+LabelFromSource(invo,  label),
+// 强制产生 上下文
+mainAnalysis.ForcedReachable(method),
+TaintTranferToObjectField(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, this),
 mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
 isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  type), 
-mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), "java.lang.Object"), 
 TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"),  invo), 
-LabelFromSource( invo,  label),
+SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), invo), 
+mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), type), 
 mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
 mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
-    TaintSourceMethod(old_label, method),
-    // 不存在 调用 method 的 MethodInvocation
-    // 确实对于 readObject 来说，确实没有直接的对应的 MethodInvocation_Method
+    TaintSourceMethod(INFO_FLOW_LABEL, method),
+    // 不存在 调用 method 的 MethodInvocation 来说，应当没有直接的对应的 MethodInvocation_Method
     !ExtendReadObjectMiddle_ContextRequest_Method(method),
-    old_label != label,
+    label = MINING_LABEL,
     // 对于 readObject 来说 需要将 第一个
     FormalParam(0, method, to),
-    // 设置新的 label
-    label = "MINING",
+    ThisVar(method, this),
     // type
     type = declaringType,
     // create invo
@@ -113,5 +102,4 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
     // mainAnalysis.isImmutableHContext(hctx),
     hctx = "<<immutable-hcontext>>",
     ctx = "<<immutable-context>>".
-
 #endif

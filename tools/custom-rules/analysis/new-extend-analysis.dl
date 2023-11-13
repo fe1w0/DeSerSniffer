@@ -1,3 +1,5 @@
+#define Enable_Other_Method
+
 /**
  * 对于 反序列化 漏洞检测来说, 需要考虑到子类的函数调用。
  * 但原 doop 中的 污点分析中，常规选择下无法实现对应的功能。
@@ -15,9 +17,16 @@
 */
 .decl PotentialType(type: symbol)
 
+/**
+ * PotentialEnd_Type 表示 在属性树中的 部分 End Node
+*/
+.decl PotentialEnd_Type(type: symbol)
+
 .decl PotenticalField(field: symbol)
 
 .decl PotentialOnlyType(type: symbol)
+
+.decl PotentialAllType(type: symbol)
 
 .decl AbortClass(type: symbol)
 
@@ -35,6 +44,23 @@ AbortClassJavaLang(type) :-
   ;type = "java.lang.Short"
   ;type = "java.lang.String").
 
+.decl AllCollectionClass(class: symbol)
+
+AllCollectionClass(class) :-
+  isClassType(class),
+  basic.SubtypeOf(class, superclass),
+  (superclass = "java.util.Map";
+   superclass = "java.util.Collection";
+   superclass = "java.util.Iterable";
+   superclass = "java.util.Iterator";
+   superclass = "java.util.Comparator";
+   superclass = "java.util.Dictionary";
+   superclass = "java.util.TimSort";
+   superclass = "java.util.ComparableTimSort";
+   superclass = "java.util.Arrays";
+   superclass = "java.util.Objects";
+   superclass = "java.util.Collections").
+
 AbortClass(type) :-
     match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*", type),
     _ClassType(type).
@@ -51,10 +77,9 @@ AbortClass(type) :-
 AbortClass(type) :-
     isPrimitiveType(type).
 
-AbortClass("java.util.Set").
+AbortClass(type) :-
+    AllCollectionClass(type).
 
-
-// Todo: 优化
 // 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
 PotenticalField(field_signature),
 PotentialType(potential_type) :-
@@ -69,61 +94,97 @@ PotentialType(potential_type) :-
     Field_Type(field_signature, field_type),
     // potential_type 是 field_type 的子类
     basic.SubtypeOf(potential_type, field_type),
-    _ClassType(potential_type),
     !AbortClass(field_type),
     !AbortClass(potential_type).
 
 // // 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialType
-// PotenticalField(next_field_signature),
-// PotentialType(potential_type) :-
-//     PotentialType(original_value_type),
-//     Field_DeclaringType(next_field_signature, original_value_type),
-//     Field_Type(next_field_signature, next_field_type),
-//     basic.SubtypeOf(potential_type, next_field_type),
-//     _ClassType(potential_type),
-//     !AbortClass(potential_type).
+PotenticalField(next_field_signature),
+PotentialType(potential_type) :-
+    PotentialType(original_value_type),
+    Field_DeclaringType(next_field_signature, original_value_type),
+    Field_Type(next_field_signature, next_field_type),
+    basic.SubtypeOf(potential_type, next_field_type),
+    !AbortClass(next_field_type),
+    !AbortClass(potential_type).
+
+PotentialEnd_Type(next_field_type) :-
+    PotentialType(original_value_type),
+    Field_DeclaringType(next_field_signature, original_value_type),
+    Field_Type(next_field_signature, next_field_type),
+    (
+        AllCollectionClass(next_field_type);
+        Type_object(next_field_type)
+    ).
+
+PotentialEnd_Type(field_type) :-
+    DefineSourceMethod(method),
+    // 函数 存在于 哪些 class 中
+    Method_DeclaringType(method, class),
+    // field 存在于 哪些 class 中
+    // Field_DeclaringType 为 显式声明
+    // 但存在 field 继承的问题
+    Field_DeclaringType(field_signature, class),
+    // field 属于 什么类型
+    Field_Type(field_signature, field_type),
+    // potential_type 是 field_type 的子类
+    (
+        AllCollectionClass(field_type);
+        Type_object(field_type)
+    ).
 
 PotentialOnlyType(type) :-
     PotentialType(type).
 
-// PotentialOnlyType("java.lang.Object").
-// PotentialOnlyType("java.lang.Class").
+PotentialOnlyType(type) :-
+    PotentialEnd_Type(type).
+
+PotentialAllType(type) :-
+    PotentialOnlyType(type).
+
+PotentialAllType(type) :-
+    (AllCollectionClass(type);
+    Type_object(type)).
 
 .output AbortClass
 .output PotentialOnlyType
 .output basic.SubtypeOf
+.output AllCollectionClass
+.output Field_DeclaringType
 .output PotentialType
 .output PotenticalField
-.output Field_DeclaringType
+.output PotentialEnd_Type
+.output PotentialAllType
 
-/**
- * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
- * 需要注意，对于 type 是 java.lang.Object, 不能使用 PotentialType。
-*/
-.decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
+// /**
+//  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
+//  * 需要注意，对于 type 是 java.lang.Object, 不能使用 PotentialType。
+// */
+// .decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
 
-/**
- * Extend_VarPointsTo 当前版本存在计算错误
- * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
- * 注意：
- * - 坑点：basic.MethodLookup 查找不全，裂开
- * Log: 针对 
-*/
-Extend_VarPointsTo(valueType, invocation, base),
-mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, valueType), mainAnalysis.Value_DeclaringType(value, valueType),
-MockObject(value, valueType),
-mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
-    PotentialOnlyType(valueType),
-    mainAnalysis.isImmutableContext(ctx),
-    mainAnalysis.isImmutableHContext(hctx),
-    basic.ResolveInvocation(valueType, invocation, _),
-    _VirtualMethodInvocation(invocation, _, _, base, _),
-    // 构造新的value
-    value = cat(valueType, "::MockObject").
+// /**
+//  * Extend_VarPointsTo 当前版本存在计算错误
+//  * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
+//  * 注意：
+//  * - 坑点：basic.MethodLookup 查找不全，裂开
+//  * Log: 针对 
+// */
+// Extend_VarPointsTo(valueType, invocation, base),
+// mainAnalysis.Value_isMock(value), isValue(value), 
+// mainAnalysis.Value_Type(value, valueType), 
+// mainAnalysis.Value_DeclaringType(value, valueType),
+// MockObject(value, valueType),
+// mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
+//     PotentialOnlyType(valueType),
+//     mainAnalysis.isImmutableContext(ctx),
+//     mainAnalysis.isImmutableHContext(hctx),
+//     basic.ResolveInvocation(valueType, invocation, _),
+//     _VirtualMethodInvocation(invocation, _, _, base, in_method),
+//     // 构造新的value
+//     value = cat(valueType, "::MockObject").
 
-.output Extend_VarPointsTo
-.output basic.ResolveInvocation
-.output basic.MethodLookup
+// .output Extend_VarPointsTo
+// .output basic.ResolveInvocation
+// .output basic.MethodLookup
 
 
 /**
@@ -199,6 +260,10 @@ Accept_Extend_Obtain_Method(method) :-
         method= "<java.io.ObjectInputStream: float readFloat()>"
     ).
 
+// 从 PotentialOnlyType 中提取所有的 Method
+Accept_Extend_Obtain_Method(method) :-
+    PotentialOnlyType(class),
+    Method_DeclaringType(method, class).
 
 /**
  * 采用 Accept_Extend_Obtain_Method 是因为，signature 的空间比 instruction 要小很多。
@@ -206,19 +271,24 @@ Accept_Extend_Obtain_Method(method) :-
 Extend_Obtain_Invocation(instruction),
 isStaticMethodInvocation_Insn(instruction) :-
     Accept_Extend_Obtain_Method(signature),
-    _StaticMethodInvocation(instruction, _, signature, inmethod).
+    isOpaqueMethod(signature),
+    _StaticMethodInvocation(instruction, _, signature, _in_method).
 
 Extend_Obtain_Invocation(instruction),
 isSpecialMethodInvocation_Insn(instruction),
 SpecialMethodInvocation_Base(instruction, base) :-
     Accept_Extend_Obtain_Method(signature),
-    _SpecialMethodInvocation(instruction, _, signature, base, inmethod).
+    isOpaqueMethod(signature),
+    _SpecialMethodInvocation(instruction, _, signature, base, _in_method).
 
 Extend_Obtain_Invocation(instruction),
 isVirtualMethodInvocation_Insn(instruction),
 VirtualMethodInvocation_Base(instruction, base) :-
     Accept_Extend_Obtain_Method(signature),
-    _VirtualMethodInvocation(instruction, _, signature, base, inmethod).
+    isOpaqueMethod(signature),
+    _VirtualMethodInvocation(instruction, _, signature, base, _in_method).
+
+.printsize Extend_Obtain_Invocation
 
 .output basic.MethodOverridesOther
 .output WHOLE_MAY_CALL_GRAPH

@@ -10,16 +10,16 @@
 // Avoid this issue:
 // [Negations with relatively grounded variables · Issue #730 · souffle-lang/souffle (github.com)]
 // (https://github.com/souffle-lang/souffle/issues/730)
-isMethodSuperOfApplicationMethod(?signature) :-
-  basic.MethodOverridesOther(?methodSub, ?signature),
-  ApplicationMethod(?methodSub).
+// isMethodSuperOfApplicationMethod(?signature) :-
+//   basic.MethodOverridesOther(?methodSub, ?signature),
+//   ApplicationMethod(?methodSub).
 
-// Fixed code:
-// ?signature maybe is the methodSuper of ApplicationMethod(?methodSub)
-isOpaqueMethod(?signature) :-
-  isMethod(?signature), 
-  !isMethodSuperOfApplicationMethod(?signature),
-  !ApplicationMethod(?signature).
+// // Fixed code:
+// // ?signature maybe is the methodSuper of ApplicationMethod(?methodSub)
+// isOpaqueMethod(?signature) :-
+//   isMethod(?signature), 
+//   !isMethodSuperOfApplicationMethod(?signature),
+//   !ApplicationMethod(?signature).
 
 // Next, treat opaque methods as stores/loads
 .decl OpaqueMethodInvocation(?instruction:MethodInvocation, ?base:Var, ?sigCallee:Method)

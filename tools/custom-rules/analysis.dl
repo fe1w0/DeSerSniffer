@@ -8,6 +8,7 @@
 
 // 设置 FLOW_LABEL
 #define INFO_FLOW_LABEL "UnSafeSerCheck"
+#define MINING_LABEL "MINING"
 
 // 设置 source 和 sink 函数名
 #include "basic/define-source-and-sink-method-name.dl"

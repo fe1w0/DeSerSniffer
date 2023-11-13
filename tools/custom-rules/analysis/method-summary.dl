@@ -12,7 +12,6 @@
  * Todo:
  *     - MockBaseToRetTaintTransferMethod
  *     - MockParamToRetTaintTransferMethod
-
  */
 
 // index-th 可以传递到 return
@@ -46,12 +45,22 @@
 
 .decl BaseToRetSummarizeMethodName(method: Method)
 
+.decl InValidReturnType(type: Type)
+
+InValidReturnType(type) :-
+    (
+        isPrimitiveType(type);
+        Type_null(type);
+        // AbortClassJavaLang taken from extend-analysis.dl
+        AbortClassJavaLang(type)
+    ).
+
 ParamToRetSummarizeMethod(index, method):-
     // parmam 是函数的形式参数
     FormalParam(index, method, _),
     // 函数是否存在返回值
     Method_ReturnType(method, type),
-    type != "void".
+    InValidReturnType(type).
 
 ParamToRetTaintTransferMethod(method),
 ParamToRetSummarizeMethodName(method) :-
@@ -80,7 +89,7 @@ BaseToRetSummarizeMethod(method) :-
     _AssignLocal(_, _, thisVar, _, method),
     // 函数是否存在返回值
     Method_ReturnType(method, type),
-    type != "void".
+    InValidReturnType(type).
 
 BaseToRetTaintTransferMethod(method),
 BaseToRetSummarizeMethodName(method) :-
@@ -91,3 +100,21 @@ BaseToRetSummarizeMethodName(method) :-
 .output ParamToBaseSummarizeMethod
 .output BaseToParamSummarizeMethodName
 .output BaseToRetSummarizeMethodName
+
+
+
+.decl AbortClassJavaLang(type: symbol)
+
+AbortClassJavaLang(type) :-
+    (type = "java.lang.Void"
+    ;type = "java.lang.Boolean"
+    ;type = "java.lang.Byte"
+    ;type = "java.lang.Character"
+    ;type = "java.lang.Double"
+    ;type = "java.lang.Float"
+    ;type = "java.lang.Integer"
+    ;type = "java.lang.Long"
+    ;type = "java.lang.Short"
+    ;type = "java.lang.String").
+
+.output AbortClassJavaLang

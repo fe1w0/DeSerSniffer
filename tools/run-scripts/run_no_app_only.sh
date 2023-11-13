@@ -1,4 +1,4 @@
-ID=cc_3_1_debug
+ID=cc_3_1_debug_no_app_only
 
 # original doop
 # DOOP_HOME=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/install/doop

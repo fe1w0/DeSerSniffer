@@ -14,7 +14,7 @@
 .decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
 
 // 强制产生 上下文
-mainAnalysis.ForcedReachable(method),
+mainAnalysis.ForcedReachable(newMethod),
 mainAnalysis.Value_isMock(newValue),
 MockObject(newValue, type),
 TaintTranferToObjectField(hctx, cat(cat(cat(cat(invocation, "::: "), type), "::: "), "ASSIGN"), ctx, this),
@@ -48,7 +48,10 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
     // 这个 this 是抽象的,非method中具体的 this 变量
     ThisVar(inmethod, this),
     AssignLocal(this, actualThis, inmethod),
-    LoadInstanceField(actualThis, _, to, inmethod).
+    LoadInstanceField(actualThis, _sign, to, inmethod),
+    Var_Type(to, type),
+    // InValidReturnType taken from method-summary.dl
+    !InValidReturnType(type).
 
 mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
     TaintTranferToObjectField(hctx, value, ctx, this),

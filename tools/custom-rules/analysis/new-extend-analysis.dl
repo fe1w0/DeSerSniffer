@@ -30,20 +30,6 @@
 
 .decl AbortClass(type: symbol)
 
-.decl AbortClassJavaLang(type: symbol)
-
-AbortClassJavaLang(type) :-
-  (type = "java.lang.Void"
-  ;type = "java.lang.Boolean"
-  ;type = "java.lang.Byte"
-  ;type = "java.lang.Character"
-  ;type = "java.lang.Double"
-  ;type = "java.lang.Float"
-  ;type = "java.lang.Integer"
-  ;type = "java.lang.Long"
-  ;type = "java.lang.Short"
-  ;type = "java.lang.String").
-
 .decl AllCollectionClass(class: symbol)
 
 AllCollectionClass(class) :-
@@ -80,6 +66,9 @@ AbortClass(type) :-
 AbortClass(type) :-
     AllCollectionClass(type).
 
+
+// Todo: 提取能力，过于弱小
+
 // 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
 PotenticalField(field_signature),
 PotentialType(potential_type) :-
@@ -115,6 +104,11 @@ PotentialEnd_Type(next_field_type) :-
         AllCollectionClass(next_field_type);
         Type_object(next_field_type)
     ).
+
+PotentialEnd_Type(class) :-
+    DefineSourceMethod(method),
+    // 函数 存在于 哪些 class 中
+    Method_DeclaringType(method, class).
 
 PotentialEnd_Type(field_type) :-
     DefineSourceMethod(method),
@@ -155,38 +149,6 @@ PotentialAllType(type) :-
 .output PotentialEnd_Type
 .output PotentialAllType
 
-// /**
-//  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
-//  * 需要注意，对于 type 是 java.lang.Object, 不能使用 PotentialType。
-// */
-// .decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
-
-// /**
-//  * Extend_VarPointsTo 当前版本存在计算错误
-//  * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
-//  * 注意：
-//  * - 坑点：basic.MethodLookup 查找不全，裂开
-//  * Log: 针对 
-// */
-// Extend_VarPointsTo(valueType, invocation, base),
-// mainAnalysis.Value_isMock(value), isValue(value), 
-// mainAnalysis.Value_Type(value, valueType), 
-// mainAnalysis.Value_DeclaringType(value, valueType),
-// MockObject(value, valueType),
-// mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
-//     PotentialOnlyType(valueType),
-//     mainAnalysis.isImmutableContext(ctx),
-//     mainAnalysis.isImmutableHContext(hctx),
-//     basic.ResolveInvocation(valueType, invocation, _),
-//     _VirtualMethodInvocation(invocation, _, _, base, in_method),
-//     // 构造新的value
-//     value = cat(valueType, "::MockObject").
-
-// .output Extend_VarPointsTo
-// .output basic.ResolveInvocation
-// .output basic.MethodLookup
-
-
 /**
  * 以下内容是来解决 ApplicationClass 问题。
  * 具体的优化问题如下: 
@@ -208,7 +170,6 @@ PotentialAllType(type) :-
 .decl Accept_Extend_Obtain_Class(class: symbol)
 .decl Extend_Obtain_Invocation(instruction: symbol)
 
-
 /**
  * 最困难的地方，需要提出一个 whole-may-call-graph，从污点源开始。
  * 在readObect中，存在两种不同分析路径和污点源设置，
@@ -217,29 +178,6 @@ PotentialAllType(type) :-
  * 本项目中，选择第二种分析方式，认为最具有普遍分析价值。
 */
 .decl WHOLE_MAY_CALL_GRAPH(invocation:Instruction, to_method: Method)
-
-// // 从 source_method: readObject
-// WHOLE_MAY_CALL_GRAPH(invocation, tmp_to_method),
-// WHOLE_MAY_CALL_GRAPH(invocation, to_method) :- 
-//     TaintSourceMethod(_, in_source_method),
-//     Instruction_Method(invocation, in_source_method),
-//     // 需要注意 to_method 可能需要指针分析的分析
-//     MethodInvocation_Method(invocation, tmp_to_method),
-//     // MethodOverridesOther 缺失
-//     basic.MethodOverridesOther(to_method, tmp_to_method).
-
-// // 从 to_method 中 继续构造 WHOLE_MAY_CALL_GRAPH
-// WHOLE_MAY_CALL_GRAPH(invocation, tmp_next_to_method),
-// WHOLE_MAY_CALL_GRAPH(invocation, next_to_method) :-
-//     WHOLE_MAY_CALL_GRAPH(pre_invocation, to_method),
-//     pre_invocation != invocation,
-//     Instruction_Method(invocation, to_method),
-//     MethodInvocation_Method(invocation, tmp_next_to_method),
-//     basic.MethodOverridesOther(next_to_method, tmp_next_to_method).
-
-// Accept_Extend_Obtain_Method(method) :-
-//     WHOLE_MAY_CALL_GRAPH(_, method).
-
 
 // 反射相关
 Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
@@ -264,6 +202,9 @@ Accept_Extend_Obtain_Method(method) :-
 Accept_Extend_Obtain_Method(method) :-
     PotentialOnlyType(class),
     Method_DeclaringType(method, class).
+
+Accept_Extend_Obtain_Method(method) :-
+    LeakingSinkMethod(_label, method).
 
 /**
  * 采用 Accept_Extend_Obtain_Method 是因为，signature 的空间比 instruction 要小很多。
@@ -294,3 +235,35 @@ VirtualMethodInvocation_Base(instruction, base) :-
 .output WHOLE_MAY_CALL_GRAPH
 .output Accept_Extend_Obtain_Method
 .output Extend_Obtain_Invocation
+
+
+/**
+ * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
+ * 需要注意，对于 type 是 java.lang.Object, 不能使用 PotentialType。
+*/
+.decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
+
+/**
+ * Extend_VarPointsTo 当前版本存在计算错误
+ * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
+ * 注意：
+ * - 坑点：basic.MethodLookup 查找不全，裂开
+ * Log: 针对 
+*/
+Extend_VarPointsTo(valueType, invocation, base),
+mainAnalysis.Value_isMock(value), isValue(value), 
+mainAnalysis.Value_Type(value, valueType), 
+mainAnalysis.Value_DeclaringType(value, valueType),
+MockObject(value, valueType),
+mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
+    PotentialOnlyType(valueType),
+    mainAnalysis.isImmutableContext(ctx),
+    mainAnalysis.isImmutableHContext(hctx),
+    basic.ResolveInvocation(valueType, invocation, _),
+    _VirtualMethodInvocation(invocation, _, _, base, in_method),
+    // 构造新的value
+    value = cat(valueType, "::MockObject").
+
+.output Extend_VarPointsTo
+.output basic.ResolveInvocation
+.output basic.MethodLookup

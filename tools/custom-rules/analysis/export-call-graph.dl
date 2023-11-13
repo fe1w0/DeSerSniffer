@@ -25,8 +25,8 @@ EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
 fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
     (
-        !TaintSourceMethod(MINING_LABEL, sourceMethod),TaintSourceMethod(INFO_FLOW_LABEL, sourceMethod);
-        TaintSourceMethod(MINING_LABEL, sourceMethod)
+        !TaintSourceMethod(MINING_LABEL, sourceMethod),TaintSourceMethod(INFO_FLOW_LABEL, sourceMethod), label = INFO_FLOW_LABEL;
+        TaintSourceMethod(MINING_LABEL, sourceMethod), label = MINING_LABEL
     ),
     mainAnalysis.Reachable(sourceMethod).
 

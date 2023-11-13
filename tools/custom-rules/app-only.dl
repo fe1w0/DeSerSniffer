@@ -20,22 +20,20 @@
 // 解决 原doop框架中，需要手动设置污点传播的问题
 #include "analysis/method-summary.dl"
 
-// 原 doop 在 app-only 下，无法分析 泛化问题
-// 需要添加 CHA算法（doop）中有，且根据 污点源 进行优化
-// 同时需要避免掉原rules在--app-only中，指针分析缺失的情况
-// #include "analysis/extend-analysis.dl"
-#include "analysis/new-extend-analysis.dl"
-
-#include "analysis/export-call-graph.dl"
-
 // 完善 readObject 关系 和 污点转移
 #include "analysis/extend-readObject.dl"
 
+// // 原 doop 在 app-only 下，无法分析 泛化问题
+// // 需要添加 CHA算法（doop）中有，且根据 污点源 进行优化
+// // 同时需要避免掉原rules在--app-only中，指针分析缺失的情况
+// // #include "analysis/extend-analysis.dl"
+// #include "analysis/new-extend-analysis.dl"
+
+// #include "analysis/export-call-graph.dl"
+
 // --- Output ---
 // 导出用于插桩的信息
-#include "output/output-instrumentation.dl"
-
-
+// #include "output/output-instrumentation.dl"
 
 // 添加 ChainPaths 导出功能
 // #include "output/identify-chain-paths.dl"

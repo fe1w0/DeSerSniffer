@@ -5,7 +5,7 @@
 .decl DenyEntryClass(class: ReferenceType)
 
 DenyEntryClass(class):-
-    match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*", class),
+    match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]lang[.]Thread.*|java[.]lang[.]ThreadGroup.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*|com[.]sun.*", class),
     _ClassType(class).
 
 ClassHasPossibleOpenProgramEntryPoint(?class),
@@ -16,7 +16,7 @@ PossibleOpenProgramEntryPoint(?method) :-
   // DefineEntryPointSimpleMethod(?simpleMethodName),
   // Method_SimpleName(?method, ?simpleMethodName),
   ClassModifier("public", ?class),
-  !DenyEntryClass(class).
+  !DenyEntryClass(?class).
 
 // Find highest level in the naming hierarchy that contains public
 // methods.

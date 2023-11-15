@@ -54,18 +54,19 @@ export DOOP_HOME
 # PLATFORM="--platform ${JAVA_VERSION} --use-local-java-platform ${JAVA_HOME}"
 PLATFORM="--platform ${JAVA_VERSION}"
 
-# doop setup
-ANALYSIS="context-insensitive"
 
 # ------------------------------------------
 # Todo 上下文敏感度有问题，需要提升 
 # ------------------------------------------
-# ANALYSIS="2-object-sensitive+heap"
+# doop setup
+ANALYSIS="context-insensitive"
+# 分析精度-拓展目标🎯
+# ANALYSIS="1-object-sensitive"
 
 JIMPLE="--generate-jimple"
 
-# OPEN PROGRAM
-# OPEN_PROGRAM="--open-programs concrete-types"
+# OPEN PROGRAM 动态类型: 会根据 ActualParam 中的类型，来补充PointsTo，但实际上也会引入大量Merge信息，尤其是 context-insensitive 和 存在 
+OPEN_PROGRAM="--open-programs concrete-types"
 
 # souffle
 SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
@@ -77,7 +78,7 @@ SOUFFLE_PROFILE="--souffle-profile"
 # MaxMemory="--max-memory 8g"
 
 # extra logic
-EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/app-only.dl"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/simple-analysis.dl"
 
 # Information-flow
 INFORMATION_FLOW="--information-flow minimal"
@@ -94,16 +95,16 @@ FACTS="--report-phantoms --fact-gen-cores ${JOBS}"
 
 # Reflection
 # --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥
-# ENABLE_REFLECTION="--light-reflection-glue"
+ENABLE_REFLECTION="--light-reflection-glue"
 
 # Proxy
 # ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
-# APP_ONLY="--app-only"
+APP_ONLY="--app-only"
 
 # Log Level
-LOG="--level debug"
+LOG="--level INFO"
 
 # --no-merges
 NoMerges="--no-merges"
@@ -118,8 +119,11 @@ SARIF="--sarif"
 # --exclude-implicitly-reachable-code
 EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
 
+# Data_flow
+DATA_FLOW="--data-flow-only-lib"
+
 # Strange Error!
-EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${TIMEOUT} ${NoMerges} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
+EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${DATA_FLOW} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${TIMEOUT} ${NoMerges} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
 
 cd $DOOP_HOME
 

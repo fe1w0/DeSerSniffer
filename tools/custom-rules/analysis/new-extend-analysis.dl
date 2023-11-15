@@ -34,6 +34,7 @@
 
 AllCollectionClass(class) :-
   isClassType(class),
+  !DenyEntryClass(class),
   basic.SubtypeOf(class, superclass),
   (superclass = "java.util.Map";
    superclass = "java.util.Collection";
@@ -48,8 +49,7 @@ AllCollectionClass(class) :-
    superclass = "java.util.Collections").
 
 AbortClass(type) :-
-    match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*", type),
-    _ClassType(type).
+    DenyEntryClass(type).
 
 AbortClass(type) :-
     AbortClassJavaLang(type).
@@ -167,6 +167,7 @@ PotentialAllType(type) :-
  * 否则还是陷入到 recursive-exection 爆炸。
 */
 .decl Accept_Extend_Obtain_Method(method: Method)
+.decl Deny_Obtain_Method(method: Method)
 .decl Accept_Extend_Obtain_Class(class: symbol)
 .decl Extend_Obtain_Invocation(instruction: symbol)
 
@@ -180,14 +181,17 @@ PotentialAllType(type) :-
 .decl WHOLE_MAY_CALL_GRAPH(invocation:Instruction, to_method: Method)
 
 // 反射相关
-Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
-Accept_Extend_Obtain_Method("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
-Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
-Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>").
-Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>").
-Accept_Extend_Obtain_Method("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>").
-Accept_Extend_Obtain_Method("<java.lang.Class: java.lang.Object newInstance()>").
-
+Accept_Extend_Obtain_Method(method) :-
+    (
+        method = "<java.lang.Class: java.lang.Class forName(java.lang.String)>";
+        method = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>";
+        method = "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>";
+        method = "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>";
+        method = "<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>";
+        method = "<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>";
+        method = "<java.lang.Class: java.lang.Object newInstance()>"
+    ),
+    isOpaqueMethod(method).
 // <java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>
 
 // 反序列化相关
@@ -196,15 +200,18 @@ Accept_Extend_Obtain_Method(method) :-
         method = "<java.io.ObjectInputStream: java.lang.Object readObject()>";
         method = "<java.io.ObjectInputStream: float readFloat()>";
         method= "<java.io.ObjectInputStream: float readFloat()>"
-    ).
+    ),
+    isOpaqueMethod(method).
 
 // 从 PotentialOnlyType 中提取所有的 Method
 Accept_Extend_Obtain_Method(method) :-
-    PotentialOnlyType(class),
-    Method_DeclaringType(method, class).
+    PotentialAllType(class),
+    Method_DeclaringType(method, class),
+    isOpaqueMethod(method).
 
 Accept_Extend_Obtain_Method(method) :-
-    LeakingSinkMethod(_label, method).
+    LeakingSinkMethod(_label, method),
+    isOpaqueMethod(method).
 
 /**
  * 采用 Accept_Extend_Obtain_Method 是因为，signature 的空间比 instruction 要小很多。
@@ -212,21 +219,18 @@ Accept_Extend_Obtain_Method(method) :-
 Extend_Obtain_Invocation(instruction),
 isStaticMethodInvocation_Insn(instruction) :-
     Accept_Extend_Obtain_Method(signature),
-    isOpaqueMethod(signature),
     _StaticMethodInvocation(instruction, _, signature, _in_method).
 
 Extend_Obtain_Invocation(instruction),
 isSpecialMethodInvocation_Insn(instruction),
 SpecialMethodInvocation_Base(instruction, base) :-
     Accept_Extend_Obtain_Method(signature),
-    isOpaqueMethod(signature),
     _SpecialMethodInvocation(instruction, _, signature, base, _in_method).
 
 Extend_Obtain_Invocation(instruction),
 isVirtualMethodInvocation_Insn(instruction),
 VirtualMethodInvocation_Base(instruction, base) :-
     Accept_Extend_Obtain_Method(signature),
-    isOpaqueMethod(signature),
     _VirtualMethodInvocation(instruction, _, signature, base, _in_method).
 
 .printsize Extend_Obtain_Invocation
@@ -236,34 +240,97 @@ VirtualMethodInvocation_Base(instruction, base) :-
 .output Accept_Extend_Obtain_Method
 .output Extend_Obtain_Invocation
 
+#define MAX_Scalability_Number 6
+
+
+/**
+ * Determined_Type_Domain 用于控制 Extend_VarPointsTo 的 循环次数，用于快速收敛
+ * n 表示第几轮拓展中，进行的类型泛化
+*/
+.decl Determined_Type_Domain(valueType: symbol, invocation: symbol, n: number)
+
+.decl ReachableContextMethodDomain(in_method: Method, step: number)
+
+ReachableContextMethodDomain(in_method, 0) :-
+    mainAnalysis.ReachableContext(_ctx, in_method).
+
+.output ReachableContextMethodDomain
+
+.decl Deny_Class_For_Extend_VarPointsTo(class: Type)
+
+Deny_Class_For_Extend_VarPointsTo(type) :-
+    (
+        DenyEntryClass(type);
+        AbortClassJavaLang(type)
+    ).
 
 /**
  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
- * 需要注意，对于 type 是 java.lang.Object, 不能使用 PotentialType。
 */
-.decl Extend_VarPointsTo(valueType: symbol, invocation: symbol, base: symbol)
+.decl Extend_VarPointsTo(valueType: symbol,  invocation: symbol, var: symbol, value: symbol)
 
-/**
- * Extend_VarPointsTo 当前版本存在计算错误
- * 以 Example.jar 中 safe class 的 safeObjectOne#_0 来说，
- * 注意：
- * - 坑点：basic.MethodLookup 查找不全，裂开
- * Log: 针对 
-*/
-Extend_VarPointsTo(valueType, invocation, base),
-mainAnalysis.Value_isMock(value), isValue(value), 
-mainAnalysis.Value_Type(value, valueType), 
-mainAnalysis.Value_DeclaringType(value, valueType),
-MockObject(value, valueType),
-mainAnalysis.VarPointsTo(hctx, value, ctx, base) :-
-    PotentialOnlyType(valueType),
-    mainAnalysis.isImmutableContext(ctx),
+
+Extend_VarPointsTo(value_type, invocation, var, value) :-
+    TaintedVarPointsTo(_, _, var),
+    ActualParam(_, invocation, var),
+    Var_Type(var, var_type),
+
+    basic.SubtypeOf(value_type, var_type),
+    !Deny_Class_For_Extend_VarPointsTo(var_type),
+    !Deny_Class_For_Extend_VarPointsTo(value_type),
+    ApplicationClass(value_type),
+
+    Instruction_Method(invocation, in_method),
+    isMethodInSourceCallGraph(in_method),
+    
+
+    MethodInvocation_Method(invocation, to_method),
+    Method_SimpleName(to_method, to_method_simple_name),
+    (
+        to_method_simple_name = "put";
+        to_method_simple_name = "get"
+    ),
+    
+    Method_DeclaringType(to_method, to_method_declaring_type),
+    AllCollectionClass(to_method_declaring_type),
+
+    value = cat(value_type, "::MockObject").
+
+
+Extend_VarPointsTo(value_type, invocation, base, value) :-
+    Instruction_Method(invocation, in_method),
+    isMethodInSourceCallGraph(in_method),
+
+    TaintedVarPointsTo(_, _, base),
+    basic.ResolveInvocation(value_type, invocation, _),
+    VirtualMethodInvocation_Base(invocation, base),
+
+    ApplicationClass(value_type),
+    value = cat(value_type, "::MockObject").
+
+Extend_VarPointsTo(value_type, invocation, var, value) :-
+    TaintedVarPointsTo(_, _, var),
+    ActualParam(_, invocation, var),
+    Var_Type(var, var_type),
+
+    basic.SubtypeOf(value_type, var_type),
+    !Deny_Class_For_Extend_VarPointsTo(var_type),
+    !Deny_Class_For_Extend_VarPointsTo(value_type),
+    ApplicationClass(value_type),
+
+    Instruction_Method(invocation, in_method),
+    isMethodInSourceCallGraph(in_method),
+
+    ApplicationClass(value_type),
+    value = cat(value_type, "::MockObject").
+
+mainAnalysis.VarPointsTo(hctx, value, ctx, var),
+mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, value_type), mainAnalysis.Value_DeclaringType(value, value_type),
+MockObject(value, value_type) :- 
     mainAnalysis.isImmutableHContext(hctx),
-    basic.ResolveInvocation(valueType, invocation, _),
-    _VirtualMethodInvocation(invocation, _, _, base, in_method),
-    // 构造新的value
-    value = cat(valueType, "::MockObject").
+    mainAnalysis.isImmutableContext(ctx),
+    Extend_VarPointsTo(value_type, invocation, var, value).
 
 .output Extend_VarPointsTo
-.output basic.ResolveInvocation
-.output basic.MethodLookup
+.printsize Extend_VarPointsTo
+.limitsize Extend_VarPointsTo(n=80000)

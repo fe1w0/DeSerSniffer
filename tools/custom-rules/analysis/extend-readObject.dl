@@ -7,59 +7,57 @@
  * 注意: 该关系无法 通过函数泛化实现
 */
 
-.decl ExtendReadObjectMiddle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
-
-.decl ExtendReadObjectMiddle_ContextRequest_Method(method: Method)
 
 .decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
 
+TaintSourceMethod(label, method),
+LabelFromSource(invo,  label),
 // 强制产生 上下文
-mainAnalysis.ForcedReachable(newMethod),
-mainAnalysis.Value_isMock(newValue),
-MockObject(newValue, type),
-TaintTranferToObjectField(hctx, cat(cat(cat(cat(invocation, "::: "), type), "::: "), "ASSIGN"), ctx, this),
-MethodInvocationInContext(ctx, invocation, newMethod),
-TypeForReturnValue(type, to, invocation),
-ExtendReadObjectMiddle_ContextRequest_Method(newMethod),
-ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, newValue, newMethod, 1) :-
-    // type = sources.serialize.UnsafeSerialize
-    AssignCast(type, _, to, inmethod),
-    ThisVar(newMethod, this),
-    // 注意需要修改
-    // ApplicationMethod(inmethod),
-    // signature 是完整签名
-    signature = "<java.io.ObjectInputStream: java.lang.Object readObject()>",
-    // 不能直接用 VirtualMethodInvocation
-    Instruction_Method(invocation, inmethod),
-    MethodInvocation_Method(invocation, signature),
-    // newMethod 为 该type下, <sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>
-    newMethod = cat("<", cat(type, ": void readObject(java.io.ObjectInputStream)>")),
-    isMethod(newMethod),
-    newValue = cat(type, "::MockObject"),
+mainAnalysis.ForcedReachable(method),
+TaintTranferToObjectField(hctx, cat(cat(invo, "::: ")), ctx, this),
+mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
+SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), invo), 
+mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), type), 
+mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
+mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
+    TaintSourceMethod(INFO_FLOW_LABEL, method),
+    label = MINING_LABEL,
+    // 对于 readObject 来说 需要将 第一个
+    FormalParam(0, method, to),
+    ThisVar(method, this),
+    // type
+    type = declaringType,
+    // create invo
+    Method_DeclaringType(method, declaringType),
+    invo = cat(method, "::MockObject"),
+    // mainAnalysis.isImmutableHContext(hctx),
     hctx = "<<immutable-hcontext>>",
     ctx = "<<immutable-context>>".
 
-mainAnalysis.configuration.ContextRequest(ctx, hctx, invocation, value, method, 1) :-
-    ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, value, method, 1).
 
 // readObject 中 所有的 field 理应当被污染
-mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+TaintedValue(new_value), 
+mainAnalysis.VarPointsTo(hctx, new_value, ctx, to) :-
     TaintTranferToObjectField(hctx, value, ctx, this),
     // 这个 this 是抽象的,非method中具体的 this 变量
     ThisVar(inmethod, this),
     AssignLocal(this, actualThis, inmethod),
     LoadInstanceField(actualThis, _sign, to, inmethod),
     Var_Type(to, type),
+    new_value = cat(cat(value, type), "::: ASSIGN"),
     // InValidReturnType taken from method-summary.dl
     !InValidReturnType(type).
 
-mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
+mainAnalysis.VarPointsTo(hctx, new_value, ctx, actualThis) :-
     TaintTranferToObjectField(hctx, value, ctx, this),
     // 这个 this 是抽象的,非method中具体的 this 变量
     ThisVar(inmethod, this),
+    new_value = cat(cat(value, type), "::: ASSIGN"),
+    Method_DeclaringType(inmethod, type),
     AssignLocal(this, actualThis, inmethod).
 
-#define ENABLE_MINING 1
 
 /**
  * 需要考虑漏洞挖掘情况下，当前 application 中不存在调用，但也需要查找潜在的利用链:
@@ -76,33 +74,32 @@ mainAnalysis.VarPointsTo(hctx, value, ctx, actualThis) :-
  * 所以，还需要 对于 readObject 无实际调用的 source 函数，也需要完善指针分析和污点分析。
 */
 
-#ifdef ENABLE_MINING
+.output TaintTranferToObjectField
 
-TaintSourceMethod(label, method),
-LabelFromSource(invo,  label),
+// .decl ExtendReadObjectMiddle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
+
+// .decl ExtendReadObjectMiddle_ContextRequest_Method(method: Method)
 // 强制产生 上下文
-mainAnalysis.ForcedReachable(method),
-TaintTranferToObjectField(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, this),
-mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), invo), 
-mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), type), 
-mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
-mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
-    TaintSourceMethod(INFO_FLOW_LABEL, method),
-    // 不存在 调用 method 的 MethodInvocation 来说，应当没有直接的对应的 MethodInvocation_Method
-    !ExtendReadObjectMiddle_ContextRequest_Method(method),
-    label = MINING_LABEL,
-    // 对于 readObject 来说 需要将 第一个
-    FormalParam(0, method, to),
-    ThisVar(method, this),
-    // type
-    type = declaringType,
-    // create invo
-    Method_DeclaringType(method, declaringType),
-    invo = cat(method, "::MockObject"),
-    // mainAnalysis.isImmutableHContext(hctx),
-    hctx = "<<immutable-hcontext>>",
-    ctx = "<<immutable-context>>".
-#endif
+// mainAnalysis.ForcedReachable(newMethod),
+// mainAnalysis.Value_isMock(newValue),
+// MockObject(newValue, type),
+// TaintTranferToObjectField(hctx, cat(cat(cat(cat(invocation, "::: "), type), "::: "), "ASSIGN"), ctx, this),
+// MethodInvocationInContext(ctx, invocation, newMethod),
+// TypeForReturnValue(type, to, invocation),
+// ExtendReadObjectMiddle_ContextRequest_Method(newMethod),
+// ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, newValue, newMethod, 1) :-
+//     // type = sources.serialize.UnsafeSerialize
+//     AssignCast(type, _, to, inmethod),
+//     ThisVar(newMethod, this),
+//     // 不能直接用 VirtualMethodInvocation
+//     Instruction_Method(invocation, inmethod),
+//     MethodInvocation_Method(invocation, "<java.io.ObjectInputStream: java.lang.Object readObject()>"),
+//     // newMethod 为 该type下, <sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>
+//     newMethod = cat("<", cat(type, ": void readObject(java.io.ObjectInputStream)>")),
+//     TaintSourceMethod(_label, newMethod),
+//     newValue = cat(type, "::MockObject"),
+//     hctx = "<<immutable-hcontext>>",
+//     ctx = "<<immutable-context>>".
+
+// mainAnalysis.configuration.ContextRequest(ctx, hctx, invocation, value, method, 1) :-
+//     ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, value, method, 1).

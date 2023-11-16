@@ -331,6 +331,7 @@ Extend_VarPointsTo(value_type, invocation, var, new_value) :-
     ApplicationClass(value_type),
     new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
+TaintedValue(value),
 mainAnalysis.VarPointsTo(hctx, value, ctx, var),
 mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, value_type), mainAnalysis.Value_DeclaringType(value, value_type),
 MockObject(value, value_type) :- 
@@ -339,5 +340,6 @@ MockObject(value, value_type) :-
     Extend_VarPointsTo(value_type, _invocation, var, value).
 
 .output Extend_VarPointsTo
+.output TaintedValue
 .printsize Extend_VarPointsTo
 .limitsize Extend_VarPointsTo(n=1000)

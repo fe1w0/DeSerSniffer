@@ -93,7 +93,8 @@ ReadyMockFiled(signature, to_var, value) :-
 .printsize ReadyMockFiled
 .limitsize ReadyMockFiled(n=1000)
 
-TaintedVarPointsTo(value, ctx, to_var),
+TaintedValue(new_value),
+TaintedVarPointsTo(new_value, ctx, to_var),
 mainAnalysis.VarPointsTo(hctx, new_value, ctx, to_var) :-
     mainAnalysis.isImmutableHContext(hctx),
     mainAnalysis.isImmutableContext(ctx),
@@ -103,29 +104,3 @@ mainAnalysis.VarPointsTo(hctx, new_value, ctx, to_var) :-
 .output ReadyMockFiled
 
 .decl ExtendReadObjectMiddle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
-
-// .decl ExtendReadObjectMiddle_ContextRequest_Method(method: Method)
-// 强制产生 上下文
-// mainAnalysis.ForcedReachable(newMethod),
-// mainAnalysis.Value_isMock(newValue),
-// MockObject(newValue, type),
-// TaintTranferToObjectField(hctx, cat(cat(cat(cat(invocation, "::: "), type), "::: "), "ASSIGN"), ctx, this),
-// MethodInvocationInContext(ctx, invocation, newMethod),
-// TypeForReturnValue(type, to, invocation),
-// ExtendReadObjectMiddle_ContextRequest_Method(newMethod),
-// ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, newValue, newMethod, 1) :-
-//     // type = sources.serialize.UnsafeSerialize
-//     AssignCast(type, _, to, inmethod),
-//     ThisVar(newMethod, this),
-//     // 不能直接用 VirtualMethodInvocation
-//     Instruction_Method(invocation, inmethod),
-//     MethodInvocation_Method(invocation, "<java.io.ObjectInputStream: java.lang.Object readObject()>"),
-//     // newMethod 为 该type下, <sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>
-//     newMethod = cat("<", cat(type, ": void readObject(java.io.ObjectInputStream)>")),
-//     TaintSourceMethod(_label, newMethod),
-//     newValue = cat(type, "::MockObject"),
-//     hctx = "<<immutable-hcontext>>",
-//     ctx = "<<immutable-context>>".
-
-// mainAnalysis.configuration.ContextRequest(ctx, hctx, invocation, value, method, 1) :-
-//     ExtendReadObjectMiddle_ContextRequest(ctx, hctx, invocation, value, method, 1).

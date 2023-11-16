@@ -7,6 +7,20 @@
  * 注意: 该关系无法 通过函数泛化实现
 */
 
+/**
+ * 需要考虑漏洞挖掘情况下，当前 application 中不存在调用，但也需要查找潜在的利用链:
+ * 算法如下:
+ * 1. 获得 readObject 函数，当发现无实际的 invocation 时，
+ *      1. 设置新的 Label， Label=MINING
+ *      2. 构建污点源和指针信息
+ *      3. 构建新的 fromSourceMethod
+ * 2. 获得 reaObject 函数，且存在实际的 invocation 时，由默认的漏洞分析模块(extend-analysis)处理。
+ * 此外，还需要分析 chains 是由 application 中代码导致的，还是 libraries 中的代码导致的。
+ * 当前的分析，为了效率，设置了 Analysis 从 Application 中的 `readObject` 函数开始分析。
+ * 当上述分析，遇到断开情况时，即 base 的 不在 application 中时，会导致 三类 Invocation_Instruction 缺失（被屏蔽），
+ * 且 VarPointsTo 信息缺失。这两个问题已在 extend-analysis 中得到修复。
+ * 所以，还需要 对于 readObject 无实际调用的 source 函数，也需要完善指针分析和污点分析。
+*/
 
 .decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
 
@@ -36,6 +50,7 @@ mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  
     hctx = "<<immutable-hcontext>>",
     ctx = "<<immutable-context>>".
 
+.output TaintTranferToObjectField
 
 // readObject 中 所有的 field 理应当被污染
 TaintedValue(new_value), 
@@ -46,7 +61,7 @@ mainAnalysis.VarPointsTo(hctx, new_value, ctx, to) :-
     AssignLocal(this, actualThis, inmethod),
     LoadInstanceField(actualThis, _sign, to, inmethod),
     Var_Type(to, type),
-    new_value = cat(cat(value, type), "::: ASSIGN"),
+    new_value = cat(cat(value, type), "::: TaintedFiled"),
     // InValidReturnType taken from method-summary.dl
     !InValidReturnType(type).
 
@@ -54,29 +69,40 @@ mainAnalysis.VarPointsTo(hctx, new_value, ctx, actualThis) :-
     TaintTranferToObjectField(hctx, value, ctx, this),
     // 这个 this 是抽象的,非method中具体的 this 变量
     ThisVar(inmethod, this),
-    new_value = cat(cat(value, type), "::: ASSIGN"),
+    new_value = cat(cat(value, type), "::: ActualThis"),
     Method_DeclaringType(inmethod, type),
     AssignLocal(this, actualThis, inmethod).
 
 
+
+// 需要补充，
+// 在 example 中， <sources.demo.ExpOne: void check(sources.demo.SafeClass)>/$stack6 无 Store，但可以通过 readObject 反序列化 构造
+
 /**
- * 需要考虑漏洞挖掘情况下，当前 application 中不存在调用，但也需要查找潜在的利用链:
- * 算法如下:
- * 1. 获得 readObject 函数，当发现无实际的 invocation 时，
- *      1. 设置新的 Label， Label=MINING
- *      2. 构建污点源和指针信息
- *      3. 构建新的 fromSourceMethod
- * 2. 获得 reaObject 函数，且存在实际的 invocation 时，由默认的漏洞分析模块(extend-analysis)处理。
- * 此外，还需要分析 chains 是由 application 中代码导致的，还是 libraries 中的代码导致的。
- * 当前的分析，为了效率，设置了 Analysis 从 Application 中的 `readObject` 函数开始分析。
- * 当上述分析，遇到断开情况时，即 base 的 不在 application 中时，会导致 三类 Invocation_Instruction 缺失（被屏蔽），
- * 且 VarPointsTo 信息缺失。这两个问题已在 extend-analysis 中得到修复。
- * 所以，还需要 对于 readObject 无实际调用的 source 函数，也需要完善指针分析和污点分析。
+ * MockFiled 为当前Reachable中，base 可被污染，但其 field 没有 Store 的 指令
 */
+.decl ReadyMockFiled(field_signature: symbol, varibale: symbol, base_value: symbol)
 
-.output TaintTranferToObjectField
+ReadyMockFiled(signature, to_var, value) :-
+    TaintedVarPointsTo(value, _ctx, base_this),
+    // 不存在 Store
+    !_StoreInstanceField(_, _, _, _, signature, _),
+    // 存在 Load
+    LoadInstanceField(base_this, signature, to_var, in_method).
 
-// .decl ExtendReadObjectMiddle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
+.printsize ReadyMockFiled
+.limitsize ReadyMockFiled(n=1000)
+
+TaintedVarPointsTo(value, ctx, to_var),
+mainAnalysis.VarPointsTo(hctx, new_value, ctx, to_var) :-
+    mainAnalysis.isImmutableHContext(hctx),
+    mainAnalysis.isImmutableContext(ctx),
+    ReadyMockFiled(signature, to_var, value),
+    new_value = cat(cat(value, signature), "::: MockTaintedFiled").
+
+.output ReadyMockFiled
+
+.decl ExtendReadObjectMiddle_ContextRequest(ctx:mainAnalysis.configuration.Context, hctx:mainAnalysis.configuration.HContext, invo:MethodInvocation, value:Value, method:Method, createCGE:number)
 
 // .decl ExtendReadObjectMiddle_ContextRequest_Method(method: Method)
 // 强制产生 上下文

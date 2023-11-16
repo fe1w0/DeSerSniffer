@@ -42,11 +42,16 @@ AllCollectionClass(class) :-
    superclass = "java.util.Iterator";
    superclass = "java.util.Comparator";
    superclass = "java.util.Dictionary";
-   superclass = "java.util.TimSort";
-   superclass = "java.util.ComparableTimSort";
    superclass = "java.util.Arrays";
    superclass = "java.util.Objects";
    superclass = "java.util.Collections").
+
+.decl DataStructureInnerClass(class: Type)
+
+DataStructureInnerClass(inner_class) :-
+    AllCollectionClass(class),
+    isClassType(inner_class),
+    match(cat(class, "[$].*"), inner_class).
 
 AbortClass(type) :-
     DenyEntryClass(type).
@@ -140,6 +145,7 @@ PotentialAllType(type) :-
     Type_object(type)).
 
 .output AbortClass
+.output DataStructureInnerClass
 .output PotentialOnlyType
 .output basic.SubtypeOf
 .output AllCollectionClass
@@ -261,6 +267,8 @@ ReachableContextMethodDomain(in_method, 0) :-
 Deny_Class_For_Extend_VarPointsTo(type) :-
     (
         DenyEntryClass(type);
+        AbortClassJavaLang(type);
+        DataStructureInnerClass(type);
         AbortClassJavaLang(type)
     ).
 
@@ -269,10 +277,11 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 */
 .decl Extend_VarPointsTo(valueType: symbol,  invocation: symbol, var: symbol, value: symbol)
 
+// Todo value 值 无法使用
 
-Extend_VarPointsTo(value_type, invocation, var, value) :-
-    TaintedVarPointsTo(_, _, var),
-    ActualParam(_, invocation, var),
+Extend_VarPointsTo(value_type, invocation, var, new_value) :-
+    TaintedVarPointsTo(value, _ctx, var),
+    ActualParam(_idx, invocation, var),
     Var_Type(var, var_type),
 
     basic.SubtypeOf(value_type, var_type),
@@ -293,24 +302,22 @@ Extend_VarPointsTo(value_type, invocation, var, value) :-
     
     Method_DeclaringType(to_method, to_method_declaring_type),
     AllCollectionClass(to_method_declaring_type),
+    new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
-    value = cat(value_type, "::MockObject").
-
-
-Extend_VarPointsTo(value_type, invocation, base, value) :-
+Extend_VarPointsTo(value_type, invocation, base, new_value) :-
     Instruction_Method(invocation, in_method),
     isMethodInSourceCallGraph(in_method),
 
-    TaintedVarPointsTo(_, _, base),
+    TaintedVarPointsTo(value, _ctx, base),
     basic.ResolveInvocation(value_type, invocation, _),
     VirtualMethodInvocation_Base(invocation, base),
 
     ApplicationClass(value_type),
-    value = cat(value_type, "::MockObject").
+    new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
-Extend_VarPointsTo(value_type, invocation, var, value) :-
-    TaintedVarPointsTo(_, _, var),
-    ActualParam(_, invocation, var),
+Extend_VarPointsTo(value_type, invocation, var, new_value) :-
+    TaintedVarPointsTo(value, _ctx, var),
+    ActualParam(_idx, invocation, var),
     Var_Type(var, var_type),
 
     basic.SubtypeOf(value_type, var_type),
@@ -322,15 +329,15 @@ Extend_VarPointsTo(value_type, invocation, var, value) :-
     isMethodInSourceCallGraph(in_method),
 
     ApplicationClass(value_type),
-    value = cat(value_type, "::MockObject").
+    new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
 mainAnalysis.VarPointsTo(hctx, value, ctx, var),
 mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, value_type), mainAnalysis.Value_DeclaringType(value, value_type),
 MockObject(value, value_type) :- 
     mainAnalysis.isImmutableHContext(hctx),
     mainAnalysis.isImmutableContext(ctx),
-    Extend_VarPointsTo(value_type, invocation, var, value).
+    Extend_VarPointsTo(value_type, _invocation, var, value).
 
 .output Extend_VarPointsTo
 .printsize Extend_VarPointsTo
-.limitsize Extend_VarPointsTo(n=80000)
+.limitsize Extend_VarPointsTo(n=1000)

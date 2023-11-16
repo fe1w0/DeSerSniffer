@@ -115,6 +115,7 @@ AbortClassJavaLang(type) :-
     ;type = "java.lang.Integer"
     ;type = "java.lang.Long"
     ;type = "java.lang.Short"
-    ;type = "java.lang.String").
+    // ;type = "java.lang.String"
+    ).
 
 .output AbortClassJavaLang

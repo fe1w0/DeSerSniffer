@@ -117,12 +117,11 @@ CACHE="--cache"
 SARIF="--sarif"
 
 # --exclude-implicitly-reachable-code
-EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
+# EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
 
 # Data_flow
 DATA_FLOW="--data-flow-only-lib"
 
-# Strange Error!
 EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${DATA_FLOW} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${TIMEOUT} ${NoMerges} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
 
 cd $DOOP_HOME

@@ -4,7 +4,7 @@
  # @Author: fe1w0 xzasliuxinrong@gmail.com
  # @Date: 2023-10-29 17:25:28
  # @LastEditors: fe1w0 xzasliuxinrong@gmail.com
- # @LastEditTime: 2023-11-13 20:46:09
+ # @LastEditTime: 2023-11-17 16:35:29
  # @FilePath: /DataSet/tools/overwrite.sh
  # @Description: 覆盖原doop中的 soufflé-rules
 ### 
@@ -31,13 +31,16 @@ function overwrite() {
     fi
 
     # overwrite
-    overwrite_rules=("entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl", "implicit-reachable")
+    overwrite_rules=("basic.dl" "entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl", "implicit-reachable")
     
     echo -e "overwrite-rules:"
     for overwrite_rule in "${overwrite_rules[@]}"
     do
         echo -e "\toverwrite-rule: $overwrite_rule"
     done
+
+    # 屏蔽 Main
+    cp overwrite-rules/basic.dl $DOOP_HOME/souffle-logic/basic/basic.dl
 
     # 设置入口点
     cp overwrite-rules/entry-points_b.dl $DOOP_HOME/souffle-logic/addons/open-programs/entry-points.dl

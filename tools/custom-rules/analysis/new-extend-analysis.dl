@@ -219,25 +219,38 @@ Accept_Extend_Obtain_Method(method) :-
     LeakingSinkMethod(_label, method),
     isOpaqueMethod(method).
 
+.decl Extend_OpaqueMethod(method: Method)
+
+Extend_OpaqueMethod(method) :-
+    class = "java.io.ObjectInputStream",
+    Method_DeclaringType(method, class).
+
+.output Extend_OpaqueMethod
+
 /**
  * 采用 Accept_Extend_Obtain_Method 是因为，signature 的空间比 instruction 要小很多。
 */
 Extend_Obtain_Invocation(instruction),
 isStaticMethodInvocation_Insn(instruction) :-
     Accept_Extend_Obtain_Method(signature),
-    _StaticMethodInvocation(instruction, _, signature, _in_method).
+    !Extend_OpaqueMethod(in_method),
+    _StaticMethodInvocation(instruction, _, signature, in_method).
+
+
 
 Extend_Obtain_Invocation(instruction),
 isSpecialMethodInvocation_Insn(instruction),
 SpecialMethodInvocation_Base(instruction, base) :-
     Accept_Extend_Obtain_Method(signature),
-    _SpecialMethodInvocation(instruction, _, signature, base, _in_method).
+    !Extend_OpaqueMethod(in_method),
+    _SpecialMethodInvocation(instruction, _, signature, base, in_method).
 
 Extend_Obtain_Invocation(instruction),
 isVirtualMethodInvocation_Insn(instruction),
 VirtualMethodInvocation_Base(instruction, base) :-
     Accept_Extend_Obtain_Method(signature),
-    _VirtualMethodInvocation(instruction, _, signature, base, _in_method).
+    !Extend_OpaqueMethod(in_method),
+    _VirtualMethodInvocation(instruction, _, signature, base, in_method).
 
 .printsize Extend_Obtain_Invocation
 
@@ -279,57 +292,57 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 
 // Todo value 值 无法使用
 
-Extend_VarPointsTo(value_type, invocation, var, new_value) :-
-    TaintedVarPointsTo(value, _ctx, var),
-    ActualParam(_idx, invocation, var),
-    Var_Type(var, var_type),
+// Extend_VarPointsTo(value_type, invocation, var, new_value) :-
+//     TaintedVarPointsTo(value, _ctx, var),
+//     ActualParam(_idx, invocation, var),
+//     Var_Type(var, var_type),
 
-    basic.SubtypeOf(value_type, var_type),
-    !Deny_Class_For_Extend_VarPointsTo(var_type),
-    !Deny_Class_For_Extend_VarPointsTo(value_type),
-    ApplicationClass(value_type),
+//     basic.SubtypeOf(value_type, var_type),
+//     !Deny_Class_For_Extend_VarPointsTo(var_type),
+//     !Deny_Class_For_Extend_VarPointsTo(value_type),
+//     ApplicationClass(value_type),
 
-    Instruction_Method(invocation, in_method),
-    isMethodInSourceCallGraph(in_method),
+//     Instruction_Method(invocation, in_method),
+//     isMethodInSourceCallGraph(in_method),
     
 
-    MethodInvocation_Method(invocation, to_method),
-    Method_SimpleName(to_method, to_method_simple_name),
-    (
-        to_method_simple_name = "put";
-        to_method_simple_name = "get"
-    ),
+//     MethodInvocation_Method(invocation, to_method),
+//     Method_SimpleName(to_method, to_method_simple_name),
+//     (
+//         to_method_simple_name = "put";
+//         to_method_simple_name = "get"
+//     ),
     
-    Method_DeclaringType(to_method, to_method_declaring_type),
-    AllCollectionClass(to_method_declaring_type),
-    new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
+//     Method_DeclaringType(to_method, to_method_declaring_type),
+//     AllCollectionClass(to_method_declaring_type),
+//     new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
-Extend_VarPointsTo(value_type, invocation, base, new_value) :-
-    Instruction_Method(invocation, in_method),
-    isMethodInSourceCallGraph(in_method),
+// Extend_VarPointsTo(value_type, invocation, base, new_value) :-
+//     Instruction_Method(invocation, in_method),
+//     isMethodInSourceCallGraph(in_method),
 
-    TaintedVarPointsTo(value, _ctx, base),
-    basic.ResolveInvocation(value_type, invocation, _),
-    VirtualMethodInvocation_Base(invocation, base),
+//     TaintedVarPointsTo(value, _ctx, base),
+//     basic.ResolveInvocation(value_type, invocation, _),
+//     VirtualMethodInvocation_Base(invocation, base),
 
-    ApplicationClass(value_type),
-    new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
+//     ApplicationClass(value_type),
+//     new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
-Extend_VarPointsTo(value_type, invocation, var, new_value) :-
-    TaintedVarPointsTo(value, _ctx, var),
-    ActualParam(_idx, invocation, var),
-    Var_Type(var, var_type),
+// Extend_VarPointsTo(value_type, invocation, var, new_value) :-
+//     TaintedVarPointsTo(value, _ctx, var),
+//     ActualParam(_idx, invocation, var),
+//     Var_Type(var, var_type),
 
-    basic.SubtypeOf(value_type, var_type),
-    !Deny_Class_For_Extend_VarPointsTo(var_type),
-    !Deny_Class_For_Extend_VarPointsTo(value_type),
-    ApplicationClass(value_type),
+//     basic.SubtypeOf(value_type, var_type),
+//     !Deny_Class_For_Extend_VarPointsTo(var_type),
+//     !Deny_Class_For_Extend_VarPointsTo(value_type),
+//     ApplicationClass(value_type),
 
-    Instruction_Method(invocation, in_method),
-    isMethodInSourceCallGraph(in_method),
+//     Instruction_Method(invocation, in_method),
+//     isMethodInSourceCallGraph(in_method),
 
-    ApplicationClass(value_type),
-    new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
+//     ApplicationClass(value_type),
+//     new_value  = cat(cat(cat(value, "::: "), value_type), "::: Extend").
 
 TaintedValue(value),
 mainAnalysis.VarPointsTo(hctx, value, ctx, var),

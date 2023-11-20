@@ -8,15 +8,15 @@ DenyEntryClass(class):-
     match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]lang[.]Thread.*|java[.]lang[.]ThreadGroup.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*|com[.]sun.*", class),
     _ClassType(class).
 
-ClassHasPossibleOpenProgramEntryPoint(?class),
-PossibleOpenProgramEntryPoint(?method) :-
-  Method_Modifier("private", ?method),
-  Method_DeclaringType(?method, ?class),
-  TaintSourceMethod(_label, ?method),
-  // DefineEntryPointSimpleMethod(?simpleMethodName),
-  // Method_SimpleName(?method, ?simpleMethodName),
-  ClassModifier("public", ?class),
-  !DenyEntryClass(?class).
+// ClassHasPossibleOpenProgramEntryPoint(?class),
+// PossibleOpenProgramEntryPoint(?method) :-
+//   Method_Modifier("private", ?method),
+//   Method_DeclaringType(?method, ?class),
+//   TaintSourceMethod(_label, ?method),
+//   // DefineEntryPointSimpleMethod(?simpleMethodName),
+//   // Method_SimpleName(?method, ?simpleMethodName),
+//   ClassModifier("public", ?class),
+//   !DenyEntryClass(?class).
 
 // Find highest level in the naming hierarchy that contains public
 // methods.

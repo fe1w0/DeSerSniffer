@@ -4,16 +4,16 @@
 
 // #define ENABLE_MINING 1
 
-ClassHasPossibleOpenProgramEntryPoint(?class),
-PossibleOpenProgramEntryPoint(?method) :-
-  Method_Modifier("private", ?method),
-  Method_DeclaringType(?method, ?class),
-  #ifndef ENABLE_MINING
-    ApplicationClass(?class),
-  #endif
-  DefineEntryPointSimpleMethod(?simpleMethodName),
-  Method_SimpleName(?method, ?simpleMethodName),
-  ClassModifier("public", ?class).
+// ClassHasPossibleOpenProgramEntryPoint(?class),
+// PossibleOpenProgramEntryPoint(?method) :-
+//   Method_Modifier("private", ?method),
+//   Method_DeclaringType(?method, ?class),
+//   #ifndef ENABLE_MINING
+//     ApplicationClass(?class),
+//   #endif
+//   DefineEntryPointSimpleMethod(?simpleMethodName),
+//   Method_SimpleName(?method, ?simpleMethodName),
+//   ClassModifier("public", ?class).
   // !ClassModifier("private", ?class).
 
 // Find highest level in the naming hierarchy that contains public

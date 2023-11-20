@@ -120,7 +120,7 @@ mainAnalysis.VarPointsTo(hctx, value, callerCtx, base) :-
 
 .output Extend_VarPointsTo
 
-.limitsize Extend_VarPointsTo(n=200)
+.limitsize Extend_VarPointsTo(n=4000)
 
 /**
  * LeakingTaintedInformation: 用于判断是否存在漏洞，即SinkMethod被污点传播的判断规则

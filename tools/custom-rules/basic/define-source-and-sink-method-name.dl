@@ -10,8 +10,8 @@ DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
 // Source Method
 .decl DefineSourceMethod(method: symbol)
 
-// DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
-DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
+DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
+// DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
 
 TaintSourceMethod(label, method) :-
 	label = INFO_FLOW_LABEL,

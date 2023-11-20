@@ -94,4 +94,4 @@ PotentialVulnGraphStep(current_path, new_step) :-
 //     new_step <= remove_step.
 
 .output PotentialVulnPath, PotentialVulnGraphStep
-.limitsize PotentialVulnGraphStep(n=500)
+// .limitsize PotentialVulnGraphStep(n=500)

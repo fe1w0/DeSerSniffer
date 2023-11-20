@@ -3,14 +3,12 @@
 */
 #define MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, to) \
     isValue(value), \
+    isHeapAllocation(value), \
     mainAnalysis.Value_isHeap(value), \
     mainAnalysis.Value_isMock(value), \
     mainAnalysis.Value_Type(value, type), \
     mainAnalysis.Value_DeclaringType(value, declaringType), \
     mainAnalysis.VarPointsTo(hctx, value, ctx, to)
-
-// 暂且不实现:
-//     isHeapAllocation(value), \
 
 /**
  * 设置 MICRO_CUSTOM_TAINT
@@ -23,7 +21,7 @@
     LabelFromSource(invo, label)
 
 
-#define MICRO_CUSTOM_TAINT(invo, label, value) \
+#define MICRO_CUSTOM_TAINT(source, label, value) \
     TaintedValue(value), \
-    SourceFromTaintedValue(value, invo), \
-    LabelFromSource(invo, label)
+    SourceFromTaintedValue(value, source), \
+    LabelFromSource(source, label)

@@ -271,14 +271,14 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 /**
  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
 */
-.decl Extend_VarPointsTo(valueType: symbol,  invocation: symbol, var: symbol, value: symbol)
+.decl Extend_VarPointsTo(valueType: symbol, declaringType: symbol, invocation: symbol, var: symbol, value: symbol, source: symbol)
 
 
 /**
  * 
 */
-Extend_VarPointsTo(value_type, invocation, var, new_value) :-
-    TaintedVarPointsTo(value, _ctx, var),
+Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
+    TaintedVarPointsTo(source, _ctx, var),
     ActualParam(_idx, invocation, var),
     Var_Type(var, var_type),
 
@@ -288,6 +288,7 @@ Extend_VarPointsTo(value_type, invocation, var, new_value) :-
     ApplicationClass(value_type),
 
     Instruction_Method(invocation, in_method),
+    Method_DeclaringType(in_method, declaringType),
     isMethodInSourceCallGraph(in_method),
     
 
@@ -305,11 +306,12 @@ Extend_VarPointsTo(value_type, invocation, var, new_value) :-
 /**
  * 
 */
-Extend_VarPointsTo(value_type, invocation, base, new_value) :-
+Extend_VarPointsTo(value_type, declaringType, invocation, base, new_value, source) :-
     Instruction_Method(invocation, in_method),
     isMethodInSourceCallGraph(in_method),
+    Method_DeclaringType(in_method, declaringType),
 
-    TaintedVarPointsTo(value, _ctx, base),
+    TaintedVarPointsTo(source, _ctx, base),
     basic.ResolveInvocation(value_type, invocation, _),
     VirtualMethodInvocation_Base(invocation, base),
 
@@ -320,8 +322,8 @@ Extend_VarPointsTo(value_type, invocation, base, new_value) :-
 /**
  * 
 */
-Extend_VarPointsTo(value_type, invocation, var, new_value) :-
-    TaintedVarPointsTo(value, _ctx, var),
+Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
+    TaintedVarPointsTo(source, _ctx, var),
     ActualParam(_idx, invocation, var),
     Var_Type(var, var_type),
 
@@ -332,17 +334,16 @@ Extend_VarPointsTo(value_type, invocation, var, new_value) :-
 
     Instruction_Method(invocation, in_method),
     isMethodInSourceCallGraph(in_method),
+    Method_DeclaringType(in_method, declaringType),
 
     ApplicationClass(value_type),
     new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), " ::: Assign").
 
-TaintedValue(value),
-mainAnalysis.VarPointsTo(hctx, value, ctx, var),
-mainAnalysis.Value_isMock(value), isValue(value), mainAnalysis.Value_Type(value, value_type), mainAnalysis.Value_DeclaringType(value, value_type),
-MockObject(value, value_type) :- 
+MICRO_CUSTOM_TAINT(value, MINING_LABEL, source),
+MICRO_MOCK_VALUE_MICRO_ALL(value, value_type, declaringType, hctx, ctx, var) :- 
     mainAnalysis.isImmutableHContext(hctx),
     mainAnalysis.isImmutableContext(ctx),
-    Extend_VarPointsTo(value_type, _invocation, var, value).
+    Extend_VarPointsTo(value_type, declaringType, _invocation, var, value, source).
 
 .output Extend_VarPointsTo
 .output LeakingSinkVariable
@@ -354,4 +355,4 @@ MockObject(value, value_type) :-
 .output TaintedValueTransferred
 .output TaintedValue
 .printsize Extend_VarPointsTo
-.limitsize Extend_VarPointsTo(n=1000)
+// .limitsize Extend_VarPointsTo(n=1000)

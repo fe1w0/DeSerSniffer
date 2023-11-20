@@ -5,11 +5,11 @@
 ]
 .type Method = Node
 .type InformationLabel = symbol
-.type Lable = symbol
+.type Label = symbol
 
 
 .decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
-.decl LeakingSinkMethod(?lable:InformationLabel, ?method:Method)
+.decl LeakingSinkMethod(?label:InformationLabel, ?method:Method)
 
 // .input fromSourceCallGraph(filename="fromSourceCallGraph.csv")
 // .input LeakingSinkMethod(filename="LeakingSinkMethod.csv")

@@ -1,0 +1,29 @@
+/**
+ * 设置 MICRO_MOCK_VALUE_MICRO_ALL
+*/
+#define MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, to) \
+    isValue(value), \
+    mainAnalysis.Value_isHeap(value), \
+    mainAnalysis.Value_isMock(value), \
+    mainAnalysis.Value_Type(value, type), \
+    mainAnalysis.Value_DeclaringType(value, declaringType), \
+    mainAnalysis.VarPointsTo(hctx, value, ctx, to)
+
+// 暂且不实现:
+//     isHeapAllocation(value), \
+
+/**
+ * 设置 MICRO_CUSTOM_TAINT
+*/
+#define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \
+    mainAnalysis.ForcedReachable(method), \
+    TaintedValue(value), \
+    SourceFromTaintedValue(value, invo), \
+    TaintSourceMethod(label, method), \
+    LabelFromSource(invo, label)
+
+
+#define MICRO_CUSTOM_TAINT(invo, label, value) \
+    TaintedValue(value), \
+    SourceFromTaintedValue(value, invo), \
+    LabelFromSource(invo, label)

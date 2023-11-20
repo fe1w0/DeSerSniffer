@@ -3,6 +3,10 @@
 //-----------------------------------------------------------------------------
 
 // --- basic ---
+
+// 加载 micro
+#include "basic/micro.dl"
+
 // 设置 entryPoints, 注意 override 部分已经修改原 doop 的 entryPoints
 #include "basic/entry-points.dl"
 
@@ -32,7 +36,7 @@
 // #include "analysis/extend-analysis.dl"
 #include "analysis/new-extend-analysis.dl"
 
-// #include "analysis/export-call-graph.dl"
+#include "analysis/export-call-graph.dl"
 
 // --- Output ---
 // 导出用于插桩的信息

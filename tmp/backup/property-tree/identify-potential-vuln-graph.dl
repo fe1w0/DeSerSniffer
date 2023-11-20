@@ -2,10 +2,10 @@
 // 只分析是否存在可达路径
 .type Method = symbol
 .type InformationLabel = symbol
-.type Lable = symbol
+.type Label = symbol
 
 .decl fromSourceCallGraph(?fromMethod: Method, ?toMethod: Method)
-.decl LeakingSinkMethod(?lable:InformationLabel, ?method:Method)
+.decl LeakingSinkMethod(?label:InformationLabel, ?method:Method)
 
 .input fromSourceCallGraph(filename="fromSourceCallGraph.csv")
 .input LeakingSinkMethod(filename="LeakingSinkMethod.csv")
@@ -34,7 +34,7 @@ isOpaqueMethod(method) :-
     fromSourceCallGraph(method, _),
     match(OpaqueRule, method).
 
-.decl PotentialVulnGraph(label: Lable, fromMethod: Method, toMethod: Method)
+.decl PotentialVulnGraph(label: Label, fromMethod: Method, toMethod: Method)
 
 // fromMethod -> toMethod / SinkMethod
 PotentialVulnGraph(label, fromMethod, toMethod) :-
@@ -51,7 +51,7 @@ PotentialVulnGraph(label, fromMethod, toMethod) :-
     PotentialVulnGraph(label, toMethod, _),
     fromSourceCallGraph(fromMethod, toMethod).
 
-.decl vulnGraph(label: Lable, fromMethod: Method, toMethod: Method)
+.decl vulnGraph(label: Label, fromMethod: Method, toMethod: Method)
 
 vulnGraph(label, fromMethod, toMethod) :-
     SourceMethod(fromMethod),

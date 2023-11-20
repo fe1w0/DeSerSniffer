@@ -8,7 +8,7 @@
 /**
  * 分析从 source 的 CallGraph
 */
-.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method, label: Lable)
+.decl fromSourceCallGraph(fromMethod: Method, toMethod: Method, label: Label)
 
 /**
  * 检测函数是否在从Source开始的CallGraph中

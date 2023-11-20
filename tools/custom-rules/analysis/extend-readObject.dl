@@ -25,29 +25,6 @@
 .decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
 
 /**
- * 设置 MICRO_MOCK_VALUE_MICRO_ALL
-*/
-#define MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, to) \
-    isValue(value), \
-    mainAnalysis.Value_isMock(value), \
-    mainAnalysis.Value_Type(value, type), \
-    mainAnalysis.Value_DeclaringType(value, declaringType), \
-    mainAnalysis.VarPointsTo(hctx, value, ctx, to)
-
-// 暂且不实现:
-//     isHeapAllocation(value), \
-
-/**
- * 设置 MICRO_CUSTOM_TAINT
-*/
-#define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \
-    mainAnalysis.ForcedReachable(method), \
-    TaintedValue(value), \
-    SourceFromTaintedValue(value, invo), \
-    TaintSourceMethod(label, method), \
-    LabelFromSource(invo,  label)
-
-/**
  * 需要添加以下信息，以便于 informant analysis 和 VarPointsTo: 
  * 1. readObject 中的参数需要被设置为 污点源，同时需要设置 Mock
  * 2. readObject 中的 this 需要被设置为 污点源
@@ -58,6 +35,7 @@
 /**
  * 将 readObject 中的参数(FormalParam)设置为 污点源，同时需要设置 Mock
 */
+
 MICRO_CUSTOM_TAINT_ENTRY(method, value, MINING_LABEL, value, formal_param),
 MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) :-
     TaintSourceMethod(INFO_FLOW_LABEL, method),
@@ -75,22 +53,29 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) 
 /**
  * 将 readObject 中的 this 设置为 污点源
 */
-TaintedValue(value) :-
-    TaintSourceMethod(INFO_FLOW_LABEL, method),
+Var_DeclaringMethod(invo, method),
+SourceFromTaintedValue(invo, invo),
+MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value) :-
+    TaintSourceMethod(MINING_LABEL, method),
     ThisVar(method, this),
+    Method_DeclaringType(method, declaringType),
+    invo = cat(cat(method, "/TaintedMock "), declaringType),
     mainAnalysis.VarPointsTo(_hctx, value, _ctx, actual_this),
     AssignLocal(this, actual_this, method).
 
 /**
  * 将 Declaring Type 中的 fields 设置为污点源, 同时需要设置 Mock
 */
-TaintedValue(value),
+Var_DeclaringMethod(invo, method),
+SourceFromTaintedValue(invo, invo),
+MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value),
 MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
-    TaintSourceMethod(INFO_FLOW_LABEL, method),
+    TaintSourceMethod(MINING_LABEL, method),
     Method_DeclaringType(method, declaringType),
 
-    value = cat(cat(method, "/TaintedMockField "), sign),
-
+    invo = cat(cat(method, "/TaintedMock "), type),
+    value = cat(cat(cat(cat(method, "/ReadObjectTaintedMockField "), sign), " ::: "), type),
+    
     ThisVar(method, this),
     AssignLocal(this, actual_this, method),
     LoadInstanceField(actual_this, sign, field, method),
@@ -102,106 +87,5 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
     mainAnalysis.isImmutableHContext(hctx),
     mainAnalysis.isImmutableContext(ctx).
 
-// 需要补充，
-// 在 example 中， <sources.demo.ExpOne: void check(sources.demo.SafeClass)>/$stack6 无 Store，但可以通过 readObject 反序列化 构造
-
-/**
- * MockFiled 为当前Reachable中，base 可被污染，但其 field 没有 Store 的 指令
-*/
-.decl ReadyMockFiled(field_signature: symbol, varibale: symbol, base_value: symbol, in_method: Method)
-
-ReadyMockFiled(signature, field, value, in_method) :-
-    TaintedVarPointsTo(value, _ctx, base_this),
-    // 不存在 Store
-    !_StoreInstanceField(_, _, _, _, signature, _),
-    // 存在 Load
-    LoadInstanceField(base_this, signature, field, in_method).
-
-.printsize ReadyMockFiled
-.limitsize ReadyMockFiled(n=1000)
-
-TaintedValue(value),
-MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
-    ReadyMockFiled(signature, field, _base_value, in_method),
-    Method_DeclaringType(in_method, declaringType),
-
-    Var_Type(field, type),
-    value = cat(cat(in_method, "/TaintedMockField "), signature),
-
-    mainAnalysis.isImmutableHContext(hctx),
-    mainAnalysis.isImmutableContext(ctx).
-
-.output ReadyMockFiled
 .output mainAnalysis.OptArgVarPointsTo
-
-
-// MOCK_VALUE_MICRO_ALL(stream_value, stream_type, declaringType, hctx, ctx, to),
-// CUSTOM_TAINT(method, invo, MINING_LABEL, value, var) :-
-//     TaintSourceMethod(INFO_FLOW_LABEL, method),
-    
-//     ThisVar(method, var),
-//     // Method_DeclaringType
-//     Method_DeclaringType(method, declaringType),
-
-//     // readObject 的第一个参数，需要被设置的污点源
-//     FormalParam(0, method, to),
-//     stream_type = "java.io.ObjectInputStream",
-//     stream_invo = cat(cat(declaringType, "/TaintedMock "), "java.io.ObjectInputStream"),
-//     stream_value = stream_invo,
-
-//     // 
-
-//     // 设置 上下文
-//     mainAnalysis.isImmutableHContext(hctx),
-//     mainAnalysis.isImmutableContext(ctx).
-
-// mainAnalysis.ForcedReachable(method),
-// TaintSourceMethod(label, method),
-// LabelFromSource(invo,  label),
-// SourceFromTaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), invo), 
-// TaintTranferToObjectField(hctx, cat(cat(invo, "::: ")), ctx, this),
-// TaintedValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-// isValue( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-// mainAnalysis.Value_isMock( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN")), 
-// mainAnalysis.Value_Type( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), type), 
-// mainAnalysis.Value_DeclaringType( cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), declaringType),
-// mainAnalysis.VarPointsTo(hctx, cat(cat(cat(cat(invo, "::: "),  type), "::: "),  "ASSIGN"), ctx, to) :-
-//     TaintSourceMethod(INFO_FLOW_LABEL, method),
-//     label = MINING_LABEL,
-//     // 对于 readObject 来说 需要将 第一个
-//     FormalParam(0, method, to),
-//     ThisVar(method, this),
-//     // type
-//     type = declaringType,
-//     // create invo
-//     Method_DeclaringType(method, declaringType),
-//     invo = cat(declaringType, "/MockInstruction"),
-//     // mainAnalysis.isImmutableHContext(hctx),
-//     hctx = "<<immutable-hcontext>>",
-//     ctx = "<<immutable-context>>".
-
-// .output TaintTranferToObjectField
-
-// // readObject 中 所有的 field 理应当被污染
-// TaintedValue(new_value),
-// mainAnalysis.VarPointsTo(hctx, new_value, ctx, to) :-
-//     TaintTranferToObjectField(hctx, value, ctx, this),
-//     // 这个 this 是抽象的,非method中具体的 this 变量
-//     ThisVar(inmethod, this),
-//     AssignLocal(this, actualThis, inmethod),
-//     LoadInstanceField(actualThis, _sign, to, inmethod),
-//     Var_Type(to, type),
-//     new_value = cat(cat(value, type), "::: TaintedFiled"),
-//     // InValidReturnType taken from method-summary.dl
-//     !InValidReturnType(type).
-
-
-// Todo: 搞清楚，VPT 传播的 rules
-// TaintedValue(new_value), 
-// mainAnalysis.VarPointsTo(hctx, new_value, ctx, actualThis) :-
-//     TaintTranferToObjectField(hctx, value, ctx, this),
-//     // 这个 this 是抽象的,非method中具体的 this 变量
-//     ThisVar(inmethod, this),
-//     new_value = cat(cat(value, type), "::: ActualThis"),
-//     Method_DeclaringType(inmethod, type),
-//     AssignLocal(this, actualThis, inmethod).
+.output Var_DeclaringMethod

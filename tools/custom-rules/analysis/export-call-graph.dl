@@ -24,10 +24,7 @@ EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
 fromSourceCallGraph("<Start Method>", sourceMethod, label) :-
-    (
-        !TaintSourceMethod(MINING_LABEL, sourceMethod),TaintSourceMethod(INFO_FLOW_LABEL, sourceMethod), label = INFO_FLOW_LABEL;
-        TaintSourceMethod(MINING_LABEL, sourceMethod), label = MINING_LABEL
-    ),
+    TaintSourceMethod(MINING_LABEL, sourceMethod), label = MINING_LABEL,
     mainAnalysis.Reachable(sourceMethod).
 
 fromSourceCallGraph(fromMethod, toMethod, label) :-

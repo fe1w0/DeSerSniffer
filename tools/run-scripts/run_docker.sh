@@ -16,9 +16,9 @@ JAVA_VERSION=java_8
 
 
 # overwrite doop
-bash $BASE_DIR/tools/overwrite.sh $DOOP_HOME
+bash $BASE_DIR/tools/overwrite_b.sh $DOOP_HOME
 echo "[+] Finish: OverWrite"
 
 # analysis
 export DOOP_PLATFORMS_LIB=/doop-benchmarks/
-bash ./original.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION
+bash ./original_b.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION 30

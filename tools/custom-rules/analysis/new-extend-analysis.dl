@@ -46,6 +46,17 @@ AllCollectionClass(class) :-
    superclass = "java.util.Objects";
    superclass = "java.util.Collections").
 
+AllCollectionClass(superclass) :-
+  (superclass = "java.util.Map";
+   superclass = "java.util.Collection";
+   superclass = "java.util.Iterable";
+   superclass = "java.util.Iterator";
+   superclass = "java.util.Comparator";
+   superclass = "java.util.Dictionary";
+   superclass = "java.util.Arrays";
+   superclass = "java.util.Objects";
+   superclass = "java.util.Collections").
+
 .decl DataStructureInnerClass(class: Type)
 
 DataStructureInnerClass(inner_class) :-
@@ -344,6 +355,8 @@ MICRO_MOCK_VALUE_MICRO_PART(source, value_type) :-
     mainAnalysis.isImmutableContext(ctx),
     Extend_VarPointsTo(value_type, declaringType, _invocation, var, value, source).
 
+
+.output mainAnalysis.Value_Type
 .output Extend_VarPointsTo
 .output LeakingSinkVariable
 .output SourceFromTaintedValue

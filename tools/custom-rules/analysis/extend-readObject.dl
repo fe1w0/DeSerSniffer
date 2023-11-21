@@ -22,8 +22,6 @@
  * 所以，还需要 对于 readObject 无实际调用的 source 函数，也需要完善指针分析和污点分析。
 */
 
-.decl TaintTranferToObjectField(hctx:mainAnalysis.configuration.HContext, value:Value, ctx:mainAnalysis.configuration.Context, var:Var)
-
 /**
  * 需要添加以下信息，以便于 informant analysis 和 VarPointsTo: 
  * 1. readObject 中的参数需要被设置为 污点源，同时需要设置 Mock
@@ -78,6 +76,7 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
     
     ThisVar(method, this),
     AssignLocal(this, actual_this, method),
+    !Field_Modifier("transient", sign),
     LoadInstanceField(actual_this, sign, field, method),
     Var_Type(field, type),
 
@@ -87,5 +86,29 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
     mainAnalysis.isImmutableHContext(hctx),
     mainAnalysis.isImmutableContext(ctx).
 
+/**
+ * MaybeTaintedField 为当前Reachable中， this 可被污染，但其 field 因为 <init> 缺少，导致无法传播断开
+*/
+.decl MaybeTaintedField(field_signature: symbol, varibale: symbol, base_value: symbol, in_method: Method, ctx: symbol)
+
+MaybeTaintedField(signature, to_field, base_value, in_method, ctx) :-
+    SerializableValue(base_value),
+    TaintedVarPointsTo(base_value, ctx, base_this),
+    // 若终止序列化，不进行设置
+    !Field_Modifier("transient", signature),
+    // 不存在 Store
+    !_StoreInstanceField(_, _, _, _, signature, in_method),
+    // 存在 Load
+    LoadInstanceField(base_this, signature, to_field, in_method).
+
+VarIsTaintedFromValue(type, base_value, ctx, to_field) :-
+    MaybeTaintedField(signature, to_field, base_value, _in_method, ctx),
+    Var_Type(to_field, type).
+
+.output MaybeTaintedField
+.limitsize MaybeTaintedField
+.printsize MaybeTaintedField
+
+.output VarIsTaintedFromValue
 .output mainAnalysis.OptArgVarPointsTo
 .output Var_DeclaringMethod

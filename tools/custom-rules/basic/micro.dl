@@ -11,6 +11,12 @@
     mainAnalysis.VarPointsTo(hctx, value, ctx, to)
 
 /**
+ * 设置 MICRO_MOCK_VALUE_MICRO_PART
+*/
+#define MICRO_MOCK_VALUE_MICRO_PART(value, type) \
+    mainAnalysis.Value_Type(value, type)
+
+/**
  * 设置 MICRO_CUSTOM_TAINT
 */
 #define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \

@@ -339,8 +339,7 @@ Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source
     ApplicationClass(value_type),
     new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), " ::: Assign").
 
-MICRO_CUSTOM_TAINT(value, MINING_LABEL, source),
-MICRO_MOCK_VALUE_MICRO_ALL(value, value_type, declaringType, hctx, ctx, var) :- 
+MICRO_MOCK_VALUE_MICRO_PART(source, value_type) :- 
     mainAnalysis.isImmutableHContext(hctx),
     mainAnalysis.isImmutableContext(ctx),
     Extend_VarPointsTo(value_type, declaringType, _invocation, var, value, source).
@@ -354,5 +353,5 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, value_type, declaringType, hctx, ctx, var) :-
 .output CallTaintingMethod
 .output TaintedValueTransferred
 .output TaintedValue
+
 .printsize Extend_VarPointsTo
-// .limitsize Extend_VarPointsTo(n=1000)

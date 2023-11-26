@@ -96,17 +96,35 @@ MaybeTaintedField(signature, to_field, base_value, in_method, ctx) :-
     TaintedVarPointsTo(base_value, ctx, base_this),
     // 若终止序列化，不进行设置
     !Field_Modifier("transient", signature),
-    // 不存在 Store
-    !_StoreInstanceField(_, _, _, _, signature, in_method),
-    // 存在 Load
-    LoadInstanceField(base_this, signature, to_field, in_method).
+    (
+        (
+        store_instruction_local_index < load_instruction_local_index,
+        // 存在 Store，store_instruction_local_index < load_instruction_local_index,
+            _StoreInstanceField(_, store_instruction_local_index, _, _, signature, in_method),
+        // 存在 Load
+            _LoadInstanceField(_, load_instruction_local_index, to_field, base_this, signature, in_method)
+        );
+        (
+            !_StoreInstanceField(_, _, _, _, signature, in_method),
+            _LoadInstanceField(_, _, to_field, base_this, signature, in_method)
+        )
+    ).
+
+// VarIsTaintedFromValue(value_type, base_value, ctx, to_field) :-
+//     MaybeTaintedField(_, to_field, base_value, _in_method, ctx),
+//     Var_Type(to_field, to_field_type),
+//     basic.SubtypeOf(value_type, to_field_type),
+
+//     Allow_Class_For_Extend_VarPointsTo(value_type).
 
 VarIsTaintedFromValue(type, base_value, ctx, to_field) :-
-    MaybeTaintedField(signature, to_field, base_value, _in_method, ctx),
+    MaybeTaintedField(_, to_field, base_value, _in_method, ctx),
     Var_Type(to_field, type).
 
 .output MaybeTaintedField
-.limitsize MaybeTaintedField
+
+// 确实，可以有效的构建
+.limitsize MaybeTaintedField(n=4000)
 .printsize MaybeTaintedField
 
 .output VarIsTaintedFromValue

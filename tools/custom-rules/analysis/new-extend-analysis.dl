@@ -32,7 +32,22 @@
 
 .decl AllCollectionClass(class: symbol)
 
-AllCollectionClass(class) :-
+.decl SubCollectionClass(class: symbol)
+
+.decl OriginalCollectionClass(class: symbol)
+
+OriginalCollectionClass(superclass) :-
+  (superclass = "java.util.Map";
+   superclass = "java.util.Collection";
+   superclass = "java.util.Iterable";
+   superclass = "java.util.Iterator";
+   superclass = "java.util.Comparator";
+   superclass = "java.util.Dictionary";
+   superclass = "java.util.Arrays";
+   superclass = "java.util.Objects";
+   superclass = "java.util.Collections").
+
+SubCollectionClass(class) :-
   isClassType(class),
   !DenyEntryClass(class),
   basic.SubtypeOf(class, superclass),
@@ -46,21 +61,16 @@ AllCollectionClass(class) :-
    superclass = "java.util.Objects";
    superclass = "java.util.Collections").
 
-AllCollectionClass(superclass) :-
-  (superclass = "java.util.Map";
-   superclass = "java.util.Collection";
-   superclass = "java.util.Iterable";
-   superclass = "java.util.Iterator";
-   superclass = "java.util.Comparator";
-   superclass = "java.util.Dictionary";
-   superclass = "java.util.Arrays";
-   superclass = "java.util.Objects";
-   superclass = "java.util.Collections").
+AllCollectionClass(class) :-
+    (
+        OriginalCollectionClass(class)
+        ;SubCollectionClass(class)
+    ).
 
 .decl DataStructureInnerClass(class: Type)
 
 DataStructureInnerClass(inner_class) :-
-    AllCollectionClass(class),
+    SubCollectionClass(class),
     isClassType(inner_class),
     match(cat(class, "[$].*"), inner_class).
 
@@ -189,7 +199,6 @@ PotentialAllType(type) :-
 .decl Extend_Obtain_Invocation(instruction: symbol)
 
 /**
- * 最困难的地方，需要提出一个 whole-may-call-graph，从污点源开始。
  * 在readObect中，存在两种不同分析路径和污点源设置，
  * 第一种：readObject在inmethod中，后面在inmethod中分析
  * 第二种: 从 <Class>: readObject 中分析调用
@@ -269,14 +278,16 @@ VirtualMethodInvocation_Base(instruction, base) :-
 .output Extend_Obtain_Invocation
 
 
+/**
+ * 拒绝 DenyEntryClass AbortClassJavaLang DataStructureInnerClass
+*/
 .decl Deny_Class_For_Extend_VarPointsTo(class: Type)
 
 Deny_Class_For_Extend_VarPointsTo(type) :-
     (
-        DenyEntryClass(type);
-        AbortClassJavaLang(type);
-        DataStructureInnerClass(type);
-        AbortClassJavaLang(type)
+        DenyEntryClass(type)
+        ;AbortClassJavaLang(type)
+        ;DataStructureInnerClass(type)
     ).
 
 /**
@@ -285,9 +296,23 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 .decl Extend_VarPointsTo(valueType: symbol, declaringType: symbol, invocation: symbol, var: symbol, value: symbol, source: symbol)
 
 
+.decl Allow_Class_For_Extend_VarPointsTo(type: symbol)
+
+
 /**
- * 
+ * ApplicationClass, AllCollectionClass
 */
+Allow_Class_For_Extend_VarPointsTo(type) :-
+    (
+        ApplicationClass(type)
+        // ;AllCollectionClass(type)
+    ).
+
+
+// /**
+//  * 泛化对象: 对 DataStruction 中特殊函数中的实际参数
+//  * 泛化目标: 参数类型的子类, 范围在 ApplicationClass
+// */
 Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
     TaintedVarPointsTo(source, _ctx, var),
     ActualParam(_idx, invocation, var),
@@ -302,7 +327,7 @@ Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source
     Method_DeclaringType(in_method, declaringType),
     isMethodInSourceCallGraph(in_method),
     
-
+    // to_method 的声明类型需要在 AllCollectionClass 中，且其简名是 指定的一些函数名
     MethodInvocation_Method(invocation, to_method),
     Method_SimpleName(to_method, to_method_simple_name),
     (
@@ -312,10 +337,12 @@ Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source
     
     Method_DeclaringType(to_method, to_method_declaring_type),
     AllCollectionClass(to_method_declaring_type),
-    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), " ::: Assign").
+    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), "/0 ::: Assign").
 
 /**
- * 
+ * 泛化对象: Virtual Invocation 中 base
+ * 泛化目标: base的可调用子类, 范围在 Allow_Class_For_Extend_VarPointsTo
+ * 补充说明: 
 */
 Extend_VarPointsTo(value_type, declaringType, invocation, base, new_value, source) :-
     Instruction_Method(invocation, in_method),
@@ -324,36 +351,35 @@ Extend_VarPointsTo(value_type, declaringType, invocation, base, new_value, sourc
 
     TaintedVarPointsTo(source, _ctx, base),
     basic.ResolveInvocation(value_type, invocation, _),
+    ApplicationClass(value_type),
     VirtualMethodInvocation_Base(invocation, base),
 
-    ApplicationClass(value_type),
-    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), " ::: Assign").
-
+    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), "/1 ::: Assign").
 
 /**
- * 
+ * 泛化对象: Invocation 中的实际参数
+ * 泛化目标: 参数类型的子类, 范围在 Allow_Class_For_Extend_VarPointsTo
 */
-Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
-    TaintedVarPointsTo(source, _ctx, var),
-    ActualParam(_idx, invocation, var),
-    Var_Type(var, var_type),
+// Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
+//     TaintedVarPointsTo(source, _ctx, var),
+//     ActualParam(_idx, invocation, var),
+//     Var_Type(var, var_type),
 
-    basic.SubtypeOf(value_type, var_type),
-    !Deny_Class_For_Extend_VarPointsTo(var_type),
-    !Deny_Class_For_Extend_VarPointsTo(value_type),
-    ApplicationClass(value_type),
+//     basic.SubtypeOf(value_type, var_type),
+//     !Deny_Class_For_Extend_VarPointsTo(var_type),
+//     !Deny_Class_For_Extend_VarPointsTo(value_type),
+//     Allow_Class_For_Extend_VarPointsTo(value_type),
 
-    Instruction_Method(invocation, in_method),
-    isMethodInSourceCallGraph(in_method),
-    Method_DeclaringType(in_method, declaringType),
+//     Instruction_Method(invocation, in_method),
+//     isMethodInSourceCallGraph(in_method),
+//     Method_DeclaringType(in_method, declaringType),
 
-    ApplicationClass(value_type),
-    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), " ::: Assign").
+//     new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), "/2 ::: Assign").
 
 MICRO_MOCK_VALUE_MICRO_PART(source, value_type) :- 
-    mainAnalysis.isImmutableHContext(hctx),
-    mainAnalysis.isImmutableContext(ctx),
-    Extend_VarPointsTo(value_type, declaringType, _invocation, var, value, source).
+    // mainAnalysis.isImmutableHContext(hctx),
+    // mainAnalysis.isImmutableContext(ctx),
+    Extend_VarPointsTo(value_type, declaringType, _invocation, var, _, source).
 
 
 .output mainAnalysis.Value_Type

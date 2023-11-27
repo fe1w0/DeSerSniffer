@@ -1,0 +1,16 @@
+#define MaxNumber 10
+.decl Counter_Number(n: number, relation: symbol)
+
+Counter_Number(0, "a").
+Counter_Number(1, "b").
+Counter_Number(2, "a").
+
+.decl MAX_Number(n: number, relation: symbol)
+
+MAX_Number(n, relation) :-
+    Counter_Number(_, relation),
+    n = max number: {
+        Counter_Number(number, relation)
+    }.
+
+.output MAX_Number

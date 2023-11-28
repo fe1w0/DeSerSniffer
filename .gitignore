@@ -1,3 +1,6 @@
 example/.idea
 example/target
 ./output/
+tools/generate-gh/links.facts
+tools/generate-gh/method_calls_graph
+tools/generate-gh/method_calls_graph.dot

@@ -1,16 +1,3 @@
-// 其他结果
-.output LeakingSinkMethod
-.output TaintSourceMethod
-.output LeakingSinkVariable
-.output TaintedVarPointsTo
-.output TaintedValue
-.output mainAnalysis.Reachable
-
-// 插桩的数据
-.output OutputInstrumentationMethod
-
-// 污点分析结果
-.output fromSourceCallGraph
 
 // Method_Descriptor
 .output ChainPathsOutput
@@ -18,14 +5,10 @@
 .output PotentialVulnGraph
 
 // 反射结果
-
 .output mainAnalysis.java_lang_reflect_Method_invoke
 .output mainAnalysis.java_lang_Class_forName
-
-// .output mainAnalysis.java_lang_reflect_NewInstance
-
+.output mainAnalysis.java_lang_reflect_NewInstance
 .output mainAnalysis.java_lang_reflect_Constructor_newInstance
-
 
 // 污点分析
 // 直接用 .output TaintObjTransfer 会产生问题, 导致 .plan 异常
@@ -57,10 +40,10 @@
 .output isSpecialMethodInvocation_Insn
 .output isVirtualMethodInvocation_Insn
 
-
 .output TaintTranferToObjectField
 
-// .output ClassHasPossibleOpenProgramEntryPoint
+.output ClassHasPossibleOpenProgramEntryPoint
+.output basic.ResolveInvocation
 
-
-// .output basic.ResolveInvocation
+.output isHeapAllocation
+.output mainAnalysis.OptArgAssign

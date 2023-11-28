@@ -2,11 +2,14 @@
 // Start Custom rules
 //-----------------------------------------------------------------------------
 
+#define MAX_Number_MaybeTaintedField 6000
+
 // --- basic ---
 
 // 加载 micro
 #include "basic/micro.dl"
 
+// 1.2.0 及后 版本中，直接关闭了 entryPoints, 以提高分析速度
 // 设置 entryPoints, 注意 override 部分已经修改原 doop 的 entryPoints
 #include "basic/entry-points.dl"
 
@@ -40,10 +43,10 @@
 
 // --- Output ---
 // 导出用于插桩的信息
-// #include "output/output-instrumentation.dl"
+#include "output/output-instrumentation.dl"
 
 // 添加 ChainPaths 导出功能
-// #include "output/identify-chain-paths.dl"
+#include "output/identify-chain-paths.dl"
 
 // 添加 Property Tree 导出工具，用于生成属性树
 // #include "output/export-property-tree.dl"
@@ -53,7 +56,3 @@
 //-----------------------------------------------------------------------------
 // End. Custome rules
 //-----------------------------------------------------------------------------
-
-
-.output isHeapAllocation
-.output mainAnalysis.OptArgAssign

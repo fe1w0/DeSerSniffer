@@ -98,4 +98,5 @@ scc_call_graph(b_label, c_label) :-
   connect_scc(scc, c),
   label_scc(c, c_label).
 
-// 用 scc 表示有个问题，会丢失一些细节
+// 用 scc 表示有个问题，会丢失细节
+

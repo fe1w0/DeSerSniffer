@@ -8,183 +8,6 @@
 */
 
 /**
- * PotentialType 主要为 函数泛化 提供支持。
- * 认为可泛化点存在两个条件:
- * 1. 被反序列化控制，即从 readObject 开始
- * 2. PotentialType 为所有的的子类（含自身）
- * 从 1、 2 中可以推断出，若存在泛化导致的污点分析，最直接的原因是因为反序列化导致的类型泛化，也即是 field 上的泛化问题
- *（还有一种可能，控制流的不同，导致的泛化，但不是本研究的重点
-*/
-.decl PotentialType(type: symbol)
-
-/**
- * PotentialEnd_Type 表示 在属性树中的 部分 End Node
-*/
-.decl PotentialEnd_Type(type: symbol)
-
-.decl PotenticalField(field: symbol)
-
-.decl PotentialOnlyType(type: symbol)
-
-.decl PotentialAllType(type: symbol)
-
-.decl AbortClass(type: symbol)
-
-.decl AllCollectionClass(class: symbol)
-
-.decl SubCollectionClass(class: symbol)
-
-.decl OriginalCollectionClass(class: symbol)
-
-OriginalCollectionClass(superclass) :-
-  (superclass = "java.util.Map";
-   superclass = "java.util.Collection";
-   superclass = "java.util.Iterable";
-   superclass = "java.util.Iterator";
-   superclass = "java.util.Comparator";
-   superclass = "java.util.Dictionary";
-   superclass = "java.util.Arrays";
-   superclass = "java.util.Objects";
-   superclass = "java.util.Collections").
-
-SubCollectionClass(class) :-
-  isClassType(class),
-  !DenyEntryClass(class),
-  basic.SubtypeOf(class, superclass),
-  (superclass = "java.util.Map";
-   superclass = "java.util.Collection";
-   superclass = "java.util.Iterable";
-   superclass = "java.util.Iterator";
-   superclass = "java.util.Comparator";
-   superclass = "java.util.Dictionary";
-   superclass = "java.util.Arrays";
-   superclass = "java.util.Objects";
-   superclass = "java.util.Collections").
-
-AllCollectionClass(class) :-
-    (
-        OriginalCollectionClass(class)
-        ;SubCollectionClass(class)
-    ).
-
-.decl DataStructureInnerClass(class: Type)
-
-DataStructureInnerClass(inner_class) :-
-    SubCollectionClass(class),
-    isClassType(inner_class),
-    match(cat(class, "[$].*"), inner_class).
-
-AbortClass(type) :-
-    DenyEntryClass(type).
-
-AbortClass(type) :-
-    AbortClassJavaLang(type).
-
-AbortClass(type) :-
-    Type_object(type).
-
-AbortClass(type) :-
-    Type_null(type).
-
-AbortClass(type) :-
-    isPrimitiveType(type).
-
-AbortClass(type) :-
-    AllCollectionClass(type).
-
-
-// Todo: 提取能力，过于弱小
-
-// 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
-PotenticalField(field_signature),
-PotentialType(potential_type) :-
-    DefineSourceMethod(method),
-    // 函数 存在于 哪些 class 中
-    Method_DeclaringType(method, class),
-    // field 存在于 哪些 class 中
-    // Field_DeclaringType 为 显式声明
-    // 但存在 field 继承的问题
-    Field_DeclaringType(field_signature, class),
-    // field 属于 什么类型
-    Field_Type(field_signature, field_type),
-    // potential_type 是 field_type 的子类
-    basic.SubtypeOf(potential_type, field_type),
-    !AbortClass(field_type),
-    !AbortClass(potential_type).
-
-// // 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialType
-PotenticalField(next_field_signature),
-PotentialType(potential_type) :-
-    PotentialType(original_value_type),
-    Field_DeclaringType(next_field_signature, original_value_type),
-    Field_Type(next_field_signature, next_field_type),
-    basic.SubtypeOf(potential_type, next_field_type),
-    !AbortClass(next_field_type),
-    !AbortClass(potential_type).
-
-PotentialEnd_Type(next_field_type) :-
-    PotentialType(original_value_type),
-    Field_DeclaringType(next_field_signature, original_value_type),
-    Field_Type(next_field_signature, next_field_type),
-    (
-        AllCollectionClass(next_field_type);
-        Type_object(next_field_type)
-    ).
-
-PotentialEnd_Type(class) :-
-    DefineSourceMethod(method),
-    // 函数 存在于 哪些 class 中
-    Method_DeclaringType(method, class).
-
-PotentialEnd_Type(field_type) :-
-    DefineSourceMethod(method),
-    // 函数 存在于 哪些 class 中
-    Method_DeclaringType(method, class),
-    // field 存在于 哪些 class 中
-    // Field_DeclaringType 为 显式声明
-    // 但存在 field 继承的问题
-    Field_DeclaringType(field_signature, class),
-    // field 属于 什么类型
-    Field_Type(field_signature, field_type),
-    // potential_type 是 field_type 的子类
-    (
-        AllCollectionClass(field_type);
-        Type_object(field_type)
-    ).
-
-PotentialOnlyType(type) :-
-    PotentialType(type).
-
-PotentialOnlyType(type) :-
-    PotentialEnd_Type(type).
-
-PotentialAllType(type) :-
-    PotentialOnlyType(type).
-
-PotentialAllType(type) :-
-    (AllCollectionClass(type);
-    Type_object(type)).
-
-.output AbortClass
-.output DataStructureInnerClass
-.output PotentialOnlyType
-.output basic.SubtypeOf
-.output AllCollectionClass
-.output Field_DeclaringType
-.output PotentialType
-.output PotenticalField
-.output PotentialEnd_Type
-.output PotentialAllType
-
-/**
- * 以下内容是来解决 ApplicationClass 问题。
- * 具体的优化问题如下: 
- * - 在doop框架中， `--app-only` 选项下， 不会认为 rt.jar 这类底层组件是 application
- * - 但对于 反序列化来说，最常用和最可能的利用链中，就可以存在于 rt.jar 中，如 java.util.hashMap, java.util.hashSet
- * 如果直接不采用 `--app-only`，主要是分析的空间会爆炸，时间成本也高。
-*/
-
-/**
  * 目前的版本，是手动的将一些需要考虑的 Method 添加进去 到 Accept_Extend_Obtain_Method 中。
  * Todo: 从一个压缩且完备的Domain空间中，对其中所有的invocation进行分析。
  * 对应的压缩且完备的Domain空间，预计定义为: 从 source_method，到其中 invocation 的 所有子类 signature
@@ -209,16 +32,15 @@ PotentialAllType(type) :-
 // 反射相关
 Accept_Extend_Obtain_Method(method) :-
     (
-        method = "<java.lang.Class: java.lang.Class forName(java.lang.String)>";
-        method = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>";
-        method = "<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>";
-        method = "<java.lang.Class: java.lang.reflect.Method getDeclaredMethod(java.lang.String,java.lang.Class[])>";
-        method = "<java.lang.Class: java.lang.reflect.Constructor getConstructor(java.lang.Class[])>";
-        method = "<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>";
-        method = "<java.lang.Class: java.lang.Object newInstance()>"
+        class = "java.lang.Class"
+        ;class = "java.lang.reflect.Constructor"
+        ;class = "java.lang.reflect.Method"
+        ;class = "java.lang.reflect.Field"
+        ;class = "java.lang.reflect.Modifier"
     ),
+    isClassType(class),
+    Method_DeclaringType(method, class),
     isOpaqueMethod(method).
-// <java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>
 
 // 反序列化相关
 Accept_Extend_Obtain_Method(method) :-
@@ -270,13 +92,9 @@ VirtualMethodInvocation_Base(instruction, base) :-
     !Extend_OpaqueMethod(in_method),
     _VirtualMethodInvocation(instruction, _, signature, base, in_method).
 
-.printsize Extend_Obtain_Invocation
-
-.output basic.MethodOverridesOther
-.output WHOLE_MAY_CALL_GRAPH
 .output Accept_Extend_Obtain_Method
 .output Extend_Obtain_Invocation
-
+.printsize Extend_Obtain_Invocation
 
 /**
  * 拒绝 DenyEntryClass AbortClassJavaLang DataStructureInnerClass
@@ -293,7 +111,7 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 /**
  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
 */
-.decl Extend_VarPointsTo(valueType: symbol, declaringType: symbol, invocation: symbol, var: symbol, value: symbol, source: symbol)
+.decl Extend_VarPointsTo(valueType: symbol, source: symbol)
 
 
 .decl Allow_Class_For_Extend_VarPointsTo(type: symbol)
@@ -304,93 +122,38 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 */
 Allow_Class_For_Extend_VarPointsTo(type) :-
     (
-        ApplicationClass(type)
+        ApplicationClass(type),
+        !ApplicationClassInnerClass(type)
         // ;AllCollectionClass(type)
     ).
 
-
-// /**
-//  * 泛化对象: 对 DataStruction 中特殊函数中的实际参数
-//  * 泛化目标: 参数类型的子类, 范围在 ApplicationClass
-// */
-Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
-    TaintedVarPointsTo(source, _ctx, var),
-    ActualParam(_idx, invocation, var),
-    Var_Type(var, var_type),
-
-    basic.SubtypeOf(value_type, var_type),
-    !Deny_Class_For_Extend_VarPointsTo(var_type),
-    !Deny_Class_For_Extend_VarPointsTo(value_type),
-    ApplicationClass(value_type),
-
-    Instruction_Method(invocation, in_method),
-    Method_DeclaringType(in_method, declaringType),
-    isMethodInSourceCallGraph(in_method),
-    
-    // to_method 的声明类型需要在 AllCollectionClass 中，且其简名是 指定的一些函数名
-    MethodInvocation_Method(invocation, to_method),
-    Method_SimpleName(to_method, to_method_simple_name),
-    (
-        to_method_simple_name = "put";
-        to_method_simple_name = "get"
-    ),
-    
-    Method_DeclaringType(to_method, to_method_declaring_type),
-    AllCollectionClass(to_method_declaring_type),
-    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), "/0 ::: Assign").
-
 /**
  * 泛化对象: Virtual Invocation 中 base
- * 泛化目标: base的可调用子类, 范围在 Allow_Class_For_Extend_VarPointsTo
+ * 泛化目标: base的可调用子类, 范围在 ApplicationClass
  * 补充说明: 
 */
-Extend_VarPointsTo(value_type, declaringType, invocation, base, new_value, source) :-
+Extend_VarPointsTo(value_type, source) :-
     Instruction_Method(invocation, in_method),
     isMethodInSourceCallGraph(in_method),
-    Method_DeclaringType(in_method, declaringType),
-
+    VirtualMethodInvocation_Base(invocation, base),
+    Var_Type(base, base_type),
+    !SubCollectionClass(base_type),
     TaintedVarPointsTo(source, _ctx, base),
     basic.ResolveInvocation(value_type, invocation, _),
-    ApplicationClass(value_type),
-    VirtualMethodInvocation_Base(invocation, base),
-
-    new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), "/1 ::: Assign").
-
-/**
- * 泛化对象: Invocation 中的实际参数
- * 泛化目标: 参数类型的子类, 范围在 Allow_Class_For_Extend_VarPointsTo
-*/
-// Extend_VarPointsTo(value_type, declaringType, invocation, var, new_value, source) :-
-//     TaintedVarPointsTo(source, _ctx, var),
-//     ActualParam(_idx, invocation, var),
-//     Var_Type(var, var_type),
-
-//     basic.SubtypeOf(value_type, var_type),
-//     !Deny_Class_For_Extend_VarPointsTo(var_type),
-//     !Deny_Class_For_Extend_VarPointsTo(value_type),
-//     Allow_Class_For_Extend_VarPointsTo(value_type),
-
-//     Instruction_Method(invocation, in_method),
-//     isMethodInSourceCallGraph(in_method),
-//     Method_DeclaringType(in_method, declaringType),
-
-//     new_value  = cat(cat(cat(in_method, "/Extend ::: "), value_type), "/2 ::: Assign").
+    Allow_Class_For_Extend_VarPointsTo(value_type).
 
 MICRO_MOCK_VALUE_MICRO_PART(source, value_type) :- 
-    // mainAnalysis.isImmutableHContext(hctx),
-    // mainAnalysis.isImmutableContext(ctx),
-    Extend_VarPointsTo(value_type, declaringType, _invocation, var, _, source).
+    Extend_VarPointsTo(value_type, source).
 
-
-.output mainAnalysis.Value_Type
 .output Extend_VarPointsTo
-.output LeakingSinkVariable
-.output SourceFromTaintedValue
-.output LabelFromSource
-.output XYZ2
-.output VarIsTaintedFromVar
-.output CallTaintingMethod
-.output TaintedValueTransferred
-.output TaintedValue
-
 .printsize Extend_VarPointsTo
+
+/**
+ * 补充 Invoke 函数的 SinkMethod 调用图
+*/
+mainAnalysis.configuration.ContextRequest(ctx, hctx, invocation, value, method, 1) :-
+    mainAnalysis.isImmutableHContext(hctx),
+    mainAnalysis.isImmutableContext(ctx),
+    mainAnalysis.java_lang_reflect_Method_invoke(invocation, base),
+    method = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>",
+    _AssignReturnValue(value, base).

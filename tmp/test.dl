@@ -13,4 +13,8 @@ MAX_Number(n, relation) :-
         Counter_Number(number, relation)
     }.
 
-.output MAX_Number
+.output Counter_Number
+
+
+Counter_Number(0, "0") :-
+    match("a", "a$11").

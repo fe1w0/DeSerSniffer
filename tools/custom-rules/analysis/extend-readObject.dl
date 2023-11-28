@@ -89,44 +89,27 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
 /**
  * MaybeTaintedField 为当前Reachable中， this 可被污染，但其 field 因为 <init> 缺少，导致无法传播断开
 */
-.decl MaybeTaintedField(field_signature: symbol, varibale: symbol, base_value: symbol, in_method: Method, ctx: symbol)
+.decl MaybeTaintedField(varibale: symbol, base_value: symbol, ctx: symbol)
 
-MaybeTaintedField(signature, to_field, base_value, in_method, ctx) :-
+.decl Fields_Dont_Store_inSameMethod(to_field: symbol, base_this: symbol) inline
+
+Fields_Dont_Store_inSameMethod(to_field, base_this) :-
+    !Field_Modifier("transient", signature),
+    !_StoreInstanceField(_, _, _, _, signature, in_method),
+    _LoadInstanceField(_, _, to_field, base_this, signature, in_method).
+
+MaybeTaintedField(to_field, base_value, ctx) :-
     SerializableValue(base_value),
     TaintedVarPointsTo(base_value, ctx, base_this),
     // 若终止序列化，不进行设置
-    !Field_Modifier("transient", signature),
-    (
-        (
-        store_instruction_local_index < load_instruction_local_index,
-        // 存在 Store，store_instruction_local_index < load_instruction_local_index,
-            _StoreInstanceField(_, store_instruction_local_index, _, _, signature, in_method),
-        // 存在 Load
-            _LoadInstanceField(_, load_instruction_local_index, to_field, base_this, signature, in_method)
-        );
-        (
-            !_StoreInstanceField(_, _, _, _, signature, in_method),
-            _LoadInstanceField(_, _, to_field, base_this, signature, in_method)
-        )
-    ).
-
-// VarIsTaintedFromValue(value_type, base_value, ctx, to_field) :-
-//     MaybeTaintedField(_, to_field, base_value, _in_method, ctx),
-//     Var_Type(to_field, to_field_type),
-//     basic.SubtypeOf(value_type, to_field_type),
-
-//     Allow_Class_For_Extend_VarPointsTo(value_type).
+    Fields_Dont_Store_inSameMethod(to_field, base_this).
 
 VarIsTaintedFromValue(type, base_value, ctx, to_field) :-
-    MaybeTaintedField(_, to_field, base_value, _in_method, ctx),
+    MaybeTaintedField(to_field, base_value, ctx),
     Var_Type(to_field, type).
 
 .output MaybeTaintedField
 
 // 确实，可以有效的构建
-.limitsize MaybeTaintedField(n=4000)
+.limitsize MaybeTaintedField(n=MAX_Number_MaybeTaintedField)
 .printsize MaybeTaintedField
-
-.output VarIsTaintedFromValue
-.output mainAnalysis.OptArgVarPointsTo
-.output Var_DeclaringMethod

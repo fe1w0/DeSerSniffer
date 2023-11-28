@@ -1,0 +1,23 @@
+// Method Calls Graph
+digraph {
+	"org.apache.commons.collections.functors.InvokerTransformer__java.lang.Object_transform(java.lang.Object)" [label=<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>]
+	"org.apache.commons.collections.map.LazyMap__java.lang.Object_get(java.lang.Object)" [label=<org.apache.commons.collections.map.LazyMap: java.lang.Object get(java.lang.Object)>]
+	"java.util.HashSet__void_readObject(java.io.ObjectInputStream)" [label=<java.util.HashSet: void readObject(java.io.ObjectInputStream)>]
+	"java.util.HashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)___SCC____283" [label="<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 283"]
+	"org.apache.commons.collections.collection.TransformedCollection__boolean_add(java.lang.Object)" [label=<org.apache.commons.collections.collection.TransformedCollection: boolean add(java.lang.Object)>]
+	"org.apache.commons.collections.iterators.TransformIterator__java.lang.Object_transform(java.lang.Object)" [label=<org.apache.commons.collections.iterators.TransformIterator: java.lang.Object transform(java.lang.Object)>]
+	"java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])" [label=<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>]
+	"org.apache.commons.collections.collection.TransformedCollection__java.lang.Object_transform(java.lang.Object)" [label=<org.apache.commons.collections.collection.TransformedCollection: java.lang.Object transform(java.lang.Object)>]
+	Start_Method [label=<Start Method>]
+	Start_Method -> "java.util.HashSet__void_readObject(java.io.ObjectInputStream)"
+	"java.util.HashSet__void_readObject(java.io.ObjectInputStream)" -> "java.util.HashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)___SCC____283"
+	"org.apache.commons.collections.functors.InvokerTransformer__java.lang.Object_transform(java.lang.Object)" -> "java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])"
+	"org.apache.commons.collections.map.LazyMap__java.lang.Object_get(java.lang.Object)" -> "org.apache.commons.collections.functors.InvokerTransformer__java.lang.Object_transform(java.lang.Object)"
+	"org.apache.commons.collections.collection.TransformedCollection__boolean_add(java.lang.Object)" -> "org.apache.commons.collections.collection.TransformedCollection__java.lang.Object_transform(java.lang.Object)"
+	"org.apache.commons.collections.iterators.TransformIterator__java.lang.Object_transform(java.lang.Object)" -> "org.apache.commons.collections.functors.InvokerTransformer__java.lang.Object_transform(java.lang.Object)"
+	"org.apache.commons.collections.collection.TransformedCollection__java.lang.Object_transform(java.lang.Object)" -> "org.apache.commons.collections.functors.InvokerTransformer__java.lang.Object_transform(java.lang.Object)"
+	"java.util.HashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)___SCC____283" -> "org.apache.commons.collections.functors.InvokerTransformer__java.lang.Object_transform(java.lang.Object)"
+	"java.util.HashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)___SCC____283" -> "org.apache.commons.collections.map.LazyMap__java.lang.Object_get(java.lang.Object)"
+	"java.util.HashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)___SCC____283" -> "org.apache.commons.collections.collection.TransformedCollection__boolean_add(java.lang.Object)"
+	"java.util.HashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)___SCC____283" -> "org.apache.commons.collections.iterators.TransformIterator__java.lang.Object_transform(java.lang.Object)"
+}

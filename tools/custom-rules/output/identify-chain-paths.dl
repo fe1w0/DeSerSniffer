@@ -27,14 +27,14 @@ SourceMethod(method) :-
 .decl isOpaqueMethodForIdentify(method: Method)
 
 isOpaqueMethodForIdentify(method) :-
-    SinkMethod(method),
-    match(OpaqueRule, method).
-
-isOpaqueMethodForIdentify(method) :-
+    !SinkMethod(method),
+    !SourceMethod(method),
     fromSourceCallGraph(_, method, _),
     match(OpaqueRule, method).
 
 isOpaqueMethodForIdentify(method) :-
+    !SinkMethod(method),
+    !SourceMethod(method),
     fromSourceCallGraph(method, _, _),
     match(OpaqueRule, method).
 
@@ -47,10 +47,10 @@ PotentialVulnGraph(newlabel, fromMethod, toMethod) :-
     !isOpaqueMethodForIdentify(toMethod),
     SinkMethod(toMethod),
     // fromMethod 受到 LeakingTaintedInformation(_, _, _, invocation, _)
-    LeakingTaintedInformation(_, _, _, invocation, _),
+    LeakingTaintedInformation(_, _, _, invocation, source_value),
     Instruction_Method(invocation, fromMethod),
     fromSourceCallGraph(fromMethod, toMethod, label),
-    SourceMethod(sourceMethod),
+    SourceValueAndMethod(source_value, sourceMethod),
     newlabel = cat(label, cat("::", cat(cat(sourceMethod, " -> "))), toMethod).
 
 // fromMethod -> toMethod / oldFromMethod -> ... -> toMethod / SinkMethod
@@ -71,6 +71,7 @@ ChainPathsOutput(MethodDeclaringType, MethodSimpleName, MethodJVMDescriptor) :-
     Method_SimpleName(method, MethodSimpleName),
     Method_JVMDescriptor(method, MethodJVMDescriptor).
 
+.output isOpaqueMethodForIdentify
 .output ChainPathsOutput
 .output PotentialVulnGraphLabel
 .output PotentialVulnGraph

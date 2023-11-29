@@ -1,5 +1,5 @@
-# ID=example_debug
-ID=cc_3_1_debug_one
+ID=example_debug
+# ID=cc_3_1_debug_one
 
 
 # original doop
@@ -10,7 +10,7 @@ FuzzChainsPath=/Users/fe1w0/Project/SoftWareAnalysis/Dynamic/FuzzChains
 JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
 JAVA_VERSION=java_8
 INPUT=$BASE_DIR/example/target/example.jar
-INPUT=commons-collections:commons-collections:3.1
+# INPUT=commons-collections:commons-collections:3.1
 
 # export DOOP_PLATFORMS_LIB=/Users/fe1w0/Project/SoftWareAnalysis/StaticAnalysis/doop-benchmarks
 export DOOP_PLATFORMS_LIB=/Volumes/FE1W0/Project/SoftWareAnalysis/StaticAnalysis/doop-benchmarks/

@@ -53,7 +53,7 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) 
 */
 Var_DeclaringMethod(invo, method),
 SourceFromTaintedValue(invo, invo),
-MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value) :-
+MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value, method) :-
     TaintSourceMethod(MINING_LABEL, method),
     ThisVar(method, this),
     Method_DeclaringType(method, declaringType),
@@ -66,7 +66,7 @@ MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value) :-
 */
 Var_DeclaringMethod(invo, method),
 SourceFromTaintedValue(invo, invo),
-MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value),
+MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value, method),
 MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
     TaintSourceMethod(MINING_LABEL, method),
     Method_DeclaringType(method, declaringType),

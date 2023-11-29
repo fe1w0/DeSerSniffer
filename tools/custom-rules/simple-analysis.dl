@@ -48,6 +48,9 @@
 // 添加 ChainPaths 导出功能
 #include "output/identify-chain-paths.dl"
 
+// 
+#include "output/heap-flow.dl"
+
 // 添加 Property Tree 导出工具，用于生成属性树
 // #include "output/export-property-tree.dl"
 

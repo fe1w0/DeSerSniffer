@@ -16,10 +16,13 @@
 #define MICRO_MOCK_VALUE_MICRO_PART(value, type) \
     mainAnalysis.Value_Type(value, type)
 
+.decl SourceValueAndMethod(value: symbol, method: symbol)
+.output SourceValueAndMethod
 /**
  * 设置 MICRO_CUSTOM_TAINT
 */
 #define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \
+    SourceValueAndMethod(invo, method), \
     mainAnalysis.ForcedReachable(method), \
     TaintedValue(value), \
     SourceFromTaintedValue(value, invo), \
@@ -27,7 +30,8 @@
     LabelFromSource(invo, label)
 
 
-#define MICRO_CUSTOM_TAINT(source, label, value) \
+#define MICRO_CUSTOM_TAINT(source, label, value, method) \
+    SourceValueAndMethod(source, method), \
     TaintedValue(value), \
     SourceFromTaintedValue(value, source), \
     LabelFromSource(source, label)

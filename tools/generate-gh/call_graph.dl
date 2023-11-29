@@ -99,4 +99,3 @@ scc_call_graph(b_label, c_label) :-
   label_scc(c, c_label).
 
 // 用 scc 表示有个问题，会丢失细节
-

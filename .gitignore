@@ -4,3 +4,4 @@ example/target
 tools/generate-gh/links.facts
 tools/generate-gh/method_calls_graph
 tools/generate-gh/method_calls_graph.dot
+tools/generate-gh/analysis.*

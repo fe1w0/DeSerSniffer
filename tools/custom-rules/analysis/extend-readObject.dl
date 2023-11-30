@@ -34,6 +34,9 @@
  * 将 readObject 中的参数(FormalParam)设置为 污点源，同时需要设置 Mock
 */
 
+.decl RootSource(source_method: Method, source: symbol)
+
+RootSource(method, invocation),
 MICRO_CUSTOM_TAINT_ENTRY(method, value, MINING_LABEL, value, formal_param),
 MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) :-
     TaintSourceMethod(INFO_FLOW_LABEL, method),
@@ -52,10 +55,11 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) 
  * 将 readObject 中的 this 设置为 污点源
 */
 Var_DeclaringMethod(invo, method),
-SourceFromTaintedValue(invo, invo),
+SourceFromTaintedValue(invo, source),
 MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value, method) :-
     TaintSourceMethod(MINING_LABEL, method),
     ThisVar(method, this),
+    RootSource(method, source),
     Method_DeclaringType(method, declaringType),
     invo = cat(cat(method, "/TaintedMock "), declaringType),
     mainAnalysis.VarPointsTo(_hctx, value, _ctx, actual_this),
@@ -65,11 +69,12 @@ MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value, method) :-
  * 将 Declaring Type 中的 fields 设置为污点源, 同时需要设置 Mock
 */
 Var_DeclaringMethod(invo, method),
-SourceFromTaintedValue(invo, invo),
+SourceFromTaintedValue(invo, source),
 MICRO_CUSTOM_TAINT(invo, MINING_LABEL, value, method),
 MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, field) :-
     TaintSourceMethod(MINING_LABEL, method),
     Method_DeclaringType(method, declaringType),
+    RootSource(method, source),
 
     invo = cat(cat(method, "/TaintedMock "), type),
     value = cat(cat(cat(cat(method, "/ReadObjectTaintedMockField "), sign), " ::: "), type),

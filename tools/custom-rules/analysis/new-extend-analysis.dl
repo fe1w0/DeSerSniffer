@@ -111,7 +111,7 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
 /**
  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
 */
-.decl Extend_VarPointsTo(valueType: symbol, source: symbol)
+.decl Extend_VarPointsTo(valueType: symbol, source: symbol, base: symbol, to_method: symbol)
 
 
 .decl Allow_Class_For_Extend_VarPointsTo(type: symbol)
@@ -132,18 +132,20 @@ Allow_Class_For_Extend_VarPointsTo(type) :-
  * 泛化目标: base的可调用子类, 范围在 ApplicationClass
  * 补充说明: 
 */
-Extend_VarPointsTo(value_type, source) :-
+Extend_VarPointsTo(value_type, source, base, to_method) :-
     Instruction_Method(invocation, in_method),
     isMethodInSourceCallGraph(in_method),
     VirtualMethodInvocation_Base(invocation, base),
     Var_Type(base, base_type),
     !SubCollectionClass(base_type),
     TaintedVarPointsTo(source, _ctx, base),
-    basic.ResolveInvocation(value_type, invocation, _),
+    // 很粗糙的控制
+    basic.SupertypeOf("java.io.Serializable", value_type),
+    basic.ResolveInvocation(value_type, invocation, to_method),
     Allow_Class_For_Extend_VarPointsTo(value_type).
 
 MICRO_MOCK_VALUE_MICRO_PART(source, value_type) :- 
-    Extend_VarPointsTo(value_type, source).
+    Extend_VarPointsTo(value_type, source, _, _).
 
 .output Extend_VarPointsTo
 .printsize Extend_VarPointsTo

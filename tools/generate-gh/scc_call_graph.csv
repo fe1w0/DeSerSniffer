@@ -1,6 +1,7 @@
 <Start Method>	<java.util.HashSet: void readObject(java.io.ObjectInputStream)>
-<java.util.HashSet: void readObject(java.io.ObjectInputStream)>	<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 269
+<java.util.HashSet: void readObject(java.io.ObjectInputStream)>	<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 144
+<org.apache.commons.collections.functors.CloneTransformer: java.lang.Object transform(java.lang.Object)>	<org.apache.commons.collections.functors.PrototypeFactory$PrototypeCloneFactory: java.lang.Object create()>
 <org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
-<org.apache.commons.collections.BeanMap: java.lang.Object put(java.lang.Object,java.lang.Object)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
-<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 269	<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>
-<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 269	<org.apache.commons.collections.BeanMap: java.lang.Object put(java.lang.Object,java.lang.Object)>
+<org.apache.commons.collections.functors.PrototypeFactory$PrototypeCloneFactory: java.lang.Object create()>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 144	<org.apache.commons.collections.functors.CloneTransformer: java.lang.Object transform(java.lang.Object)>
+<java.util.HashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>:: SCC :: 144	<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>

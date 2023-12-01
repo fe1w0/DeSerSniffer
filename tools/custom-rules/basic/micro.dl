@@ -33,5 +33,4 @@
 #define MICRO_CUSTOM_TAINT(source, label, value, method) \
     SourceValueAndMethod(source, method), \
     TaintedValue(value), \
-    SourceFromTaintedValue(value, source), \
-    LabelFromSource(source, label)
+    SourceFromTaintedValue(value, source)

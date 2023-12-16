@@ -121,6 +121,7 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
  * ApplicationClass, AllCollectionClass
 */
 Allow_Class_For_Extend_VarPointsTo(type) :-
+    basic.SupertypeOf("java.io.Serializable", type),
     (
         ApplicationClass(type),
         !ApplicationClassInnerClass(type)
@@ -140,7 +141,6 @@ Extend_VarPointsTo(value_type, source, base, to_method) :-
     !SubCollectionClass(base_type),
     TaintedVarPointsTo(source, _ctx, base),
     // 很粗糙的控制
-    basic.SupertypeOf("java.io.Serializable", value_type),
     basic.ResolveInvocation(value_type, invocation, to_method),
     Allow_Class_For_Extend_VarPointsTo(value_type).
 

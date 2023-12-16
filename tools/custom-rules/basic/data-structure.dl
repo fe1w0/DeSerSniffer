@@ -71,7 +71,57 @@ DataStructureInnerClass(inner_class) :-
     isClassType(inner_class),
     substr(inner_class, 0, strlen(class_prefix)) = class_prefix.
 
+/**
+ * Learning from https://docs.oracle.com/javase/8/docs/technotes/guides/collections/overview.html
+ * The collection interfaces are divided into two groups, java.util.Collection and java.util.Map
+*/
+.decl DataStructureMapClass(class: Type)
+.decl DataStructureCollectionClass(class: Type)
+.output DataStructureMapClass
+.output DataStructureCollectionClass
+
+/**
+ * DataStructureClass contains DataStructureMapClass and DataStructureCollectionClass.
+*/
+.decl DataStructureClass(class: Type)
+.output DataStructureClass
+
+DataStructureMapClass(class) :-
+    isClassType(class),
+    !DenyEntryClass(class),
+    basic.SubtypeOf(class, superclass),
+    superclass = "java.util.Map".
+
+DataStructureCollectionClass(class) :-
+    isClassType(class),
+    !DenyEntryClass(class),
+    basic.SubtypeOf(class, superclass),
+    superclass = "java.util.Collection". 
+
+DataStructureClass(class) :-
+    (
+        DataStructureMapClass(class)
+        ;DataStructureCollectionClass(class)
+    ).
+
 .decl ApplicationClassPrefix(class_prefix: Type) 
+
+/**
+ * DataStructureMappingClass records data structure classes which using other data structure class as fields to storing data.
+*/
+.decl DataStructureMappingClass(class: Type, field_signature: symbol, field_type: Type)
+.output DataStructureMappingClass
+
+/**
+ * DataStructureMappingClass 需要包含详细且完善的field信息
+*/
+DataStructureMappingClass(class, field_signature, field_type) :-
+    _Field(field_signature, class, _, field_type),
+    DataStructureClass(class).
+
+DataStructureMappingClass(sub_class, field_signature, field_type) :-
+    DataStructureMappingClass(class, field_signature, field_type),
+    basic.SubtypeOfDifferent(sub_class, class).
 
 ApplicationClassPrefix(class_prefix) :-
     ApplicationClass(class),

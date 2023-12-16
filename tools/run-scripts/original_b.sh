@@ -71,7 +71,7 @@ OPEN_PROGRAM="--open-programs concrete-types"
 # souffle
 SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
 SOUFFLE_MODE="--souffle-mode interpreted"
-SOUFFLE_PROFILE="--souffle-profile"
+# SOUFFLE_PROFILE="--souffle-profile"
 
 # 避免 mac swp 过高
 # --max-memory

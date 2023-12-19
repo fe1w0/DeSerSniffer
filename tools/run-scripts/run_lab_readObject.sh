@@ -21,6 +21,6 @@ export DOOP_PLATFORMS_LIB=/home/liuxr/opt/doop-benchmarks/
 bash $BASE_DIR/tools/overwrite_b.sh $DOOP_HOME
 echo "[+] Finish: OverWrite"
 
-# 注意没有 app-only
-bash ./original_b.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION 30
+# 初始化项目，获得直接的ReadObject函数()
+bash ./list_readObject.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION 8
 echo "[+] Finish: Analysis"

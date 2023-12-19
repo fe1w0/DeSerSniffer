@@ -1,6 +1,6 @@
 ID=cc_3_1
 # ID=datahub_0_12
-ID=io_vertigo_vertigo_commons_4_1_0
+# ID=io_vertigo_vertigo_commons_4_1_0
 
 # original doop
 DOOP_HOME=/Volumes/FE1W0/Project/SoftWareAnalysis/StaticAnalysis/doop/build/install/doop
@@ -8,10 +8,12 @@ BASE_DIR=/Users/fe1w0/Project/SoftWareAnalysis/DataSet
 FuzzChainsPath=/Users/fe1w0/Project/SoftWareAnalysis/Dynamic/FuzzChains
 JAVA_HOME=/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home
 JAVA_VERSION=java_8
+
+# Input
 INPUT=$BASE_DIR/example/target/example.jar
 INPUT=commons-collections:commons-collections:3.1
 # INPUT=io.acryl:datahub-client:0.12.0-2
-INPUT=io.vertigo:vertigo-commons:4.1.0
+# INPUT=io.vertigo:vertigo-commons:4.1.0
 
 export DOOP_PLATFORMS_LIB=/Volumes/FE1W0/Project/SoftWareAnalysis/StaticAnalysis/doop-benchmarks/
 

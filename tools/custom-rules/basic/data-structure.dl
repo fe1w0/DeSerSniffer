@@ -127,6 +127,23 @@ ApplicationClassPrefix(class_prefix) :-
     ApplicationClass(class),
     class_prefix = cat(class, "$").
 
+
+.decl AbortClassJavaLang(type: symbol)
+.output AbortClassJavaLang
+
+AbortClassJavaLang(type) :-
+    (type = "java.lang.Void"
+    ;type = "java.lang.Boolean"
+    ;type = "java.lang.Byte"
+    ;type = "java.lang.Character"
+    ;type = "java.lang.Double"
+    ;type = "java.lang.Float"
+    ;type = "java.lang.Integer"
+    ;type = "java.lang.Long"
+    ;type = "java.lang.Short"
+    // ;type = "java.lang.String"
+    ).
+
 .decl ApplicationClassInnerClass(class: Type)
 
 ApplicationClassInnerClass(inner_class) :-
@@ -154,6 +171,7 @@ AbortClass(type) :-
 
 
 // Todo: 提取能力，过于弱小
+#ifndef LimitReadObject
 
 // 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
 PotenticalField(field_signature),
@@ -236,3 +254,5 @@ PotentialAllType(type) :-
 // .output PotenticalField
 // .output PotentialEnd_Type
 // .output PotentialAllType
+
+#endif

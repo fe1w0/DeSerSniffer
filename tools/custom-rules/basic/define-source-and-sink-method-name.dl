@@ -1,18 +1,59 @@
 // Sink Method
 .decl DefineSinkMethod(method: symbol)
 
-DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
+DefineSinkMethod("<java.lang.System: void load(java.lang.String)>").
+DefineSinkMethod("<java.lang.System: void loadLibrary(java.lang.String)>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
+DefineSinkMethod("<java.lang.ClassLoader: java.lang.Class loadClass(java.lang.String)>").
+DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
+DefineSinkMethod("<java.io.FileOutputStream: void write(byte[])>").
+DefineSinkMethod("<java.io.FileInputStream: int read(byte[])>").
+DefineSinkMethod("<java.io.FileWriter: void write(java.lang.String)>").
+DefineSinkMethod("<java.io.FileReader: int read(char[])>").
+DefineSinkMethod("<java.net.Socket: void connect(java.net.SocketAddress)>").
+DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
+DefineSinkMethod("<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>").
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+DefineSinkMethod("<java.lang.Class: java.lang.Object forName(java.lang.String)>").
+DefineSinkMethod("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>").
+
+// DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
 // DefineSinkMethod("<org.apache.commons.collections.functors.ChainedTransformer: java.lang.Object transform(java.lang.Object)>").
 // DefineSinkMethod("<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>").
 
-// Source Method
+#ifdef ListReadObject
+.decl IncludedSinkMethod(method: Method)
+.printsize IncludedSinkMethod
+.output IncludedSinkMethod
+
+IncludedSinkMethod(method) :-
+    DefineSinkMethod(method),
+    isMethod(method).
+
+.decl UsingSinkMethod(method: Method, invocation: MethodInvocation)
+.printsize UsingSinkMethod
+.output UsingSinkMethod
+
+UsingSinkMethod(method, invocation) :-
+    IncludedSinkMethod(method),
+    MethodInvocation_Method(invocation, method).
+#endif
+
+
+#ifndef ListReadObject
 .decl DefineSourceMethod(method: symbol)
+.decl ListReadObjectClass(class: ClassType, label: symbol)
+.input ListReadObjectClass(filename="ListReadObjectClass.csv")
+
+DefineSourceMethod(method) :-
+    method = cat(cat("<", class), ": void readObject(java.io.ObjectInputStream)>"),
+    ListReadObjectClass(class, _).
 
 // DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
 // DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
-DefineSourceMethod("<java.util.Hashtable: void readObject(java.io.ObjectInputStream)>").
+// DefineSourceMethod("<java.util.Hashtable: void readObject(java.io.ObjectInputStream)>").
 
 TaintSourceMethod(label, method) :-
 	label = INFO_FLOW_LABEL,
@@ -72,3 +113,5 @@ SinkVariable(v) :-
 .output SinkVariable
 .output ReachableSinks
 .output ReachableTaintedSinks
+
+#endif

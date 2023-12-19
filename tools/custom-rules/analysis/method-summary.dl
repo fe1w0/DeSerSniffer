@@ -100,22 +100,3 @@ BaseToRetSummarizeMethodName(method) :-
 .output ParamToBaseSummarizeMethod
 .output BaseToParamSummarizeMethodName
 .output BaseToRetSummarizeMethodName
-
-
-
-.decl AbortClassJavaLang(type: symbol)
-
-AbortClassJavaLang(type) :-
-    (type = "java.lang.Void"
-    ;type = "java.lang.Boolean"
-    ;type = "java.lang.Byte"
-    ;type = "java.lang.Character"
-    ;type = "java.lang.Double"
-    ;type = "java.lang.Float"
-    ;type = "java.lang.Integer"
-    ;type = "java.lang.Long"
-    ;type = "java.lang.Short"
-    // ;type = "java.lang.String"
-    ).
-
-.output AbortClassJavaLang

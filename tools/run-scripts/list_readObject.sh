@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ID=$1
+ID="init_${1}"
 INPUT=$2
 DOOP_HOME=$3
 BASE_DIR=$4
@@ -54,7 +54,6 @@ export DOOP_HOME
 # PLATFORM="--platform ${JAVA_VERSION} --use-local-java-platform ${JAVA_HOME}"
 PLATFORM="--platform ${JAVA_VERSION}"
 
-
 # ------------------------------------------
 # Todo 上下文敏感度有问题，需要提升 
 # ------------------------------------------
@@ -71,34 +70,16 @@ OPEN_PROGRAM="--open-programs concrete-types"
 # souffle
 SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
 SOUFFLE_MODE="--souffle-mode interpreted"
-# SOUFFLE_PROFILE="--souffle-profile"
-
-# 避免 mac swp 过高
-# --max-memory
-# MaxMemory="--max-memory 8g"
 
 # extra logic
-EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/simple-analysis.dl"
-
-# Information-flow
-INFORMATION_FLOW="--information-flow minimal"
+EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/init/list_readObject.dl"
 
 # TIMEOUT
 TIMEOUT="--timeout 1440"
 
-# cfg
-# CFG="--cfg"
-
 # facts
 # FACTS="--Xignore-factgen-errors --Xignore-wrong-staticness"
 FACTS="--report-phantoms --fact-gen-cores ${JOBS}"
-
-# Reflection
-# --distinguish-reflection-only-string-constants --distinguish-all-string-constants 选项互相排斥
-ENABLE_REFLECTION="--light-reflection-glue"
-
-# Proxy
-# ENABLE_PROXY="--reflection-dynamic-proxies"
 
 # app-only
 APP_ONLY="--app-only"
@@ -113,22 +94,13 @@ NoMerges="--no-merges"
 CACHE="--cache"
 # CACHE="--dont-cache-facts"
 
-# Output SARIF results
-SARIF="--sarif"
-
-# --exclude-implicitly-reachable-code
-# EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
-
-# Data_flow
-# DATA_FLOW="--data-flow-only-lib"
-
-# Xextra-facts
-ExtraFacts="--Xextra-facts ${DOOP_HOME}/out/init_${ID}/database/ListReadObjectClass.csv"
+# Only Facts, Only generate facts and exit.
+# OnlyFacts="--facts-only"
 
 # Xignore-factgen-errors
 IgnoreErrors="--Xignore-factgen-errors"
 
-EXTRA_ARG="${EXTRA_ENTRY_POINTS} ${IgnoreErrors} ${ExtraFacts} ${DATA_FLOW} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${TIMEOUT} ${NoMerges} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
+EXTRA_ARG="${OnlyFacts} ${IgnoreErrors} ${EXTRA_ENTRY_POINTS} ${DATA_FLOW} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${TIMEOUT} ${NoMerges} ${FACTS} ${PLATFORM} ${MaxMemory} ${OPEN_PROGRAM} ${CHA} ${SOUFFLE_MODE} ${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${CFG} ${JIMPLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${LOG} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${SARIF}"
 
 cd $DOOP_HOME
 

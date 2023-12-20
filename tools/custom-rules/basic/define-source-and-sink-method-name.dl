@@ -43,17 +43,19 @@ UsingSinkMethod(method, invocation) :-
 
 
 #ifndef ListReadObject
-.decl DefineSourceMethod(method: symbol)
-.decl ListReadObjectClass(class: ClassType, label: symbol)
-.input ListReadObjectClass(filename="ListReadObjectClass.csv")
 
-DefineSourceMethod(method) :-
-    method = cat(cat("<", class), ": void readObject(java.io.ObjectInputStream)>"),
-    ListReadObjectClass(class, _).
+// .decl ListReadObjectClass(class: ClassType, label: symbol)
+// .input ListReadObjectClass(filename="ListReadObjectClass.csv")
+
+// DefineSourceMethod(method) :-
+//     method = cat(cat("<", class), ": void readObject(java.io.ObjectInputStream)>"),
+//     ListReadObjectClass(class, _).
+
+.decl DefineSourceMethod(method: symbol)
 
 // DefineSourceMethod("<sources.serialize.UnsafeSerialize: void readObject(java.io.ObjectInputStream)>").
-// DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
 // DefineSourceMethod("<java.util.Hashtable: void readObject(java.io.ObjectInputStream)>").
+DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
 
 TaintSourceMethod(label, method) :-
 	label = INFO_FLOW_LABEL,

@@ -2,7 +2,7 @@
 // Start Custom rules
 //-----------------------------------------------------------------------------
 
-#define MAX_Number_MaybeTaintedField 9000
+#define MAX_Number_MaybeTaintedField 10000
 
 // --- basic ---
 

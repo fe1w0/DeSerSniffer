@@ -1,5 +1,7 @@
 #define LimitReadObject 1
 #define ListReadObject 1
+// #define ListReadObjectOnlyApplication 1
+#define ListReadObjectOnlyData 1
 
 #include "../basic/define-source-and-sink-method-name.dl"
 #include "../basic/data-structure.dl"
@@ -55,6 +57,7 @@ InheritSerializableClass(class) :-
 
 
 #ifdef LimitReadObject
+#ifndef ListReadObjectOnlyData
 ListReadObjectClass(class, label) :-
     ApplicationClass(class),
     DirectSerializableClass(class),
@@ -63,7 +66,9 @@ ListReadObjectClass(class, label) :-
     !DataStructureInnerClass(class),
     !ApplicationClassInnerClass(class),
     label = "DirectSerializableApplicationClass".
+#endif
 
+#ifndef ListReadObjectOnlyApplication
 ListReadObjectClass(class, label) :-
     DataStructureClass(class),
     !ApplicationClass(class),
@@ -73,6 +78,7 @@ ListReadObjectClass(class, label) :-
     !DataStructureInnerClass(class),
     !ApplicationClassInnerClass(class),
     label = "DirectSerializableDataStructureClass".
+#endif
 #endif
 
 #ifndef LimitReadObject

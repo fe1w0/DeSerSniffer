@@ -73,9 +73,8 @@ SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
 SOUFFLE_MODE="--souffle-mode interpreted"
 # SOUFFLE_PROFILE="--souffle-profile"
 
-# 避免 mac swp 过高
 # --max-memory
-# MaxMemory="--max-memory 8g"
+MaxMemory="--max-memory 24g"
 
 # extra logic
 EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/simple-analysis.dl"

@@ -15,6 +15,12 @@ JAVA_VERSION=java_8
 INPUT=commons-collections:commons-collections:3.1
 # INPUT=/home/liuxr/Project/SoftwareAnalysis/DataSet-Software/example/target/example.jar
 
+ID=io_vertigo_vertigo_commons_4_1_0
+INPUT=io.vertigo:vertigo-commons:4.1.0
+
+ID=com_alibaba_nacos_nacos_client_2_3.0
+INPUT=com.alibaba.nacos:nacos-client:2.3.0
+
 export DOOP_PLATFORMS_LIB=/home/liuxr/opt/doop-benchmarks/
 
 # overwrite doop

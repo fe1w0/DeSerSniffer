@@ -82,16 +82,16 @@ run_analysis() {
     ExtraFacts="--Xextra-facts ${DOOP_OUT}/init_${ID}/database/ListReadObjectClass.csv"
 
     # Log Level
-    LOG="--level error"
+    LOG="--level info"
 
     EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${LOG}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
-    echo "doop: $CMD"
+    echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
     eval "$CMD"
 
-    echo "[+] Finish: run_analysis."
+    echo "[+] $(print_time) Finish: run_analysis." | tee -a $CurrentLOG
 }
 
 # 导出函数

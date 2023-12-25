@@ -4,8 +4,8 @@
 # 函数：执行list分析
 list_class() {
     if [ $# -lt 7 ]; then
-        echo "[!] Error: Not enough arguments"
-        echo -e "\trun_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)]"
+        echo "[!] $(print_time) Error: Not enough arguments" | tee -a $CurrentLOG
+        echo -e "[!] $(print_time) \trun_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)]" | tee -a $CurrentLOG
         return 1
     fi
 
@@ -73,16 +73,16 @@ list_class() {
     CACHE="--cache"
 
     # Log Level
-    LOG="--level error"
+    LOG="--level info"
 
     EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${LOG}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
-    echo "[+] \tdoop: $CMD"
+    echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
     eval "$CMD"
 
-    echo "[+] Finish: list_class"
+    echo "[+] $(print_time) Finish: list_class" | tee -a $CurrentLOG
 }
 
 # 导出函数

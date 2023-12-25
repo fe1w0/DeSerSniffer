@@ -8,8 +8,8 @@ timer() {
     "$@"                      # 执行传入的命令或函数，包括其参数
     local end=$(date +%s%N)   # 记录结束时间（纳秒）
     local duration=$((end - start))
-    echo -e "[-] Log:\n\t${@}"
-    echo -e "\t执行时间: $((duration / 1000000000)) s\n"  # 输出持续时间（毫秒）
+    echo -e "[-] $(print_time) Log:\n\t${@}"  | tee -a $CurrentLOG
+    echo -e "\t执行时间: $((duration / 1000000000)) s\n" | tee -a $CurrentLOG # 输出持续时间（毫秒）
 }
 
 print_time() {

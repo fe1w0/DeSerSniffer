@@ -2,11 +2,11 @@
 # author: fe1w0
 
 # 导入文件
+source utils/timer.sh
 source utils/config.sh
 source utils/split_csv.sh
 source utils/list_class.sh
 source utils/run_analysis.sh
-source utils/timer.sh
 source utils/stats.sh
 
 analysis() {
@@ -36,4 +36,4 @@ analysis() {
 }
 
 timer analysis
-echo -e "[+] End Time: $(print_time)"
+echo -e "[+]  End Time: $(print_time)" | tee -a $CurrentLOG

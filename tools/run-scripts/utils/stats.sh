@@ -7,8 +7,8 @@ function stats {
     local input_file=${DOOP_OUT}/${analysis_id}/database/LeakingTaintedInformation.csv
     if [[ -s "$input_file" ]]; then
         local total_leaks=$(wc -l < "$input_file")
-        echo "Result: ${analysis_id} - $total_leaks"
+        echo "[+] $(print_time) Result: ${analysis_id} - $total_leaks" | tee -a $CurrentLOG
     else
-        echo "Error: Not Result"
+        echo "[+] $(print_time) Result: Not Result" | tee -a $CurrentLOG
     fi
 }

@@ -49,13 +49,7 @@ split_csv() {
     exec 1>&3 3>&-
 
     # 输出总行数和文件数
-    echo "[+] Split:"
-    echo -e "\t任务ID: ${ID}"
-    echo -e "\t总待检测对象数量: $counter"
-    echo -e "\t分割数: ${line_count}"
-    echo -e "\t创建的文件数: $((fileNumber - 1))"
-    # 输出所有检测对象
-    echo -e "\t待检测对象:\n$(cat "$input" | sed 's/^/\t\t/')"
+    echo -e "[+] $(print_time) Split:\n\t任务ID: ${ID}\n\t总待检测对象数量: $counter\n\t分割数: ${line_count}\n\t创建的文件数: $((fileNumber - 1))\n\t待检测对象:\n$(cat "$input" | sed 's/^/\t\t/')"  | tee -a $CurrentLOG
 
     # 输出总行数和文件数
     ReturnCsvNumber=$((fileNumber - 1))

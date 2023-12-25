@@ -1,24 +1,13 @@
-// -----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Start Custom rules
-// -----------------------------------------------------------------------------
-
-#define MAX_Number_MaybeTaintedField 50000
-
+//-----------------------------------------------------------------------------
 
 // --- basic ---
-
-// 加载 micro
-#include "basic/micro.dl"
-
-// 1.2.0 及后 版本中，直接关闭了 entryPoints, 以提高分析速度
 // 设置 entryPoints, 注意 override 部分已经修改原 doop 的 entryPoints
 #include "basic/entry-points.dl"
 
 // 设置 source 和 sink 函数名
 #include "basic/define-source-and-sink-method-name.dl"
-
-// data-structure 为 extend-analysis 提供支持
-#include "basic/data-structure.dl"
 
 // --- analysis ---
 // 完善 污点分析和指针分析
@@ -27,16 +16,13 @@
 // 解决 原doop框架中，需要手动设置污点传播的问题
 #include "analysis/method-summary.dl"
 
-// 完善 readObject 关系 和 污点转移
-#include "analysis/extend-readObject.dl"
-
 // 原 doop 在 app-only 下，无法分析 泛化问题
 // 需要添加 CHA算法（doop）中有，且根据 污点源 进行优化
 // 同时需要避免掉原rules在--app-only中，指针分析缺失的情况
-// #include "analysis/extend-analysis.dl"
-#include "analysis/new-extend-analysis.dl"
+#include "analysis/extend-analysis.dl"
 
-#include "analysis/export-call-graph.dl"
+// 完善 readObject 关系 和 污点转移
+#include "analysis/extend-readObject.dl"
 
 // --- Output ---
 // 导出用于插桩的信息
@@ -45,14 +31,11 @@
 // 添加 ChainPaths 导出功能
 #include "output/identify-chain-paths.dl"
 
-// 
-#include "output/heap-flow.dl"
-
 // 添加 Property Tree 导出工具，用于生成属性树
-// #include "output/export-property-tree.dl"
+#include "output/export-property-tree.dl"
 
 // 加载 output
-// #include "output/output.dl"
+#include "output/output.dl"
 //-----------------------------------------------------------------------------
 // End. Custome rules
 //-----------------------------------------------------------------------------

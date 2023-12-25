@@ -73,8 +73,8 @@ SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
 SOUFFLE_MODE="--souffle-mode interpreted"
 # SOUFFLE_PROFILE="--souffle-profile"
 
-# --max-memory
-MaxMemory="--max-memory 24g"
+# # --max-memory
+# MaxMemory="--max-memory 24g"
 
 # extra logic
 EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/simple-analysis.dl"
@@ -103,7 +103,7 @@ ENABLE_REFLECTION="--light-reflection-glue"
 APP_ONLY="--app-only"
 
 # Log Level
-LOG="--level INFO"
+# LOG="--level INFO"
 
 # --no-merges
 NoMerges="--no-merges"
@@ -113,7 +113,7 @@ CACHE="--cache"
 # CACHE="--dont-cache-facts"
 
 # Output SARIF results
-SARIF="--sarif"
+# SARIF="--sarif"
 
 # --exclude-implicitly-reachable-code
 # EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
@@ -122,7 +122,18 @@ SARIF="--sarif"
 # DATA_FLOW="--data-flow-only-lib"
 
 # Xextra-facts
-ExtraFacts="--Xextra-facts ${DOOP_HOME}/out/init_${ID}/database/ListReadObjectClass.csv"
+# 检查环境变量$DOOP_OUT是否设置
+if [ -n "$DOOP_OUT" ]; then
+  # 如果设置了，将$DOOP_OUT的值赋给$DOOP_OUT
+  DOOP_OUT="$DOOP_OUT"
+else
+  # 如果未设置，将${DOOP_HOME}/out的值赋给$DOOP_OUT
+  DOOP_OUT="${DOOP_HOME}/out"
+fi
+
+# 输出最终的 $DOOP_OUT 的值
+echo "[+] DOOP_OUT: $DOOP_OUT"
+ExtraFacts="--Xextra-facts ${DOOP_OUT}/init_${ID}/database/ListReadObjectClass.csv"
 
 # Xignore-factgen-errors
 IgnoreErrors="--Xignore-factgen-errors"

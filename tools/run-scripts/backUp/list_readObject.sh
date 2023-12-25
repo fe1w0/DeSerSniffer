@@ -8,7 +8,6 @@ FuzzChainsPath=$5
 JAVA_HOME=$6
 JAVA_VERSION=$7
 
-
 function help() {
     echo "analysis.sh [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS]"
     echo "\
@@ -85,7 +84,7 @@ FACTS="--report-phantoms --fact-gen-cores ${JOBS}"
 APP_ONLY="--app-only"
 
 # Log Level
-LOG="--level INFO"
+# LOG="--level INFO"
 
 # --no-merges
 NoMerges="--no-merges"
@@ -107,5 +106,3 @@ cd $DOOP_HOME
 CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${CACHE} ${EXTRA_ARG}"
 echo "doop: $CMD"
 eval "${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${CACHE} ${EXTRA_ARG}"
-
-echo "[+] Finish."

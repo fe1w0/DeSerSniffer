@@ -58,12 +58,12 @@ DefineSourceMethod(method) :-
 // DefineSourceMethod("<java.util.HashSet: void readObject(java.io.ObjectInputStream)>").
 
 TaintSourceMethod(label, method) :-
-	label = INFO_FLOW_LABEL,
+	label = method,
 	isMethod(method),
     DefineSourceMethod(method).
 	
 LeakingSinkMethod(label, method) :-
-	label = INFO_FLOW_LABEL,
+	label = method,
 	isMethod(method),
 	DefineSinkMethod(method).
 

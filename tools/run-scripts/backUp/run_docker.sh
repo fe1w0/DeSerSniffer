@@ -1,12 +1,16 @@
 #!/bin/bash
 
 # setup configuration
-ID=demo
 # INPUT=/data/DataSet-Software/example/target/example.jar
 # INPUT=org.apache.commons:commons-collections4:4.4
 # INPUT=org.apache.commons:commons-collections4:4.4
 # INPUT=org.apache.commons:commons-collections4:4.0
+
+ID=demo
 INPUT=commons-collections:commons-collections:3.1
+
+ID=com_alibaba_nacos_nacos_client_2_3_0
+INPUT=com.alibaba.nacos:nacos-client:2.3.0
 
 DOOP_HOME=/doop/build/install/doop
 BASE_DIR=/data/DataSet-Software/
@@ -21,4 +25,4 @@ echo "[+] Finish: OverWrite"
 
 # analysis
 export DOOP_PLATFORMS_LIB=/doop-benchmarks/
-bash ./original_b.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION 30
+bash ./original_b.sh $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION 33

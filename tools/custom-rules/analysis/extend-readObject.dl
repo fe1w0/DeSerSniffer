@@ -39,9 +39,9 @@
 
 RootSource(method, invocation),
 Var_DeclaringMethod(invocation, method),
-MICRO_CUSTOM_TAINT_ENTRY(method, value, MINING_LABEL, value, formal_param),
+MICRO_CUSTOM_TAINT_ENTRY(method, value, source_label, value, formal_param),
 MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) :-
-    TaintSourceMethod(INFO_FLOW_LABEL, method),
+    TaintSourceMethod(source_label, method),
     Method_DeclaringType(method, declaringType),
     
     FormalParam(_index, method, formal_param),
@@ -56,8 +56,8 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) 
 /**
  * 将 readObject 中的 this 设置为 污点源
 */
-MICRO_CUSTOM_TAINT(source, MINING_LABEL, value, method) :-
-    TaintSourceMethod(MINING_LABEL, method),
+MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
+    TaintSourceMethod(source_label, method),
     ThisVar(method, this),
     RootSource(method, source),
     Method_DeclaringType(method, declaringType),
@@ -68,8 +68,8 @@ MICRO_CUSTOM_TAINT(source, MINING_LABEL, value, method) :-
  * 将 Declaring Type 中的 fields 设置为污点源, 同时需要设置 Mock
  * Log: 1.3 中进行修复，应当是 Load 过程中
 */
-MICRO_CUSTOM_TAINT(source, MINING_LABEL, value, method) :-
-    TaintSourceMethod(MINING_LABEL, method),
+MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
+    TaintSourceMethod(source_label, method),
     Method_DeclaringType(method, declaringType),
     RootSource(method, source),
 

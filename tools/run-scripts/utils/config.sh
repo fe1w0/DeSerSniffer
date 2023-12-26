@@ -9,24 +9,20 @@ source ${dir}/overwrite.sh
 # 加载 生成analysis.dl文件 模块
 source ${dir}/add_custom_text_to_file.sh
 
-# 加载 id 配置模块
-source ${dir}/config/id_config.sh
-
 # 加载 doop 配置模块
 source ${dir}/config/doop_config.sh
 
 # 函数：初始化
 config() {
-    # 设置检测项目
-    id_config
-    
+
     # 设置 DOOP 参数
     doop_config
 
     # 设置 日志
     log_config
 
-    echo -e "[+] Start Time: $(print_time)" | tee -a $CurrentLOG
+    # 创建 LOG
+    echo -e "[+] $(print_time) Start: $ID, $INPUT, $CurrentLOG" | tee $CurrentLOG
 
     ### 生成 最终 analysis.dl 文件
     add_custom_text_to_file ${BASE_DIR}/tools/custom-rules/simple-analysis.dl ${BASE_DIR}/tools/custom-rules/analysis.dl $MaxNumberMaybeTaintedField

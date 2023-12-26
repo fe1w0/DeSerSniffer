@@ -25,7 +25,7 @@ get_result() {
     # 检查 DOOP_OUT 是否存在
     if [ ! -d "$DOOP_OUT" ]; then
         echo "Error: DOOP_OUT directory does not exist."
-        exit 1
+        return 1
     fi
 
     # 遍历 DOOP_OUT 下的所有子目录
@@ -63,7 +63,7 @@ get_tasks() {
     local log_dir="${DOOP_OUT}/log"
     if [ ! -d "$log_dir" ]; then
         echo "Error: log directory does not exist."
-        exit 1
+        return 1
     fi
 
     # 计算 ID 的最大长度
@@ -92,12 +92,15 @@ get_tasks() {
             if grep -q "Monitoring DOOP Log for Error" "$log_file" 2>/dev/null; then
                 echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}Error ${RED}❌${NO_COLOR}"
                 echo -e "${RED}\t\t- $log_file${NO_COLOR}"
+                echo -e "${RED}\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
             # 没有出现错误
             else
                 echo -e "\tID: ${GREEN}$ID$padding - ${GREEN}Completed   ✅${NO_COLOR}"
             fi
         else
             echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}In Progress ${RED}❎${NO_COLOR}"
+            echo -e "${RED}\t\t- $log_file${NO_COLOR}"
+            echo -e "${RED}\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
         fi
 
     done

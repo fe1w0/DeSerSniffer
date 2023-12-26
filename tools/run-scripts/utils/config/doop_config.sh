@@ -22,7 +22,7 @@ doop_config() {
     fi
 
     ## 允许 补充的污点源的最大数量
-    MaxNumberMaybeTaintedField=60000
+    MaxNumberMaybeTaintedField=40000
 
     ## 设置 DOOP_PLATFORMS_LIB
     export DOOP_PLATFORMS_LIB=/doop-benchmarks/

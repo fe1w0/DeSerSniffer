@@ -7,7 +7,7 @@ run_analysis() {
         echo "Error: Not enough arguments"
         echo "run_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)]"
         echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
-        exit 1
+        return 1
     fi
 
     local ID=$1

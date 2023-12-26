@@ -6,7 +6,8 @@ list_class() {
     if [ $# -lt 7 ]; then
         echo "[!] $(print_time) Error: Not enough arguments" | tee -a $CurrentLOG
         echo -e "[!] $(print_time) \trun_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)]" | tee -a $CurrentLOG
-        return 1
+        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
+        exit 1
     fi
 
     local ID="init_${1}"

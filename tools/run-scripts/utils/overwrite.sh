@@ -13,15 +13,17 @@ function overwrite() {
     local DOOP_HOME=$1
 
     if [ -z "$DOOP_HOME" ]; then
-        echo "[!] Error: DOOP_HOME is not specified"
+        echo "[!] $(print_time) Error: DOOP_HOME is not specified" | tee -a $CurrentLOG
         help
-        return 1
+        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
+        exit 1
     fi
 
     if [ -z "$BASE_DIR" ]; then
-        echo "[!] Error: BASE_DIR is not specified"
+        echo "[!] $(print_time) Error: BASE_DIR is not specified" | tee -a $CurrentLOG
         help
-        return 1
+        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
+        exit 1
     fi
 
     # 进入脚本当前地址
@@ -35,10 +37,10 @@ function overwrite() {
     # overwrite
     overwrite_rules=("basic.dl" "entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl", "implicit-reachable.dl")
     
-    echo -e "\t[+] overwrite-rules:"
+    echo -e "\t[+] $(print_time) overwrite-rules:" | tee -a $CurrentLOG
     for overwrite_rule in "${overwrite_rules[@]}"
     do
-        echo -e "\t\toverwrite-rule: $overwrite_rule"
+        echo -e "\t\t $(print_time) overwrite-rule: $overwrite_rule" | tee -a $CurrentLOG
     done
 
     # 进行文件覆盖

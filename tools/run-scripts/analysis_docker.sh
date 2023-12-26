@@ -8,6 +8,7 @@ source utils/split_csv.sh
 source utils/list_class.sh
 source utils/run_analysis.sh
 source utils/stats.sh
+source utils/print/monitor_doop_log.sh
 
 analysis() {
 
@@ -16,6 +17,9 @@ analysis() {
 
     # 启动 List Object 脚本
     timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS
+    
+    # 检测 DOOP 过程是否有问题
+    monitor_doop_log $INPUT
 
     # 划分任务，得到子任务数量, 得到
     timer split_csv $ID $SplitLineNumber
@@ -35,5 +39,6 @@ analysis() {
     done
 }
 
+
 timer analysis
-echo -e "[+]  End Time: $(print_time)" | tee -a $CurrentLOG
+echo -e "[+] End Time: $(print_time)" | tee -a $CurrentLOG

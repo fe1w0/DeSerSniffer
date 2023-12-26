@@ -1,6 +1,6 @@
 #define LimitReadObject 1
 #define ListReadObject 1
-// #define ListReadObjectApplication 1
+#define ListReadObjectApplication 1
 #define ListReadObjectData 1
 
 #include "../basic/define-source-and-sink-method-name.dl"

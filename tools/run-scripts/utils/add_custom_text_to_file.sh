@@ -11,7 +11,7 @@ add_custom_text_to_file() {
     # 检查文件是否存在
     if [ ! -f "$source_file" ]; then
         echo "文件不存在: $source_file"
-        return 1
+        exit 1
     fi
 
     # 要添加的文本

@@ -70,7 +70,7 @@ list_class() {
     NoMerges="--no-merges"
 
     # CACHE
-    CACHE="--cache"
+    # CACHE="--cache"
 
     # Log Level
     LOG="--level info"

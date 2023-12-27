@@ -49,6 +49,7 @@ single_analysis() {
 analysis() {
     local DependenciesFile=$1
     
+    echo "[+] TmpLog: ${TmpLog}"
     # 设置检测项目
     extract_dependencies $DependenciesFile
 
@@ -57,5 +58,5 @@ analysis() {
     done
 }
 
-TmpLog=/tmp/log_$(date +%s).log
-timer analysis /data/DataSet-Software/tools/run-scripts/input.xml
+TmpLog=/tmp/doop_$(date +%s).log
+timer analysis /home/zhangying/Project/SoftwareAnalysis/DataSet-Software/testjars/input.xml

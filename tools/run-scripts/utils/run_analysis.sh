@@ -76,7 +76,7 @@ run_analysis() {
     NoMerges="--no-merges"
 
     # CACHE
-    CACHE="--cache"
+    # CACHE="--cache"
 
     # Xextra-facts
     ExtraFacts="--Xextra-facts ${DOOP_OUT}/init_${ID}/database/ListReadObjectClass.csv"

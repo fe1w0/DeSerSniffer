@@ -15,43 +15,6 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NO_COLOR='\033[0m' # 没有颜色
 
-# 函数: 输出所有的检测结果
-#       查询 DOOP_OUT 下所有的 LeakingTaintedInformation.csv 中的结果（多少行）。
-#       列出 有结果的 LeakingTaintedInformation.csv (数量和内容)，且需要输出 DOOP_OUT/${ID}/database/LeakingTaintedInformation.csv 中的 ID
-get_result() {
-    echo $module_separator
-    echo -e "\n[+] Analysis Result:"
-
-    # 检查 DOOP_OUT 是否存在
-    if [ ! -d "$DOOP_OUT" ]; then
-        echo "Error: DOOP_OUT directory does not exist."
-        return 1
-    fi
-
-    # 遍历 DOOP_OUT 下的所有子目录
-    for dir in $(find $DOOP_OUT -maxdepth 1 -mindepth 1 -type d); do
-        # 获取 ID
-        ID=$(basename "$dir")
-
-        # 检查 LeakingTaintedInformation.csv 是否存在
-        file="$dir/database/LeakingTaintedInformation.csv"
-
-        if [ -f "$file" ]; then
-            # 计算文件行数
-            lines=$(wc -l < "$file")
-            # 如果文件非空，则输出内容
-            if [ "$lines" -gt 0 ]; then
-                # 输出信息
-                echo -e "\tID: ${RED}$ID\t ❗️${NO_COLOR}\n\tFile: \n\t\t$file\n\tNumber: $lines"
-                echo -e "\t\tContents of $file:" 
-                echo "$separator"
-                echo -e "${RED}$(cat "$file" | sed 's/^/\t/' | sed 's/$/\n/') ${NO_COLOR}\n"
-                echo "$separator"            
-            fi
-        fi
-    done
-}
-
 # 函数: 输出已完成检测和正在检测的项目
 #       通过查看log目录下的 ${ID}.log 文件
 #           完成: log目录下存在${ID}.log文件，且文件内容中有 "End Time"
@@ -103,6 +66,44 @@ get_tasks() {
             echo -e "${RED}\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
         fi
 
+    done
+}
+
+
+# 函数: 输出所有的检测结果
+#       查询 DOOP_OUT 下所有的 LeakingTaintedInformation.csv 中的结果（多少行）。
+#       列出 有结果的 LeakingTaintedInformation.csv (数量和内容)，且需要输出 DOOP_OUT/${ID}/database/LeakingTaintedInformation.csv 中的 ID
+get_result() {
+    echo $module_separator
+    echo -e "\n[+] Analysis Result:"
+
+    # 检查 DOOP_OUT 是否存在
+    if [ ! -d "$DOOP_OUT" ]; then
+        echo "Error: DOOP_OUT directory does not exist."
+        return 1
+    fi
+
+    # 遍历 DOOP_OUT 下的所有子目录
+    for dir in $(find $DOOP_OUT -maxdepth 1 -mindepth 1 -type d); do
+        # 获取 ID
+        ID=$(basename "$dir")
+
+        # 检查 LeakingTaintedInformation.csv 是否存在
+        file="$dir/database/LeakingTaintedInformation.csv"
+
+        if [ -f "$file" ]; then
+            # 计算文件行数
+            lines=$(wc -l < "$file")
+            # 如果文件非空，则输出内容
+            if [ "$lines" -gt 0 ]; then
+                # 输出信息
+                echo -e "\tID: ${RED}$ID\t ❗️${NO_COLOR}\n\tFile: \n\t\t$file\n\tNumber: $lines"
+                echo -e "\t\tContents of $file:" 
+                echo "$separator"
+                echo -e "${RED}$(cat "$file" | sed 's/^/\t/' | sed 's/$/\n/') ${NO_COLOR}\n"
+                echo "$separator"            
+            fi
+        fi
     done
 }
 

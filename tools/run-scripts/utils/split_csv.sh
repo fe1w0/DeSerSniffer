@@ -14,18 +14,15 @@ split_csv() {
     # 检查文件是否存在 或者 无内容
     if [ ! -f "$input" ]; then
         echo "[-] $(print_time) 文件不存在: $input" | tee -a $CurrentLOG
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
         return 1
     elif [ ! -s "$input" ]; then
         echo "[-] $(print_time)无可分析对象: $input" | tee -a $CurrentLOG
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
         return 1
     fi
 
     # 检查行数参数
     if ! [[ "$line_count" =~ ^[0-9]+$ ]]; then
         echo "[-] $(print_time) 无效的行数: $line_count" | tee -a $CurrentLOG
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
         return 1
     fi
 

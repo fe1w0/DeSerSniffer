@@ -20,7 +20,7 @@ single_analysis() {
     timer config
 
     # 启动 List Object 脚本
-    timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS > $TmpLog
+    timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
     
     # 检测 DOOP 过程是否有问题
     monitor_doop_log $INPUT $ID
@@ -32,7 +32,7 @@ single_analysis() {
     for (( sub_id=1; sub_id<=$ReturnCsvNumber; sub_id++))
     do
         SubID=${ID}_${sub_id}
-        timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS > $TmpLog
+        timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
     done
 
     # 分析阶段
@@ -57,5 +57,5 @@ analysis() {
     done
 }
 
-TmpLog=/tmp/$(date +%s).log
+TmpLog=/tmp/log_$(date +%s).log
 timer analysis /data/DataSet-Software/tools/run-scripts/input.xml

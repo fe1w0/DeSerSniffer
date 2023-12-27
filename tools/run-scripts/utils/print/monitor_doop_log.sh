@@ -10,7 +10,6 @@ monitor_doop_log() {
     # 检查日志文件是否存在
     if [ ! -f "$log_file" ]; then
         echo "[!] $(print_time) Error: Log file does not exist." | tee -a $CurrentLOG
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
         return 1
     fi
 
@@ -21,7 +20,6 @@ monitor_doop_log() {
     if [ -n "$matched_results" ]; then
         echo "[+] $(print_time) Monitoring DOOP Log for Errors:" | tee -a $CurrentLOG
         echo -e "\t $(print_time) Error ${INPUT}:\n${matched_results}" | tee -a $CurrentLOG
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
     fi
 
     ## 内存爆炸问题
@@ -29,7 +27,6 @@ monitor_doop_log() {
     if [ -n "$matched_results" ]; then
         echo "[+] $(print_time) Monitoring DOOP Log for Errors:" | tee -a $CurrentLOG
         echo -e "\t $(print_time) Error ${ID}:\n${matched_results}" | tee -a $CurrentLOG
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
     fi
 
 }

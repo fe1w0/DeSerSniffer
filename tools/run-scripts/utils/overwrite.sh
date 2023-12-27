@@ -15,14 +15,12 @@ function overwrite() {
     if [ -z "$DOOP_HOME" ]; then
         echo "[!] $(print_time) Error: DOOP_HOME is not specified" | tee -a $CurrentLOG
         help
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
         return 1
     fi
 
     if [ -z "$BASE_DIR" ]; then
         echo "[!] $(print_time) Error: BASE_DIR is not specified" | tee -a $CurrentLOG
         help
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
         return 1
     fi
 

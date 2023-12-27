@@ -4,12 +4,16 @@
 # 函数: doop 设置
 doop_config() {
     ## 设置DOOP参数
-    DOOP_HOME=/doop/build/install/doop
-    BASE_DIR=/data/DataSet-Software/
-    FuzzChainsPath=/data/FuzzChains/
-    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+    DOOP_HOME=/home/zhangying/Project/SoftwareAnalysis/ENV/doop/build/install/doop
+    BASE_DIR=/home/zhangying/Project/SoftwareAnalysis/DataSet-Software
+    FuzzChainsPath=/home/zhangying/Project/SoftwareAnalysis/FuzzChains
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
     JAVA_VERSION=java_8
-    JOBS=33
+    JOBS=48
+
+    ## 设置 DOOP_PLATFORMS_LIB
+    export DOOP_PLATFORMS_LIB=/home/zhangying/Project/SoftwareAnalysis/ENV/doop-benchmarks
+
 
     ## 设置 DOOP_OUT 参数
     # 检查环境变量$DOOP_OUT是否设置
@@ -24,11 +28,8 @@ doop_config() {
     ## 允许 补充的污点源的最大数量
     MaxNumberMaybeTaintedField=40000
 
-    ## 设置 DOOP_PLATFORMS_LIB
-    export DOOP_PLATFORMS_LIB=/doop-benchmarks/
-
     ## 设置子项目对象限制数字
-    SplitLineNumber=6
+    SplitLineNumber=8
 }
 
 export -f doop_config

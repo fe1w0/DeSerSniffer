@@ -4,9 +4,8 @@
 # 函数：执行分析
 run_analysis() {
     if [ $# -lt 7 ]; then
-        echo "Error: Not enough arguments"
-        echo "run_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)]"
-        echo -e "[!] End Time: $(print_time)" | tee -a $CurrentLOG
+        echo "[-] $(print_time) Error: Not enough arguments" | tee -a $CurrentLOG
+        echo " $(print_time) run_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)]" | tee -a $CurrentLOG
         return 1
     fi
 

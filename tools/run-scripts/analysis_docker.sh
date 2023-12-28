@@ -22,7 +22,7 @@ single_analysis() {
     # 启动 List Object 脚本
     timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
     
-    # 检测 DOOP 过程是否有问题
+    # 检测 List 过程是否有问题
     monitor_doop_log $INPUT $ID
 
     # 划分任务，得到子任务数量, 得到
@@ -33,6 +33,7 @@ single_analysis() {
     do
         SubID=${ID}_${sub_id}
         timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
+        monitor_doop_log $INPUT $SubID
     done
 
     # 分析阶段

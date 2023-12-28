@@ -50,20 +50,36 @@ get_tasks() {
         local padding=$(printf '%*s' $((max_id_length - ${#ID})))
 
         # 检查文件内容中是否有 "End Time"，不显示错误信息
-        if grep -q "End Time" "$log_file" 2>/dev/null; then
+        if grep -q "End:  " "$log_file" 2>/dev/null; then
             # 如果出现错误
             if grep -q "Monitoring DOOP Log for Error" "$log_file" 2>/dev/null; then
+                
                 echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}Error ${RED}❌${NO_COLOR}"
-                echo -e "${RED}\t\t- $log_file${NO_COLOR}"
-                echo -e "${RED}\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
+                
+                echo -e "${RED}\t\t- Error Types:${NO_COLOR}"
+                
+                # 检测 INPUT 无法生成
+                if grep -q "ERROR: Doop error" "${log_file}" 2>/dev/null; then
+                    echo -e "${RED}\t\t\t- INPUT Error: ${ID}${NO_COLOR}"
+                fi
+
+                # Souffle 问题
+                if grep -q "Error ${ID}:" "${log_file}" 2>/dev/null; then
+                    SubID=$(grep "Error ${ID}:" "${log_file}" -A 1 | grep -o -E "${ID}_[0-9]+" | head -n 1)
+                    echo -e "${RED}\t\t\t- Souffle Error: $SubID${NO_COLOR}"
+                fi
+                echo -e "${RED}\t\t- Logs:${NO_COLOR}"
+                echo -e "${RED}\t\t\t- $log_file${NO_COLOR}"
+                echo -e "${RED}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
             # 没有出现错误
             else
                 echo -e "\tID: ${GREEN}$ID$padding - ${GREEN}Completed   ✅${NO_COLOR}"
             fi
         else
             echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}In Progress ${RED}❎${NO_COLOR}"
-            echo -e "${RED}\t\t- $log_file${NO_COLOR}"
-            echo -e "${RED}\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
+            echo -e "${RED}\t\t- Logs:${NO_COLOR}"
+            echo -e "${RED}\t\t\t- $log_file${NO_COLOR}"
+            echo -e "${RED}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
         fi
 
     done

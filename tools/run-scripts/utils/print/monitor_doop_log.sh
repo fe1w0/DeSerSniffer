@@ -20,13 +20,16 @@ monitor_doop_log() {
     if [ -n "$matched_results" ]; then
         echo "[+] $(print_time) Monitoring DOOP Log for Errors:" | tee -a $CurrentLOG
         echo -e "\t $(print_time) Error ${INPUT}:\n${matched_results}" | tee -a $CurrentLOG
+        # 失败的 INPUT 需要直接 EXIT
+        exit 1
     fi
 
     ## 内存爆炸问题
-    matched_results=$(grep "ERROR: Command exited with non-zero status:" "${log_file}" -A 1 |grep $ID)
+    matched_results=$(grep "ERROR: Command exited with non-zero status:" "${log_file}" -A 1 |grep "\b$ID\b")
     if [ -n "$matched_results" ]; then
         echo "[+] $(print_time) Monitoring DOOP Log for Errors:" | tee -a $CurrentLOG
         echo -e "\t $(print_time) Error ${ID}:\n${matched_results}" | tee -a $CurrentLOG
+        return 1
     fi
 
 }

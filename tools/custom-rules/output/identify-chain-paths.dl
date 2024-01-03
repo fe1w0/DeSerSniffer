@@ -47,8 +47,8 @@ PotentialVulnGraph(newlabel, fromMethod, SinkMethod) :-
     !isOpaqueMethodForIdentify(SinkMethod),
     LeakingTaintedInformation(sourceMethod, SinkMethod, _, invocation, sourceValue),
     Instruction_Method(invocation, fromMethod),
-    fromSourceCallGraph(fromMethod, toMethod, sourceMethod),
-    newlabel = cat(cat(sourceMethod, " -> ")), SinkMethod).
+    fromSourceCallGraph(fromMethod, SinkMethod, sourceMethod),
+    newlabel = cat(cat(sourceMethod, " -> "), SinkMethod).
 
 // fromMethod -> toMethod / oldFromMethod -> ... -> toMethod / SinkMethod
 PotentialVulnGraph(label, fromMethod, toMethod) :-

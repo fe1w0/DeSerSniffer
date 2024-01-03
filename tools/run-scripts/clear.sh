@@ -13,7 +13,7 @@ clear_result() {
     echo "The following directories will be cleared:"
     echo "OUT Directory: $DOOP_OUT"
     echo "Cache Directory: $DOOP_CACHE"
-    DOOP_LOGS=$DOOP_HOME/logs
+    DOOP_LOGS=$DOOP_HOME/build/logs/
     echo "DOOP Logs: $DOOP_LOGS"
     echo "TMP Logs: /tmp/doop_*"
     echo
@@ -23,17 +23,20 @@ clear_result() {
     echo    # (optional) move to a new line
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
-        # 清理 OUT 
-        rm -rf "$DOOP_OUT"
-
-        # 清理 Cache
-        rm -rf "$DOOP_CACHE"
-
-        # 清理 DOOP 日志
+		# 清理 DOOP 日志
         rm -rf $DOOP_LOGS/*
 
         # 清理 TMP 日志
         rm -rf /tmp/doop_*
+
+		# 清理 子项目 日志 
+        rm -rf $DOOP_OUT/log/*
+
+        # # 清理 OUT 
+        # rm -rf "$DOOP_OUT"
+
+        # # 清理 Cache
+        # rm -rf "$DOOP_CACHE"
     else
         echo "Clear operation cancelled."
     fi

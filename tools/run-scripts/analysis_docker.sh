@@ -34,6 +34,7 @@ single_analysis() {
         SubID=${ID}_${sub_id}
         timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
         monitor_doop_log $INPUT $SubID
+		echo -e "[+] $(print_time) Finish Analysis:  $SubID" | tee -a $CurrentLOG
     done
 
     # 分析阶段

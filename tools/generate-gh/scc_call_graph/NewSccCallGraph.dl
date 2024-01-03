@@ -1,0 +1,14 @@
+/**
+ * 在计算不同 Label 下的 SCC，并在此基础上生成 CallGraph
+*/
+
+.type Node <: symbol
+.type Label <: symbol
+
+/**
+ * 导入 PotentialVulnGraph 数据
+*/
+.decl Links(lable:Label, A: Node, B: Node)
+.input Links(filename="PotentialVulnGraph.csv")
+
+.decl Nodes(A: Node)

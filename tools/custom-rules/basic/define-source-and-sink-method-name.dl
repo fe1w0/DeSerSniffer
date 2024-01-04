@@ -1,7 +1,6 @@
 // Sink Method
 .decl DefineSinkMethod(method: symbol)
 
-
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
 DefineSinkMethod("<java.lang.System: void load(java.lang.String)>").
 DefineSinkMethod("<java.lang.System: void loadLibrary(java.lang.String)>").
@@ -13,15 +12,52 @@ DefineSinkMethod("<java.io.FileInputStream: int read(byte[])>").
 DefineSinkMethod("<java.io.FileWriter: void write(java.lang.String)>").
 DefineSinkMethod("<java.io.FileReader: int read(char[])>").
 DefineSinkMethod("<java.net.Socket: void connect(java.net.SocketAddress)>").
-DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
 DefineSinkMethod("<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>").
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
-DefineSinkMethod("<java.lang.Class: java.lang.Object forName(java.lang.String)>").
+// DefineSinkMethod("<java.lang.Class: java.lang.Object forName(java.lang.String)>").
 DefineSinkMethod("<java.lang.reflect.Constructor: java.lang.Object newInstance(java.lang.Object[])>").
 
-// DefineSinkMethod("<sources.demo.EvilObject: void evil(java.lang.String)>").
-// DefineSinkMethod("<org.apache.commons.collections.functors.ChainedTransformer: java.lang.Object transform(java.lang.Object)>").
-// DefineSinkMethod("<org.apache.commons.collections.functors.InvokerTransformer: java.lang.Object transform(java.lang.Object)>").
+
+/**
+ * SQLI
+*/
+DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
+
+/**
+ * RMI or JNDI
+*/
+DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
+DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>").
+DefineSinkMethod("<javax.naming.InitialContext: void rebind(java.lang.String, java.lang.Object)>").
+DefineSinkMethod("<javax.naming.InitialContext: void rebind(javax.naming.Name, java.lang.Object)>").
+
+/**
+ * LeakingSinkMethodPattern
+*/
+LeakingSinkMethodPattern(0, "<java.io.Print.*: void println[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Statement: .* execute.*[(].*[)]>").
+LeakingSinkMethodPattern(0, "<javax.servlet.http.HttpServletResponse: void sendRedirect[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.File: void <init>[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.File.*er: void <init>[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.File.*Stream: void <init>[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Connection: java.sql.PreparedStatement prepareStatement[(].*[)]>").
+// Spring-specific sources-sinks-sanitizers
+LeakingSinkMethodPattern(0, "<javax.servlet.jsp.JspWriter: void print[(].*[)]>").
+LeakingSinkMethodPattern(0, "<javax.servlet.jsp.JspWriter: void println[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.Writer: void write[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.Writer: java.io.Writer append[(].*[)]>").
+// "javax.servlet.http.HttpServletResponse([C)V"])" // TODO it's an interface?
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void write[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: java.io.Writer append[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void print[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void println[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Statement: void addBatch[(]java.lang.String[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Statement: int executeUpdate[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Statement: boolean execute[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Statement: java.sql.ResultSet executeQuery[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Connection: java.sql.PreparedStatement prepareStatement[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.Connection: java.sql.CallableStatement prepareCall[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.sql.PreparedStatement: void setString[(].*[)]>").
 
 #ifdef ListReadObject
 .decl IncludedSinkMethod(method: Method)

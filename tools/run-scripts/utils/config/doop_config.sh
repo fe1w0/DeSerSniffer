@@ -6,8 +6,8 @@ doop_config() {
     ## 设置DOOP参数
     DOOP_HOME=/home/zhangying/Project/SoftwareAnalysis/ENV/doop/build/install/doop
     DOOP_RESULT=/home/zhangying/Project/SoftwareAnalysis/Result
-    DOOP_CACHE="${DOOP_RESULT}/cache"
-    DOOP_OUT="${DOOP_RESULT}/out"
+    DOOP_CACHE="/data/MangoData/cache"
+    DOOP_OUT="/data/MangoData/out"
     BASE_DIR=/home/zhangying/Project/SoftwareAnalysis/DataSet-Software
     FuzzChainsPath=/home/zhangying/Project/SoftwareAnalysis/FuzzChains
     JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
@@ -38,7 +38,7 @@ doop_config() {
     fi
 
     ## 允许 补充的污点源的最大数量
-    MaxNumberMaybeTaintedField=30000
+    MaxNumberMaybeTaintedField=25000
 
     ## 设置子项目对象限制数字
     SplitLineNumber=7

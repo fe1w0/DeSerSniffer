@@ -34,3 +34,18 @@
     SourceValueAndMethod(source, method), \
     TaintedValue(value), \
     SourceFromTaintedValue(value, source)
+
+
+#ifndef LimitReadObject
+#define LeakingSinkMethodPattern(n, pattern) \
+	LeakingSinkMethodArg(method, n, method) :- \
+		isMethod(method), \
+		match(pattern, method)
+#endif
+
+#ifdef LimitReadObject
+#define LeakingSinkMethodPattern(n, pattern) \
+	DefineSinkMethod(method) :- \
+		isMethod(method), \
+		match(pattern, method)
+#endif

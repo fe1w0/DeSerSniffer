@@ -64,8 +64,8 @@ get_tasks() {
                 fi
 
                 # Souffle 问题
-                if grep -q "Error ${ID}:" "${log_file}" 2>/dev/null; then
-                    SubID=$(grep "Error ${ID}:" "${log_file}" -A 1 | grep -o -E "${ID}_[0-9]+" | head -n 1)
+                if grep -q "Error ${ID}" "${log_file}" 2>/dev/null; then
+                    SubID=$(grep "Error ${ID}" "${log_file}" -A 1 | grep -o -E "${ID}_[0-9]+" | head -n 1)
                     echo -e "${RED}\t\t\t- Souffle Error: $SubID${NO_COLOR}"
                 fi
                 echo -e "${RED}\t\t- Logs:${NO_COLOR}"
@@ -132,6 +132,7 @@ get_result() {
 	for ID in $(echo ${!results[@]} | tr ' ' '\n' | sort); do
 		local padding=$(printf '%*s' $((max_id_length - ${#ID})))
 		echo -e "\t${RED}ID: ${ID}${padding} - Lines: ${results[$ID]} ${RED}❌${NO_COLOR}"
+		echo -e "\t${RED}ID: ${ID}${padding} - PotentialVulnGraph: $(wc -l < $DOOP_OUT/$ID/database/PotentialVulnGraph.csv) ${RED}❌${NO_COLOR}"
 		echo -e "\t\tFile:\n\t\t\t- $(ls $DOOP_OUT/$ID/database/PotentialVulnGraph.csv)"
 		echo -e "\t\t\t- $(ls $DOOP_OUT/$ID/database/LeakingTaintedInformation.csv)"
 	done
@@ -173,5 +174,7 @@ print_result() {
     # 调用 get_result 函数
     get_result 
 }
+
+doop_config
 
 print_result

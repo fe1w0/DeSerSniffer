@@ -33,14 +33,16 @@ clear_result() {
         rm -rf $DOOP_OUT/log/*
 
         # # 清理 OUT 
-        # rm -rf "$DOOP_OUT"
+        rm -rf "$DOOP_OUT"
 
         # # 清理 Cache
-        # rm -rf "$DOOP_CACHE"
+        rm -rf "$DOOP_CACHE"
     else
         echo "Clear operation cancelled."
     fi
 }
+
+doop_config
 
 # 调用 clear_result 函数以执行清理
 clear_result

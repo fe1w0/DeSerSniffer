@@ -34,4 +34,4 @@ TmpLog=/tmp/doop_$(date +%s).log
 
 echo "[+] TmpLog: ${TmpLog}"
 
-single_analysis com_alibaba_nacos_nacos_client_2_3_0_5 com.alibaba.nacos:nacos-client:2.3.0
+single_analysis io_acryl_datahub_client_0_12_0_2_9 io.acryl:datahub-client:0.12.0-2

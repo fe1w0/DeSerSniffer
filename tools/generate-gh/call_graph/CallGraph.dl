@@ -1,0 +1,21 @@
+.type Node <: symbol
+.type Lable <: symbol
+
+/**
+ * Todo: 实现任意 source - > sink 的调用图构建，即调用图切割功能，需要依赖 fromSourceCallGraph.csv
+*/
+
+.decl import_links(label: Lable, A:Node, B:Node)
+.input import_links(filename="PotentialVulnGraph.csv")
+
+.decl links(A:Node, B:Node)
+.output links(filename="CallGraph.csv")
+
+links(A, B) :-
+	import_links(_, A, B).
+
+.decl nodes(A:Node)
+.output nodes(filename="Nodes.csv")
+
+nodes(A) :-
+  links(A,_) ; links(_,A). 

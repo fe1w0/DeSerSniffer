@@ -20,8 +20,8 @@ monitor_doop_log() {
     if [ -n "$matched_results" ]; then
         echo "[+] $(print_time) Monitoring DOOP Log for Errors:" | tee -a $CurrentLOG
         echo -e "\t $(print_time) Error ${INPUT}:\n${matched_results}" | tee -a $CurrentLOG
-        # 失败的 INPUT 需要直接 EXIT
-        exit 1
+        # 失败的 INPUT 还是 return 以维持批量分析的稳定性
+        return 1
     fi
 
     ## 内存爆炸问题
@@ -29,9 +29,8 @@ monitor_doop_log() {
     if [ -n "$matched_results" ]; then
         echo "[+] $(print_time) Monitoring DOOP Log for Errors:" | tee -a $CurrentLOG
         echo -e "\t $(print_time) Error ${ID}:\n${matched_results}" | tee -a $CurrentLOG
-        return 1
+        return 2
     fi
-
 }
 
 export -f monitor_doop_log

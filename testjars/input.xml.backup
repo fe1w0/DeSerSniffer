@@ -62,4 +62,27 @@
         <artifactId>redisson</artifactId>
         <version>3.24.3</version>
     </dependency>
+
+
+    <!-- 2024.01.04 -->
+
+    <dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot</artifactId>
+		<version>3.2.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>cn.hutool</groupId>
+		<artifactId>hutool-all</artifactId>
+		<version>5.8.23</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.apache.dubbo</groupId>
+		<artifactId>dubbo</artifactId>
+		<version>3.2.9</version>
+	</dependency>
+
+
 </dependencies>

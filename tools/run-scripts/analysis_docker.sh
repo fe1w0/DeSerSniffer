@@ -25,6 +25,11 @@ single_analysis() {
     # 检测 List 过程是否有问题
     monitor_doop_log $INPUT $ID
 
+    if [ $? -eq 1 ]; then
+        echo -e "[+] $(print_time) End:  $ID, $INPUT, $CurrentLOG" | tee -a $CurrentLOG
+        return 1
+    fi
+
     # 划分任务，得到子任务数量, 得到
     timer split_csv $ID $SplitLineNumber
 

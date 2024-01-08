@@ -1,81 +1,70 @@
 // Method Calls Graph
 digraph {
-	"datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_getValueInOtherClassLoader(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enums.ValuedEnum: int getValueInOtherClassLoader(java.lang.Object)>]
-	"datahub.shaded.org.apache.commons.lang.enum.Enum__boolean_equals(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enum.Enum: boolean equals(java.lang.Object)>]
-	"datahub.shaded.org.apache.commons.lang.enums.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enums.Enum: java.lang.String getNameInOtherClassLoader(java.lang.Object)>]
-	"java.util.concurrent.ConcurrentHashMap__void_readObject(java.io.ObjectInputStream)" [label=<java.util.concurrent.ConcurrentHashMap: void readObject(java.io.ObjectInputStream)>]
+	"java.util.Hashtable__void_addEntry(int,java.lang.Object,java.lang.Object,int)" [label=<java.util.Hashtable: void addEntry(int,java.lang.Object,java.lang.Object,int)>]
+	"java.util.PriorityQueue__void_siftUp(int,java.lang.Object)" [label=<java.util.PriorityQueue: void siftUp(int,java.lang.Object)>]
+	"java.util.AbstractQueue__boolean_add(java.lang.Object)" [label=<java.util.AbstractQueue: boolean add(java.lang.Object)>]
+	"java.util.AbstractQueue__boolean_addAll(java.util.Collection)" [label=<java.util.AbstractQueue: boolean addAll(java.util.Collection)>]
+	"java.util.concurrent.PriorityBlockingQueue__boolean_offer(java.lang.Object)" [label=<java.util.concurrent.PriorityBlockingQueue: boolean offer(java.lang.Object)>]
+	"" [label=""]
 	"java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])" [label=<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>]
-	"datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enums.Enum: int compareTo(java.lang.Object)>]
-	"datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Object,java.lang.Object)" [label=<datahub.shaded.com.google.common.collect.NaturalOrdering: int compare(java.lang.Object,java.lang.Object)>]
-	"datahub.shaded.com.google.common.collect.ByFunctionOrdering__int_compare(java.lang.Object,java.lang.Object)___SCC____10" [label="<datahub.shaded.com.google.common.collect.ByFunctionOrdering: int compare(java.lang.Object,java.lang.Object)>:: SCC :: 10"]
-	"datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__int_expandedCapacity(int,int)" [label=<datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder: int expandedCapacity(int,int)>]
-	"datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enum.Enum: int compareTo(java.lang.Object)>]
-	"datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Object,java.lang.Object)" [label=<datahub.shaded.com.google.common.collect.ReverseNaturalOrdering: int compare(java.lang.Object,java.lang.Object)>]
-	"datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__void_ensureRoomFor(int)" [label=<datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder: void ensureRoomFor(int)>]
-	"datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enums.ValuedEnum: int compareTo(java.lang.Object)>]
-	"java.util.PriorityQueue__void_siftDown(int,java.lang.Object)" [label=<java.util.PriorityQueue: void siftDown(int,java.lang.Object)>]
-	"java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446" [label="<java.util.AbstractMap$SimpleImmutableEntry: boolean equals(java.lang.Object)>:: SCC :: 446"]
-	"datahub.shaded.org.apache.commons.lang.enums.Enum__boolean_equals(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enums.Enum: boolean equals(java.lang.Object)>]
-	"datahub.shaded.com.google.common.util.concurrent.AtomicDoubleArray__void_readObject(java.io.ObjectInputStream)" [label=<datahub.shaded.com.google.common.util.concurrent.AtomicDoubleArray: void readObject(java.io.ObjectInputStream)>]
-	"datahub.shaded.com.google.common.collect.UsingToStringOrdering__int_compare(java.lang.Object,java.lang.Object)" [label=<datahub.shaded.com.google.common.collect.UsingToStringOrdering: int compare(java.lang.Object,java.lang.Object)>]
-	"datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" [label=<datahub.shaded.com.google.common.collect.ReverseNaturalOrdering: int compare(java.lang.Comparable,java.lang.Comparable)>]
-	"datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" [label=<datahub.shaded.com.google.common.collect.NaturalOrdering: int compare(java.lang.Comparable,java.lang.Comparable)>]
-	"java.util.PriorityQueue__void_heapify()" [label=<java.util.PriorityQueue: void heapify()>]
-	"java.util.PriorityQueue__void_readObject(java.io.ObjectInputStream)" [label=<java.util.PriorityQueue: void readObject(java.io.ObjectInputStream)>]
-	"java.util.concurrent.ConcurrentHashMap__int_compareComparables(java.lang.Class,java.lang.Object,java.lang.Object)" [label=<java.util.concurrent.ConcurrentHashMap: int compareComparables(java.lang.Class,java.lang.Object,java.lang.Object)>]
-	"java.util.PriorityQueue__void_siftDownComparable(int,java.lang.Object)" [label=<java.util.PriorityQueue: void siftDownComparable(int,java.lang.Object)>]
-	"datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder_add(long)" [label=<datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder: datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder add(long)>]
-	"java.util.PriorityQueue__void_siftDownUsingComparator(int,java.lang.Object)" [label=<java.util.PriorityQueue: void siftDownUsingComparator(int,java.lang.Object)>]
+	"org.apache.dubbo.common.threadpool.MemoryLimitCalculator__void_checkAndScheduleRefresh()" [label=<org.apache.dubbo.common.threadpool.MemoryLimitCalculator: void checkAndScheduleRefresh()>]
+	"org.apache.dubbo.common.threadpool.MemoryLimitCalculator__long_maxAvailable()" [label=<org.apache.dubbo.common.threadpool.MemoryLimitCalculator: long maxAvailable()>]
+	"com.google.common.collect.CompactHashMap__java.util.Map_convertToHashFloodingResistantImplementation()" [label=<com.google.common.collect.CompactHashMap: java.util.Map convertToHashFloodingResistantImplementation()>]
+	"java.lang.invoke.LambdaMetafactory__java.lang.invoke.CallSite_metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)___SCC____154" [label="<java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)>:: SCC :: 154"]
+	"java.util.PriorityQueue__boolean_offer(java.lang.Object)" [label=<java.util.PriorityQueue: boolean offer(java.lang.Object)>]
+	"java.util.PriorityQueue__void_siftUpUsingComparator(int,java.lang.Object)" [label=<java.util.PriorityQueue: void siftUpUsingComparator(int,java.lang.Object)>]
+	"com.alibaba.dubbo.container.page.MenuComparator__int_compare(java.lang.Object,java.lang.Object)" [label=<com.alibaba.dubbo.container.page.MenuComparator: int compare(java.lang.Object,java.lang.Object)>]
+	"org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue__boolean_hasRemainedMemory()" [label=<org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue: boolean hasRemainedMemory()>]
+	"java.util.concurrent.ConcurrentHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" [label=<java.util.concurrent.ConcurrentHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>]
+	"java.util.Hashtable__java.lang.Object_put(java.lang.Object,java.lang.Object)" [label=<java.util.Hashtable: java.lang.Object put(java.lang.Object,java.lang.Object)>]
+	"java.util.PriorityQueue__boolean_add(java.lang.Object)" [label=<java.util.PriorityQueue: boolean add(java.lang.Object)>]
 	Start_Method [label=<Start Method>]
-	"java.util.concurrent.ConcurrentHashMap$TreeBin__void_init(java.util.concurrent.ConcurrentHashMap$TreeNode)" [label=<java.util.concurrent.ConcurrentHashMap$TreeBin: void <init>(java.util.concurrent.ConcurrentHashMap$TreeNode)>]
-	"datahub.shaded.org.apache.commons.lang.enum.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)" [label=<datahub.shaded.org.apache.commons.lang.enum.Enum: java.lang.String getNameInOtherClassLoader(java.lang.Object)>]
-	Start_Method -> "datahub.shaded.com.google.common.util.concurrent.AtomicDoubleArray__void_readObject(java.io.ObjectInputStream)"
-	Start_Method -> "java.util.PriorityQueue__void_readObject(java.io.ObjectInputStream)"
-	Start_Method -> "java.util.concurrent.ConcurrentHashMap__void_readObject(java.io.ObjectInputStream)"
-	"datahub.shaded.com.google.common.util.concurrent.AtomicDoubleArray__void_readObject(java.io.ObjectInputStream)" -> "datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder_add(long)"
-	"java.util.PriorityQueue__void_readObject(java.io.ObjectInputStream)" -> "java.util.PriorityQueue__void_heapify()"
-	"java.util.concurrent.ConcurrentHashMap__void_readObject(java.io.ObjectInputStream)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__boolean_equals(java.lang.Object)"
-	"java.util.concurrent.ConcurrentHashMap__void_readObject(java.io.ObjectInputStream)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__boolean_equals(java.lang.Object)"
-	"java.util.concurrent.ConcurrentHashMap__void_readObject(java.io.ObjectInputStream)" -> "java.util.concurrent.ConcurrentHashMap$TreeBin__void_init(java.util.concurrent.ConcurrentHashMap$TreeNode)"
-	"java.util.concurrent.ConcurrentHashMap__void_readObject(java.io.ObjectInputStream)" -> "java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446"
-	"datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder_add(long)" -> "datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__void_ensureRoomFor(int)"
-	"datahub.shaded.org.apache.commons.lang.enums.Enum__boolean_equals(java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)"
-	"datahub.shaded.org.apache.commons.lang.enum.Enum__boolean_equals(java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)"
-	"datahub.shaded.org.apache.commons.lang.enums.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)" -> "java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])"
-	"datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Object,java.lang.Object)" -> "datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)"
-	"datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Object,java.lang.Object)" -> "datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)"
-	"java.util.PriorityQueue__void_siftDown(int,java.lang.Object)" -> "java.util.PriorityQueue__void_siftDownComparable(int,java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDown(int,java.lang.Object)" -> "java.util.PriorityQueue__void_siftDownUsingComparator(int,java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownComparable(int,java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownComparable(int,java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownComparable(int,java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownUsingComparator(int,java.lang.Object)" -> "datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Object,java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownUsingComparator(int,java.lang.Object)" -> "datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Object,java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownUsingComparator(int,java.lang.Object)" -> "datahub.shaded.com.google.common.collect.UsingToStringOrdering__int_compare(java.lang.Object,java.lang.Object)"
-	"java.util.PriorityQueue__void_siftDownUsingComparator(int,java.lang.Object)" -> "datahub.shaded.com.google.common.collect.ByFunctionOrdering__int_compare(java.lang.Object,java.lang.Object)___SCC____10"
-	"datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_getValueInOtherClassLoader(java.lang.Object)"
-	"datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)"
-	"java.util.PriorityQueue__void_heapify()" -> "java.util.PriorityQueue__void_siftDown(int,java.lang.Object)"
-	"datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__void_ensureRoomFor(int)" -> "datahub.shaded.com.google.common.primitives.ImmutableLongArray$Builder__int_expandedCapacity(int,int)"
-	"datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" -> "datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)"
-	"java.util.concurrent.ConcurrentHashMap$TreeBin__void_init(java.util.concurrent.ConcurrentHashMap$TreeNode)" -> "java.util.concurrent.ConcurrentHashMap__int_compareComparables(java.lang.Class,java.lang.Object,java.lang.Object)"
-	"java.util.concurrent.ConcurrentHashMap__int_compareComparables(java.lang.Class,java.lang.Object,java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)"
-	"java.util.concurrent.ConcurrentHashMap__int_compareComparables(java.lang.Class,java.lang.Object,java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)"
-	"java.util.concurrent.ConcurrentHashMap__int_compareComparables(java.lang.Class,java.lang.Object,java.lang.Object)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)"
-	"datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_getValueInOtherClassLoader(java.lang.Object)" -> "java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])"
-	"datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" -> "datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Comparable,java.lang.Comparable)" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)"
-	"datahub.shaded.org.apache.commons.lang.enum.Enum__java.lang.String_getNameInOtherClassLoader(java.lang.Object)" -> "java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])"
-	"datahub.shaded.com.google.common.collect.ByFunctionOrdering__int_compare(java.lang.Object,java.lang.Object)___SCC____10" -> "datahub.shaded.com.google.common.collect.ReverseNaturalOrdering__int_compare(java.lang.Object,java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.ByFunctionOrdering__int_compare(java.lang.Object,java.lang.Object)___SCC____10" -> "datahub.shaded.com.google.common.collect.NaturalOrdering__int_compare(java.lang.Object,java.lang.Object)"
-	"datahub.shaded.com.google.common.collect.ByFunctionOrdering__int_compare(java.lang.Object,java.lang.Object)___SCC____10" -> "datahub.shaded.com.google.common.collect.UsingToStringOrdering__int_compare(java.lang.Object,java.lang.Object)"
-	"java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__boolean_equals(java.lang.Object)"
-	"java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__boolean_equals(java.lang.Object)"
-	"java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446" -> "datahub.shaded.org.apache.commons.lang.enums.Enum__int_compareTo(java.lang.Object)"
-	"java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446" -> "datahub.shaded.org.apache.commons.lang.enums.ValuedEnum__int_compareTo(java.lang.Object)"
-	"java.util.AbstractMap$SimpleImmutableEntry__boolean_equals(java.lang.Object)___SCC____446" -> "datahub.shaded.org.apache.commons.lang.enum.Enum__int_compareTo(java.lang.Object)"
+	"com.alibaba.dubbo.container.page.MenuComparator__int_compare(com.alibaba.dubbo.container.page.PageHandler,com.alibaba.dubbo.container.page.PageHandler)" [label=<com.alibaba.dubbo.container.page.MenuComparator: int compare(com.alibaba.dubbo.container.page.PageHandler,com.alibaba.dubbo.container.page.PageHandler)>]
+	"java.lang.Class__java.lang.annotation.Annotation_getAnnotation(java.lang.Class)" [label=<java.lang.Class: java.lang.annotation.Annotation getAnnotation(java.lang.Class)>]
+	"com.google.common.collect.CompactHashMap__void_readObject(java.io.ObjectInputStream)" [label=<com.google.common.collect.CompactHashMap: void readObject(java.io.ObjectInputStream)>]
+	"java.util.concurrent.PriorityBlockingQueue__void_readObject(java.io.ObjectInputStream)" [label=<java.util.concurrent.PriorityBlockingQueue: void readObject(java.io.ObjectInputStream)>]
+	"com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" [label=<com.google.common.collect.CompactHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>]
+	"java.util.concurrent.PriorityBlockingQueue__boolean_add(java.lang.Object)" [label=<java.util.concurrent.PriorityBlockingQueue: boolean add(java.lang.Object)>]
+	"org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue__boolean_offer(java.lang.Object)" [label=<org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue: boolean offer(java.lang.Object)>]
+	"java.util.HashMap__java.lang.Object_remove(java.lang.Object)" [label=<java.util.HashMap: java.lang.Object remove(java.lang.Object)>]
+	"org.apache.dubbo.common.utils.LRUCache__java.lang.Object_put(java.lang.Object,java.lang.Object)" [label=<org.apache.dubbo.common.utils.LRUCache: java.lang.Object put(java.lang.Object,java.lang.Object)>]
+	"org.apache.dubbo.common.utils.LRU2Cache__java.lang.Object_put(java.lang.Object,java.lang.Object)" [label=<org.apache.dubbo.common.utils.LRU2Cache: java.lang.Object put(java.lang.Object,java.lang.Object)>]
+	"java.util.concurrent.PriorityBlockingQueue__void_siftUpUsingComparator(int,java.lang.Object,java.lang.Object[],java.util.Comparator)" [label=<java.util.concurrent.PriorityBlockingQueue: void siftUpUsingComparator(int,java.lang.Object,java.lang.Object[],java.util.Comparator)>]
+	Start_Method -> "java.util.concurrent.PriorityBlockingQueue__void_readObject(java.io.ObjectInputStream)"
+	Start_Method -> "com.google.common.collect.CompactHashMap__void_readObject(java.io.ObjectInputStream)"
+	"java.util.concurrent.PriorityBlockingQueue__void_readObject(java.io.ObjectInputStream)" -> "java.util.AbstractQueue__boolean_addAll(java.util.Collection)"
+	"com.google.common.collect.CompactHashMap__void_readObject(java.io.ObjectInputStream)" -> "com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"java.util.Hashtable__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "java.util.Hashtable__void_addEntry(int,java.lang.Object,java.lang.Object,int)"
+	"java.util.concurrent.PriorityBlockingQueue__void_siftUpUsingComparator(int,java.lang.Object,java.lang.Object[],java.util.Comparator)" -> "com.alibaba.dubbo.container.page.MenuComparator__int_compare(java.lang.Object,java.lang.Object)"
+	"com.alibaba.dubbo.container.page.MenuComparator__int_compare(java.lang.Object,java.lang.Object)" -> "com.alibaba.dubbo.container.page.MenuComparator__int_compare(com.alibaba.dubbo.container.page.PageHandler,com.alibaba.dubbo.container.page.PageHandler)"
+	"java.util.concurrent.PriorityBlockingQueue__boolean_add(java.lang.Object)" -> "java.util.concurrent.PriorityBlockingQueue__boolean_offer(java.lang.Object)"
+	"java.util.concurrent.PriorityBlockingQueue__boolean_offer(java.lang.Object)" -> "java.util.concurrent.PriorityBlockingQueue__void_siftUpUsingComparator(int,java.lang.Object,java.lang.Object[],java.util.Comparator)"
+	"java.util.AbstractQueue__boolean_addAll(java.util.Collection)" -> "java.util.concurrent.PriorityBlockingQueue__boolean_add(java.lang.Object)"
+	"java.util.AbstractQueue__boolean_addAll(java.util.Collection)" -> "java.util.PriorityQueue__boolean_add(java.lang.Object)"
+	"java.util.AbstractQueue__boolean_addAll(java.util.Collection)" -> "java.util.AbstractQueue__boolean_add(java.lang.Object)"
+	"org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue__boolean_offer(java.lang.Object)" -> "org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue__boolean_hasRemainedMemory()"
+	"org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue__boolean_hasRemainedMemory()" -> "org.apache.dubbo.common.threadpool.MemoryLimitCalculator__long_maxAvailable()"
+	"com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "java.util.Hashtable__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "org.apache.dubbo.common.utils.LRUCache__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "java.util.concurrent.ConcurrentHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "org.apache.dubbo.common.utils.LRU2Cache__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "com.google.common.collect.CompactHashMap__java.util.Map_convertToHashFloodingResistantImplementation()"
+	"org.apache.dubbo.common.utils.LRU2Cache__java.lang.Object_put(java.lang.Object,java.lang.Object)" -> "java.util.HashMap__java.lang.Object_remove(java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.util.Map_convertToHashFloodingResistantImplementation()" -> "java.util.Hashtable__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.util.Map_convertToHashFloodingResistantImplementation()" -> "org.apache.dubbo.common.utils.LRUCache__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.util.Map_convertToHashFloodingResistantImplementation()" -> "java.util.concurrent.ConcurrentHashMap__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"com.google.common.collect.CompactHashMap__java.util.Map_convertToHashFloodingResistantImplementation()" -> "org.apache.dubbo.common.utils.LRU2Cache__java.lang.Object_put(java.lang.Object,java.lang.Object)"
+	"java.util.PriorityQueue__boolean_add(java.lang.Object)" -> "java.util.PriorityQueue__boolean_offer(java.lang.Object)"
+	"java.util.PriorityQueue__boolean_offer(java.lang.Object)" -> "java.util.PriorityQueue__void_siftUp(int,java.lang.Object)"
+	"java.util.PriorityQueue__void_siftUp(int,java.lang.Object)" -> "java.util.PriorityQueue__void_siftUpUsingComparator(int,java.lang.Object)"
+	"java.util.PriorityQueue__void_siftUpUsingComparator(int,java.lang.Object)" -> "com.alibaba.dubbo.container.page.MenuComparator__int_compare(java.lang.Object,java.lang.Object)"
+	"com.alibaba.dubbo.container.page.MenuComparator__int_compare(com.alibaba.dubbo.container.page.PageHandler,com.alibaba.dubbo.container.page.PageHandler)" -> ""
+	"java.lang.Class__java.lang.annotation.Annotation_getAnnotation(java.lang.Class)" -> "com.alibaba.dubbo.container.page.MenuComparator__int_compare(com.alibaba.dubbo.container.page.PageHandler,com.alibaba.dubbo.container.page.PageHandler)"
+	"java.util.AbstractQueue__boolean_add(java.lang.Object)" -> "java.util.concurrent.PriorityBlockingQueue__boolean_offer(java.lang.Object)"
+	"java.util.AbstractQueue__boolean_add(java.lang.Object)" -> "org.apache.dubbo.common.threadpool.MemorySafeLinkedBlockingQueue__boolean_offer(java.lang.Object)"
+	"java.util.AbstractQueue__boolean_add(java.lang.Object)" -> "java.util.PriorityQueue__boolean_offer(java.lang.Object)"
+	"org.apache.dubbo.common.threadpool.MemoryLimitCalculator__void_checkAndScheduleRefresh()" -> "java.lang.invoke.LambdaMetafactory__java.lang.invoke.CallSite_metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)___SCC____154"
+	"org.apache.dubbo.common.threadpool.MemoryLimitCalculator__long_maxAvailable()" -> "org.apache.dubbo.common.threadpool.MemoryLimitCalculator__void_checkAndScheduleRefresh()"
+	"java.lang.invoke.LambdaMetafactory__java.lang.invoke.CallSite_metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)___SCC____154" -> "java.lang.reflect.Method__java.lang.Object_invoke(java.lang.Object,java.lang.Object[])"
+	"java.lang.invoke.LambdaMetafactory__java.lang.invoke.CallSite_metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)___SCC____154" -> "java.lang.invoke.LambdaMetafactory__java.lang.invoke.CallSite_metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)___SCC____154"
 }

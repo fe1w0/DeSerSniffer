@@ -93,6 +93,7 @@ get_result() {
     echo $module_separator
     echo -e "\n[+] Analysis Result:"
 
+
     # 计算 ID 的最大长度
 	max_id_length=0
 	for dir in $(find $DOOP_OUT -maxdepth 1 -mindepth 1 -type d); do

@@ -50,10 +50,12 @@ def import_csv_to_neo4j(connection, file_path):
 # Replace these variables with your Neo4j credentials and file path
 uri = "bolt://localhost:7687"
 user = "neo4j"
-password = "xzas@157"
-csv_file_path = "PotentialVulnGraph.csv"
+password = "password"
+csv_file_path = "/data/MangoData/out/org_clojure_clojure_1_12_0_alpha5_2/database/PotentialVulnGraph.csv"
 
 # Establishing connection and importing data
 conn = Neo4jConnection(uri, user, password)
 import_csv_to_neo4j(conn, csv_file_path)
 conn.close()
+
+print("[+] Finish")

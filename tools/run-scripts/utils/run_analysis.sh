@@ -92,6 +92,12 @@ run_analysis() {
     eval "$CMD"
 
     echo "[+] $(print_time) Finish: run_analysis." | tee -a $CurrentLOG
+
+	rm -rf ${DOOP_OUT}/${ID}/database/*.facts
+
+	rm -rf ${DOOP_HOME}/${ID}/database/jimple
+
+	echo "[+] $(print_time) Finish: clean up temporary data (facts and jimple files)." | tee -a $CurrentLOG
 }
 
 # 导出函数

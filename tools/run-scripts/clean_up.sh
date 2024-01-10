@@ -32,8 +32,9 @@ clear_result() {
 		# 清理 子项目 日志 
         rm -rf $DOOP_OUT/log/*
 
-        # # 清理 OUT 
-        rm -rf "$DOOP_OUT"
+        ## 清理 OUT， 但排除 子项目的分析日志
+        # rm -rf "$DOOP_OUT" 
+		find "$DOOP_OUT" -type f -not -path "$DOOP_OUT/log/*" -exec rm {} +
 
         # # 清理 Cache
         rm -rf "$DOOP_CACHE"

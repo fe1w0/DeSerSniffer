@@ -20,6 +20,7 @@ single_analysis() {
     timer config
 
     # 启动 List Object 脚本
+	## Log 1.5.0-dev 为减少存储空间的占用，可以只保留 list_class 中的 facts 和 jimple 文件，并删除 sub_analysis 中 生成的 facts 和 jimple 文件
     timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
     
     # 检测 List 过程是否有问题

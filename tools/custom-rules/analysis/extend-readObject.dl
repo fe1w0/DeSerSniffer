@@ -67,6 +67,7 @@ MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
 /**
  * 将 Declaring Type 中的 fields 设置为污点源, 同时需要设置 Mock
  * Log: 1.3 中进行修复，应当是 Load 过程中
+ * Log: 1.5.0-dev 实际上 static 属性也不能作为 污点源
 */
 MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
     TaintSourceMethod(source_label, method),
@@ -77,6 +78,7 @@ MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
     LoadInstanceField(base, sign, to_field, method),
     mainAnalysis.VarPointsTo(_, value, _, to_field),
     !Field_Modifier("transient", sign),
+	!Field_Modifier("static", sign),
     Var_Type(to_field, field_type),
     // InValidReturnType taken from method-summary.dl
     !InValidReturnType(field_type).
@@ -93,6 +95,7 @@ MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
 
 Fields_Dont_Store_inSameMethod(to_field, base_this) :-
     !Field_Modifier("transient", signature),
+    !Field_Modifier("static", signature),
     !_StoreInstanceField(_, _, _, _, signature, in_method),
     _LoadInstanceField(_, _, to_field, base_this, signature, in_method).
 

@@ -1,6 +1,21 @@
-#define LimitReadObject 1
+/**
+ * ListReadObject flag 用于区分分析环节
+*/
 #define ListReadObject 1
+
+/**
+ * LimitReadObject 用于限制，指输出 DirectSerializableClass， 注释可以输出 InheritSerializableClass
+*/
+// #define LimitReadObject 1
+
+/**
+ * ListReadObjectApplication 用于控制输出 DirectSerializableApplicationClass
+*/
 #define ListReadObjectApplication 1
+
+/**
+ * ListReadObjectData 用于控制输出 DirectSerializableDataStructureClass
+*/
 #define ListReadObjectData 1
 
 #include "../basic/micro.dl"

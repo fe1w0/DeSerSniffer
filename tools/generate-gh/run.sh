@@ -21,5 +21,5 @@ run() {
 
 Neo4jImport=/data/MangoData/neo4j/import
 DOOP_OUT=/data/MangoData/out
-DOOP_ID=org_apache_dubbo_dubbo_3_2_9_4
+DOOP_ID=org_clojure_clojure_1_12_0_alpha5_2
 run $Neo4jImport $DOOP_OUT $DOOP_ID

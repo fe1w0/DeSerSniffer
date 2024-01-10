@@ -37,5 +37,13 @@ fromSourceCallGraph(fromMethod, toMethod, label) :-
 isMethodInSourceCallGraph(toMethod) :-
     fromSourceCallGraph(_, toMethod, _).
 
+.decl ClinitCallGrap(fromMethod: Method, toMethod: Method)
+
+ClinitCallGrap(fromMethod, toMethod) :-
+    mainAnalysis.AnyCallGraphEdge(invocation, toMethod),
+    Instruction_Method(invocation, fromMethod),
+	Method_SimpleName(fromMethod, "<clinit>").
+
 .output fromSourceCallGraph
 .output isMethodInSourceCallGraph
+.output ClinitCallGrap

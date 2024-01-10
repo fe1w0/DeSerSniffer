@@ -132,10 +132,13 @@ get_result() {
 	# 按照 ID 的字符串排序并输出结果
 	for ID in $(echo ${!results[@]} | tr ' ' '\n' | sort); do
 		local padding=$(printf '%*s' $((max_id_length - ${#ID})))
-		echo -e "\t${RED}ID: ${ID}${padding} - Lines: ${results[$ID]} ${RED}❌${NO_COLOR}"
-		echo -e "\t${RED}ID: ${ID}${padding} - PotentialVulnGraph: $(wc -l < $DOOP_OUT/$ID/database/PotentialVulnGraph.csv) ${RED}❌${NO_COLOR}"
-		echo -e "\t\tFile:\n\t\t\t- $(ls $DOOP_OUT/$ID/database/PotentialVulnGraph.csv)"
-		echo -e "\t\t\t- $(ls $DOOP_OUT/$ID/database/LeakingTaintedInformation.csv)"
+		echo -e "\t${RED}ID: ${ID}${NO_COLOR}"
+		echo -e "\t\tResult:\n\t\t\t - LeakingTaintedInformation: ${results[$ID]} ❌"
+		echo -e "\t\t\t - PotentialVulnGraph: $(wc -l < $DOOP_OUT/$ID/database/PotentialVulnGraph.csv) ❌"
+		echo -e "\t\t\t - ReachablePotentialVulnGraph: $(wc -l < $DOOP_OUT/$ID/database/ReachablePotentialVulnGraph.csv) ❌"
+		echo -e "\t\tFile:\n\t\t\t- $(ls $DOOP_OUT/$ID/database/LeakingTaintedInformation.csv)"
+		echo -e "\t\t\t- $(ls $DOOP_OUT/$ID/database/PotentialVulnGraph.csv)"
+		echo -e "\t\t\t- $(ls $DOOP_OUT/$ID/database/ReachablePotentialVulnGraph.csv)"
 	done
 
     echo $module_separator

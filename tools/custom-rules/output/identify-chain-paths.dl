@@ -68,7 +68,22 @@ ChainPathsOutput(MethodDeclaringType, MethodSimpleName, MethodJVMDescriptor) :-
     Method_SimpleName(method, MethodSimpleName),
     Method_JVMDescriptor(method, MethodJVMDescriptor).
 
+.decl ReachesPotentialVulnGraph(sourceMethod: Method, toMethod: Method)
+
+ReachesPotentialVulnGraph(sourceMethod, toMethod) :-
+	PotentialVulnGraph(_, sourceMethod, toMethod),
+	SourceMethod(sourceMethod).
+
+.decl ReachablePotentialVulnGraph(sourceMethod: Method, sinkMethod: Method)
+
+ReachablePotentialVulnGraph(sourceMethod, sinkMethod) :-
+	ReachesPotentialVulnGraph(sourceMethod, sinkMethod),
+	SourceMethod(sourceMethod),
+	SinkMethod(sinkMethod).
+	
 .output isOpaqueMethodForIdentify
 .output ChainPathsOutput
 .output PotentialVulnGraphLabel
 .output PotentialVulnGraph
+.output ReachablePotentialVulnGraph
+.printsize ReachablePotentialVulnGraph

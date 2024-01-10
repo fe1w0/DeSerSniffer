@@ -3,7 +3,6 @@
 
 # 函数：计时器
 timer() {
-    
     local start=$(date +%s%N) # 记录开始时间（纳秒）
     "$@"                      # 执行传入的命令或函数，包括其参数
     local end=$(date +%s%N)   # 记录结束时间（纳秒）

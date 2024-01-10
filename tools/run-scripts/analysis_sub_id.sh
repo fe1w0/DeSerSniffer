@@ -34,4 +34,5 @@ TmpLog=/tmp/doop_$(date +%s).log
 
 echo "[+] TmpLog: ${TmpLog}"
 
-single_analysis io_acryl_datahub_client_0_12_0_2_9 io.acryl:datahub-client:0.12.0-2
+single_analysis org_clojure_clojure_1_12_0_alpha5_2 org.clojure:clojure:1.12.0-alpha5
+single_analysis org_clojure_clojure_1_12_0_alpha5_3 org.clojure:clojure:1.12.0-alpha5

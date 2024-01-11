@@ -60,7 +60,7 @@ MICRO_CUSTOM_TAINT(source, value, method) :-
     TaintSourceMethod(_, method),
     ThisVar(method, this),
     RootSource(method, source),
-    Method_DeclaringType(method, declaringType),
+    Method_DeclaringType(method, _),
     mainAnalysis.VarPointsTo(_hctx, value, _ctx, actual_this),
     AssignLocal(this, actual_this, method).
 

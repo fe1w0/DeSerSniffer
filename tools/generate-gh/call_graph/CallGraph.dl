@@ -21,7 +21,7 @@
 .printsize CallGraph
 
 .decl Node(method: Method)
-.output Node(filename="Node.csv")
+.output Node(filename="Nodes.csv")
 .printsize Node
 
 .decl _Method(?method:Method, ?simplename:symbol, ?descriptor:symbol, ?declaringType:ReferenceType, ?returnType:Type, ?jvmDescriptor:JVMDescriptor, ?arity:number)

@@ -12,14 +12,19 @@ run() {
 	local DOOP_OUT=$2
 	local DOOP_ID=$3
 
+	cp ${DOOP_OUT}/init_${INIT_DOOP_ID}/database/Method.facts ${DOOP_OUT}/${DOOP_ID}/database/Method.facts
+
 	# Step 2: 生成 需要导入 neo4j 的 调用图
 	souffle $DIR/call_graph/CallGraph.dl -F${DOOP_OUT}/${DOOP_ID}/database/ -D${DIR}/output
 
 	# Step 3: 复制和修改调用图文件，并导入图数据库
 	import_neo4j_data $DIR/output $Neo4jImport
+
+	rm -rf ${DOOP_ID}/${DOOP_ID}/database/Method.facts
 }
 
 Neo4jImport=/data/MangoData/neo4j/import
 DOOP_OUT=/data/MangoData/out
-DOOP_ID=org_clojure_clojure_1_12_0_alpha5_2
+INIT_DOOP_ID=commons_collections_commons_collections_3_1
+DOOP_ID=commons_collections_commons_collections_3_1_1
 run $Neo4jImport $DOOP_OUT $DOOP_ID

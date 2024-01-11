@@ -63,22 +63,22 @@ list_class() {
     # facts
     FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
 
-    # app-only
-    APP_ONLY="--app-only"
-
     # --no-merges
     NoMerges="--no-merges"
 
     # CACHE
-    # CACHE="--cache"
+    CACHE="--dont-cache-facts"
 
     # Log Level
     LOG="--level debug"
 
-    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${LOG}"
+	# Xlow-mem
+	XlowMem="--Xlow-mem"
+
+    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${LOG} ${XlowMem}"
 
     # 执行 doop 分析
-    local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
+    local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
     echo "[+] $(print_time) doop: $CMD" >> $TmpLog
     eval "$CMD" >> $TmpLog

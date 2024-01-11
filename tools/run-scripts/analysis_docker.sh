@@ -38,7 +38,8 @@ single_analysis() {
     for (( sub_id=1; sub_id<=$ReturnCsvNumber; sub_id++))
     do
         SubID=${ID}_${sub_id}
-        timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS
+		InitID="init_${ID}"
+        timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $InitID $JOBS 
         monitor_doop_log $INPUT $SubID
 		echo -e "[+] $(print_time) Finish Analysis:  $SubID" | tee -a $CurrentLOG
     done

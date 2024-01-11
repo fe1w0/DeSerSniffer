@@ -20,6 +20,8 @@ NO_COLOR='\033[0m' # 没有颜色
 #           完成: log目录下存在${ID}.log文件，且文件内容中有 "End Time"
 #           未完成: log目录下存在${ID}.log文件，但没有 "End Time"
 get_tasks() {
+	local TasksNumber=0
+	
     echo $module_separator
     echo -e "\n[+] Tmp Logs:"
     echo -e "$GREEN$(ls -Atr /tmp/doop* | sed 's/^/\t- /' ) $NO_COLOR"
@@ -50,6 +52,8 @@ get_tasks() {
         if [ ! -f "$log_file" ]; then
             continue
         fi
+
+		TasksNumber=$(($TasksNumber+1))
 
         local ID=$(basename "$log_file" .log)
         local padding=$(printf '%*s' $((max_id_length - ${#ID})))
@@ -99,8 +103,10 @@ get_tasks() {
             echo -e "${RED}\t\t\t- $log_file${NO_COLOR}"
             echo -e "${RED}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
         fi
-
+		
     done
+
+	echo -e "\n[+] TasksNumber: ${TasksNumber}"
 }
 
 
@@ -118,23 +124,48 @@ get_result() {
     fi
 
     # 直接在 DOOP_OUT 目录下查找并处理文件
-    find "$DOOP_OUT" -maxdepth 2 -mindepth 2 -type f -name "LeakingTaintedInformation.csv" | while read leakingFile; do
-        ID=$(basename "$(dirname "$leakingFile")")
-        leakingLines=$(awk 'END {print NR}' "$leakingFile")
-        potentialFile=$(dirname "$leakingFile")/database/PotentialVulnGraph.csv
-        reachableFile=$(dirname "$leakingFile")/database/ReachablePotentialVulnGraph.csv
-        potentialLines=$(awk 'END {print NR}' "$potentialFile")
-        reachableLines=$(awk 'END {print NR}' "$reachableFile")
+    find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "LeakingTaintedInformation.csv" | while read leakingFile; do
+        ID=$(basename $(dirname "$(dirname "$leakingFile")"))
 
-        echo -e "\t${RED}ID: ${ID}${NO_COLOR}"
-        echo -e "\t\tResult:"
-        echo -e "\t\t\t - LeakingTaintedInformation: $leakingLines ❌"
-        echo -e "\t\t\t - PotentialVulnGraph: $potentialLines ❌"
-        echo -e "\t\t\t - ReachablePotentialVulnGraph: $reachableLines ❌"
-        echo -e "\t\tFile:"
-        echo -e "\t\t\t- $leakingFile"
-        echo -e "\t\t\t- $potentialFile"
-        echo -e "\t\t\t- $reachableFile"
+        leakingLines=$(wc -l < $leakingFile)
+
+		if [ $leakingLines -gt 0 ]; then
+			potentialFile=$(dirname "$leakingFile")/PotentialVulnGraph.csv
+			reachableFile=$(dirname "$leakingFile")/ReachablePotentialVulnGraph.csv
+
+			echo -e "\t${RED}ID: ${ID}${NO_COLOR}"
+			echo -e "\t\tResult:"
+			echo -e "\t\t\t - LeakingTaintedInformation: $leakingLines"
+
+			potentialLines=$(wc -l < $potentialFile)
+			reachableLines=$(wc -l < $reachableFile)
+
+			if [ $potentialLines -gt 0 ]; then
+				echo -e "\t\t\t - PotentialVulnGraph: $potentialLines"
+			elif [ $potentialLines -eq 0 ]; then
+				echo -e "\t\t\t - ${RED} PotentialVulnGraph: $potentialLines  $NO_COLOR"
+			fi
+
+			if [ $reachableLines -gt 0 ]; then
+				echo -e "\t\t\t - ReachablePotentialVulnGraph: $reachableLines"
+			elif [ $reachableLines -eq 0 ]; then
+				echo -e "\t\t\t - ${RED} ReachablePotentialVulnGraph: $reachableLines $NO_COLOR"
+			fi
+
+			echo -e "\t\tFile:"
+			echo -e "\t\t\t- $leakingFile"
+			cat $leakingFile
+			
+			if [ $potentialLines -gt 0 ]; then
+				echo -e "\t\t\t- $potentialFile"
+			fi
+
+			if [ $reachableLines -gt 0 ]; then
+				echo -e "\t\t\t- $reachableFile"
+			fi
+
+		fi
+        
     done
 
     echo $module_separator

@@ -56,8 +56,8 @@ MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, formal_param) 
 /**
  * 将 readObject 中的 this 设置为 污点源
 */
-MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
-    TaintSourceMethod(source_label, method),
+MICRO_CUSTOM_TAINT(source, value, method) :-
+    TaintSourceMethod(_, method),
     ThisVar(method, this),
     RootSource(method, source),
     Method_DeclaringType(method, declaringType),
@@ -69,16 +69,16 @@ MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
  * Log: 1.3 中进行修复，应当是 Load 过程中
  * Log: 1.5.0-dev 实际上 static 属性也不能作为 污点源
 */
-MICRO_CUSTOM_TAINT(source, source_label, value, method) :-
-    TaintSourceMethod(source_label, method),
+MICRO_CUSTOM_TAINT(source, value, method) :-
+    TaintSourceMethod(_, method),
     Method_DeclaringType(method, declaringType),
     RootSource(method, source),
 
     Field_DeclaringType(sign, declaringType),
-    LoadInstanceField(base, sign, to_field, method),
+    LoadInstanceField(_, sign, to_field, method),
     mainAnalysis.VarPointsTo(_, value, _, to_field),
     !Field_Modifier("transient", sign),
-	!Field_Modifier("static", sign),
+    !Field_Modifier("static", sign),
     Var_Type(to_field, field_type),
     // InValidReturnType taken from method-summary.dl
     !InValidReturnType(field_type).

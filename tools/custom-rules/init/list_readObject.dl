@@ -6,7 +6,7 @@
 /**
  * LimitReadObject 用于限制，指输出 DirectSerializableClass， 注释可以输出 InheritSerializableClass
 */
-// #define LimitReadObject 1
+#define LimitReadObject 1
 
 /**
  * ListReadObjectApplication 用于控制输出 DirectSerializableApplicationClass

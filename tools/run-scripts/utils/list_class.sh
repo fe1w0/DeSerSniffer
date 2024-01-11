@@ -73,14 +73,15 @@ list_class() {
     # CACHE="--cache"
 
     # Log Level
-    LOG="--level info"
+    LOG="--level debug"
 
     EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${LOG}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
-    eval "$CMD"
+    echo "[+] $(print_time) doop: $CMD" >> $TmpLog
+    eval "$CMD" >> $TmpLog
 
     echo "[+] $(print_time) Finish: list_class" | tee -a $CurrentLOG
 }

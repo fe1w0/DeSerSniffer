@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import pandas as pd
+import os
 
 def parse_xml_to_csv(file_name, output_csv_file):
     # Parse XML file
@@ -27,7 +28,10 @@ def parse_xml_to_csv(file_name, output_csv_file):
     # Export to CSV
     df.to_csv(output_csv_file, index=False)
 
-# Example usage:
-file_name = "/home/zhangying/Project/SoftwareAnalysis/DataSet-Software/testjars/input.xml.backup"
-output_csv_file = "/home/zhangying/Project/SoftwareAnalysis/DataSet-Software/testjars/input.csv"
+# 计算输出路径
+current_dir = os.path.dirname(__file__)
+
+file_name = os.path.join(current_dir, '../../testjars', 'input.xml')
+output_csv_file = os.path.join(current_dir, '../../output', 'input.csv')
+
 parse_xml_to_csv(file_name, output_csv_file)

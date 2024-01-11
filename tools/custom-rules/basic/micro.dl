@@ -30,20 +30,20 @@
     LabelFromSource(invo, label)
 
 
-#define MICRO_CUSTOM_TAINT(source, label, value, method) \
+#define MICRO_CUSTOM_TAINT(source, value, method) \
     SourceValueAndMethod(source, method), \
     TaintedValue(value), \
     SourceFromTaintedValue(value, source)
 
 
-#ifndef LimitReadObject
+#ifndef ListReadObject
 #define LeakingSinkMethodPattern(n, pattern) \
 	LeakingSinkMethodArg(method, n, method) :- \
 		isMethod(method), \
 		match(pattern, method)
 #endif
 
-#ifdef LimitReadObject
+#ifdef ListReadObject
 #define LeakingSinkMethodPattern(n, pattern) \
 	DefineSinkMethod(method) :- \
 		isMethod(method), \

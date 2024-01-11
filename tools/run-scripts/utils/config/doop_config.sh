@@ -41,7 +41,7 @@ doop_config() {
     MaxNumberMaybeTaintedField=35000
 
     ## 设置子项目对象限制数字
-    SplitLineNumber=7
+    SplitLineNumber=5
 }
 
 export -f doop_config

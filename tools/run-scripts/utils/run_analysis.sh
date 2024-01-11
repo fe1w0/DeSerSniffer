@@ -70,7 +70,7 @@ run_analysis() {
     ENABLE_REFLECTION="--light-reflection-glue"
 
     # app-only
-    APP_ONLY="--app-only"
+    # APP_ONLY="--app-only"
 
     # --no-merges
     NoMerges="--no-merges"
@@ -89,7 +89,8 @@ run_analysis() {
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} ${APP_ONLY} --id ${ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
-    eval "$CMD"
+    echo "[+] $(print_time) doop: $CMD" >> $TmpLog
+    eval "$CMD" >> $TmpLog
 
     echo "[+] $(print_time) Finish: run_analysis." | tee -a $CurrentLOG
 

@@ -11,12 +11,14 @@ split_csv() {
     local output         # 输出文件名
     ReturnCsvNumber=0    # 最后输出结果
 
+	echo "CurrentLOG:" $CurrentLOG
+
     # 检查文件是否存在 或者 无内容
     if [ ! -f "$input" ]; then
         echo "[-] $(print_time) 文件不存在: $input" | tee -a $CurrentLOG
         return 1
     elif [ ! -s "$input" ]; then
-        echo "[-] $(print_time)无可分析对象: $input" | tee -a $CurrentLOG
+        echo "[-] $(print_time) 无可分析对象: $input" | tee -a $CurrentLOG
         return 1
     fi
 
@@ -48,8 +50,10 @@ split_csv() {
     # 关闭最后一个输出文件
     exec 1>&3 3>&-
 
+	ListResult=$(cat $input|sed 's/^/\t\t/') 
+
     # 输出总行数和文件数
-    echo -e "[+] $(print_time) Split:\n\t任务ID: ${ID}\n\t总待检测对象数量: $counter\n\t分割数: ${line_count}\n\t创建的文件数: $((fileNumber - 1))\n\t待检测对象:\n$(cat "$input" | sed 's/^/\t\t/')"  | tee -a $CurrentLOG
+    echo -e "[+] $(print_time) Split:\n\t任务ID: ${ID}\n\t总待检测对象数量: $counter\n\t分割数: ${line_count}\n\t创建的文件数: $((fileNumber - 1))\n\t待检测对象:\n$ListResult"  | tee -a $CurrentLOG
 
     # 输出总行数和文件数
     ReturnCsvNumber=$((fileNumber - 1))

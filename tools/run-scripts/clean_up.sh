@@ -29,15 +29,17 @@ clear_result() {
         # 清理 TMP 日志
         rm -rf /tmp/doop_*
 
-		# 清理 子项目 日志 
-        rm -rf $DOOP_OUT/log/*
-
         ## 清理 OUT， 但排除 子项目的分析日志
-        # rm -rf "$DOOP_OUT" 
-		find "$DOOP_OUT" -type f -not -path "$DOOP_OUT/log/*" -exec rm {} +
+        rm -rf "$DOOP_OUT" 
+
+		# find "$DOOP_OUT/" -type d -not -path "$DOOP_OUT/log" -exec rm -rf {} +
 
         # # 清理 Cache
         rm -rf "$DOOP_CACHE"
+
+		mkdir -p $DOOP_OUT
+		mkdir -p $DOOP_CACHE
+        
     else
         echo "Clear operation cancelled."
     fi

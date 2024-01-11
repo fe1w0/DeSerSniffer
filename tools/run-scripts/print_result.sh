@@ -21,6 +21,11 @@ NO_COLOR='\033[0m' # 没有颜色
 #           未完成: log目录下存在${ID}.log文件，但没有 "End Time"
 get_tasks() {
     echo $module_separator
+    echo -e "\n[+] Tmp Logs:"
+    echo -e "$(ls -Atr /tmp/doop* | sed 's/^/\t- /' )"
+
+    echo $module_separator
+
     echo -e "\n[+] Tasks Status:"
 
     local log_dir="${DOOP_OUT}/log"
@@ -93,80 +98,34 @@ get_result() {
     echo $module_separator
     echo -e "\n[+] Analysis Result:"
 
-
-    # 计算 ID 的最大长度
-	max_id_length=0
-	for dir in $(find $DOOP_OUT -maxdepth 1 -mindepth 1 -type d); do
-		ID=$(basename "$dir")
-		if [ ${#ID} -gt $max_id_length ]; then
-			max_id_length=${#ID}
-		fi
-	done
-
     # 检查 DOOP_OUT 是否存在
     if [ ! -d "$DOOP_OUT" ]; then
         echo "Error: DOOP_OUT directory does not exist."
         return 1
     fi
 
-    # 声明关联数组
-	declare -A results
+    # 直接在 DOOP_OUT 目录下查找并处理文件
+    find "$DOOP_OUT" -maxdepth 2 -mindepth 2 -type f -name "LeakingTaintedInformation.csv" | while read leakingFile; do
+        ID=$(basename "$(dirname "$leakingFile")")
+        leakingLines=$(awk 'END {print NR}' "$leakingFile")
+        potentialFile=$(dirname "$leakingFile")/database/PotentialVulnGraph.csv
+        reachableFile=$(dirname "$leakingFile")/database/ReachablePotentialVulnGraph.csv
+        potentialLines=$(awk 'END {print NR}' "$potentialFile")
+        reachableLines=$(awk 'END {print NR}' "$reachableFile")
 
-	# 遍历 DOOP_OUT 下的所有子目录
-	for dir in $(find $DOOP_OUT -maxdepth 1 -mindepth 1 -type d); do
-		# 获取 ID
-		ID=$(basename "$dir")
-
-		# 检查 LeakingTaintedInformation.csv 是否存在
-		file="$dir/database/LeakingTaintedInformation.csv"
-		if [ -f "$file" ]; then
-			# 计算文件行数
-			lines=$(wc -l < "$file")
-			# 如果文件非空，则保存到数组
-			if [ "$lines" -gt 0 ]; then
-				results["$ID"]=$lines
-			fi
-		fi
-	done
-
-	# 按照 ID 的字符串排序并输出结果
-	for ID in $(echo ${!results[@]} | tr ' ' '\n' | sort); do
-		local padding=$(printf '%*s' $((max_id_length - ${#ID})))
-		echo -e "\t${RED}ID: ${ID}${NO_COLOR}"
-		echo -e "\t\tResult:\n\t\t\t - LeakingTaintedInformation: ${results[$ID]} ❌"
-		echo -e "\t\t\t - PotentialVulnGraph: $(wc -l < $DOOP_OUT/$ID/database/PotentialVulnGraph.csv) ❌"
-		echo -e "\t\t\t - ReachablePotentialVulnGraph: $(wc -l < $DOOP_OUT/$ID/database/ReachablePotentialVulnGraph.csv) ❌"
-		echo -e "\t\tFile:\n\t\t\t- $(ls $DOOP_OUT/$ID/database/LeakingTaintedInformation.csv)"
-		echo -e "\t\t\t- $(ls $DOOP_OUT/$ID/database/PotentialVulnGraph.csv)"
-		echo -e "\t\t\t- $(ls $DOOP_OUT/$ID/database/ReachablePotentialVulnGraph.csv)"
-	done
+        echo -e "\t${RED}ID: ${ID}${NO_COLOR}"
+        echo -e "\t\tResult:"
+        echo -e "\t\t\t - LeakingTaintedInformation: $leakingLines ❌"
+        echo -e "\t\t\t - PotentialVulnGraph: $potentialLines ❌"
+        echo -e "\t\t\t - ReachablePotentialVulnGraph: $reachableLines ❌"
+        echo -e "\t\tFile:"
+        echo -e "\t\t\t- $leakingFile"
+        echo -e "\t\t\t- $potentialFile"
+        echo -e "\t\t\t- $reachableFile"
+    done
 
     echo $module_separator
-
-    # 遍历 DOOP_OUT 下的所有子目录
-    for dir in $(find $DOOP_OUT -maxdepth 1 -mindepth 1 -type d); do
-        # 获取 ID
-        local ID=$(basename "$dir")
-
-        # 检查 LeakingTaintedInformation.csv 是否存在
-        local file="$dir/database/LeakingTaintedInformation.csv"
-
-        if [ -f "$file" ]; then
-            # 计算文件行数
-            lines=$(wc -l < "$file")
-            # 如果文件非空，则输出内容
-            if [ "$lines" -gt 0 ]; then
-                # 输出信息
-                printf "\tID: ${RED}%s\t ❗️${NO_COLOR}\n\tFile: \n\t\t%s\n\tNumber: %s\n" "$ID" "$file" "$lines"
-                echo -e "\t\tContents of $file:" 
-                echo "$separator"
-                echo -e "${RED}$(cat "$file" | sed 's/^/\t/' | sed 's/$/\n/') ${NO_COLOR}\n"
-                echo "$separator"            
-            fi
-        fi
-    done
 }
-
 
 print_result() {
     echo $module_separator

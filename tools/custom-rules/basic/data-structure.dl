@@ -171,7 +171,7 @@ AbortClass(type) :-
 
 
 // Todo: 提取能力，过于弱小
-#ifndef LimitReadObject
+#ifndef ListReadObject
 
 // 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
 PotenticalField(field_signature),

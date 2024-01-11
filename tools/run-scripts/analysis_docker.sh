@@ -21,7 +21,7 @@ single_analysis() {
 
     # 启动 List Object 脚本
 	## Log 1.5.0-dev 为减少存储空间的占用，可以只保留 list_class 中的 facts 和 jimple 文件，并删除 sub_analysis 中 生成的 facts 和 jimple 文件
-    timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
+    timer list_class $ID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS
     
     # 检测 List 过程是否有问题
     monitor_doop_log $INPUT $ID
@@ -38,7 +38,7 @@ single_analysis() {
     for (( sub_id=1; sub_id<=$ReturnCsvNumber; sub_id++))
     do
         SubID=${ID}_${sub_id}
-        timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS >> $TmpLog
+        timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $JOBS
         monitor_doop_log $INPUT $SubID
 		echo -e "[+] $(print_time) Finish Analysis:  $SubID" | tee -a $CurrentLOG
     done

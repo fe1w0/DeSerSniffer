@@ -19,8 +19,13 @@ clear_result() {
     echo
 
     # 用户确认
-    read -p "Are you sure you want to clear all DOOP data? (y/N) " -n 1 -r
-    echo    # (optional) move to a new line
+    if [[ $1 == "-y" ]]; then
+        REPLY="y"
+    else
+        read -p "Are you sure you want to clear all DOOP data? (y/N) " -n 1 -r
+        echo    # (optional) move to a new line
+    fi
+
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
 		# 清理 DOOP 日志
@@ -47,5 +52,10 @@ clear_result() {
 
 doop_config
 
-# 调用 clear_result 函数以执行清理
-clear_result
+# 判断是否传入了 "-y" 参数
+if [[ $# -eq 1 && $1 == "-y" ]]; then
+    clear_result "-y"
+else
+    # 调用 clear_result 函数以执行清理
+    clear_result
+fi

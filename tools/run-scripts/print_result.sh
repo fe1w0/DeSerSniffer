@@ -78,10 +78,20 @@ get_tasks() {
                 echo -e "${RED}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
             # 没有出现错误
             else
-                echo -e "\tID: ${GREEN}$ID$padding - ${GREEN}Completed   ✅${NO_COLOR}"
-                echo -e "${GREEN}\t\t- Logs:${NO_COLOR}"
-                echo -e "${GREEN}\t\t\t- $log_file${NO_COLOR}"
-                echo -e "${GREEN}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
+					if grep -q "无可分析对象" "$log_file" 2>/dev/null; then
+						echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}Error ${RED}❌${NO_COLOR}"
+                		echo -e "${RED}\t\t- Error Types:${NO_COLOR}"
+						echo -e "${RED}\t\t\t- No ListReadObjectClass.csv: ${ID}${NO_COLOR}"
+						echo -e "${RED}\t\t- Logs:${NO_COLOR}"
+               			echo -e "${RED}\t\t\t- $log_file${NO_COLOR}"
+                		echo -e "${RED}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
+            # 没有出现错误
+					else 
+						echo -e "\tID: ${GREEN}$ID$padding - ${GREEN}Completed   ✅${NO_COLOR}"
+						echo -e "${GREEN}\t\t- Logs:${NO_COLOR}"
+						echo -e "${GREEN}\t\t\t- $log_file${NO_COLOR}"
+						echo -e "${GREEN}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
+					fi
             fi
         else
             echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}In Progress ${RED}❎${NO_COLOR}"

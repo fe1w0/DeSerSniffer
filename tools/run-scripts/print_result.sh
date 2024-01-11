@@ -22,7 +22,7 @@ NO_COLOR='\033[0m' # 没有颜色
 get_tasks() {
     echo $module_separator
     echo -e "\n[+] Tmp Logs:"
-    echo -e "$(ls -Atr /tmp/doop* | sed 's/^/\t- /' )"
+    echo -e "$GREEN$(ls -Atr /tmp/doop* | sed 's/^/\t- /' ) $NO_COLOR"
 
     echo $module_separator
 
@@ -79,6 +79,9 @@ get_tasks() {
             # 没有出现错误
             else
                 echo -e "\tID: ${GREEN}$ID$padding - ${GREEN}Completed   ✅${NO_COLOR}"
+                echo -e "${GREEN}\t\t- Logs:${NO_COLOR}"
+                echo -e "${GREEN}\t\t\t- $log_file${NO_COLOR}"
+                echo -e "${GREEN}\t\t\t- ${DOOP_HOME}/build/logs/doop.log${NO_COLOR}"
             fi
         else
             echo -e "\t${RED}ID: ${RED}$ID$padding - ${RED}In Progress ${RED}❎${NO_COLOR}"

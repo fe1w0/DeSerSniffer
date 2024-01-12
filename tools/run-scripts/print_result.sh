@@ -3,6 +3,27 @@
 
 dir="$(dirname "$BASH_SOURCE")"
 
+
+# execute_tasks 和 execute_results 变量来控制是否执行 get_tasks 和 get_result
+execute_tasks=false
+execute_results=false
+
+# 解析命令行选项
+while getopts "tr" opt; do
+  case $opt in
+    t)
+      execute_tasks=true
+      ;;
+    r)
+      execute_results=true
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+
 # 加载 doop 配置模块, doop_config 提供 DOOP_OUT
 source ${dir}/utils/config/doop_config.sh
 
@@ -114,6 +135,9 @@ get_tasks() {
 #       查询 DOOP_OUT 下所有的 LeakingTaintedInformation.csv 中的结果（多少行）。
 #       列出 有结果的 LeakingTaintedInformation.csv (数量和内容)，且需要输出 DOOP_OUT/${ID}/database/LeakingTaintedInformation.csv 中的 ID
 get_result() {
+
+	declare -A result_map=()
+
     echo $module_separator
     echo -e "\n[+] Analysis Result:"
 
@@ -124,10 +148,12 @@ get_result() {
     fi
 
     # 直接在 DOOP_OUT 目录下查找并处理文件
-    find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "LeakingTaintedInformation.csv" | while read leakingFile; do
+	while read leakingFile; do
         ID=$(basename $(dirname "$(dirname "$leakingFile")"))
 
         leakingLines=$(wc -l < $leakingFile)
+
+		declare tmp_list=(0 0 0)
 
 		if [ $leakingLines -gt 0 ]; then
 			potentialFile=$(dirname "$leakingFile")/PotentialVulnGraph.csv
@@ -137,16 +163,20 @@ get_result() {
 			echo -e "\t\tResult:"
 			echo -e "\t\t\t - LeakingTaintedInformation: $leakingLines"
 
+			tmp_list[0]=$leakingLines
+
 			potentialLines=$(wc -l < $potentialFile)
 			reachableLines=$(wc -l < $reachableFile)
 
 			if [ $potentialLines -gt 0 ]; then
+				tmp_list[1]=$potentialLines
 				echo -e "\t\t\t - PotentialVulnGraph: $potentialLines"
 			elif [ $potentialLines -eq 0 ]; then
 				echo -e "\t\t\t - ${RED} PotentialVulnGraph: $potentialLines  $NO_COLOR"
 			fi
 
 			if [ $reachableLines -gt 0 ]; then
+				tmp_list[2]=$reachableLines
 				echo -e "\t\t\t - ReachablePotentialVulnGraph: $reachableLines"
 			elif [ $reachableLines -eq 0 ]; then
 				echo -e "\t\t\t - ${RED} ReachablePotentialVulnGraph: $reachableLines $NO_COLOR"
@@ -164,22 +194,39 @@ get_result() {
 				echo -e "\t\t\t- $reachableFile"
 			fi
 
+			result_map[$ID]=${tmp_list[@]}
 		fi
-        
-    done
+	done < <(find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "LeakingTaintedInformation.csv") 
 
-    echo $module_separator
+	echo $module_separator
+
+	# 输出 result_map 表格
+	echo -e "\n[+] Summary of Analysis Results:"
+	echo -e "\tID\tLeakingLines\tPotentialLines\tReachableLines"
+	for id in "${!result_map[@]}"; do
+		results=(${result_map[$id]}) # 将字符串转换为数组
+		echo -e "\t$id\t${results[0]}\t${results[1]}\t${results[2]}"
+	done
 }
 
 print_result() {
     echo $module_separator
     print_centered " Print Analysis Result "
 
-    # 调用 get_tasks 函数
-    get_tasks 
+	# 根据选项执行相应的函数
+	if $execute_tasks; then
+		get_tasks
+	fi
 
-    # 调用 get_result 函数
-    get_result 
+	if $execute_results; then
+		get_result
+	fi
+
+	# 如果没有任何选项，执行所有函数
+	if [ "$OPTIND" -eq 1 ]; then
+		get_tasks
+		get_result
+	fi
 }
 
 doop_config

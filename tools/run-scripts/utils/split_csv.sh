@@ -36,7 +36,7 @@ split_csv() {
             if [[ -n $output ]]; then
                 exec 1>&3 3>&- # 关闭当前的输出文件
             fi
-            mkdir -p ${DOOP_OUT}/init_${ID}/split_csv/init_${ID}_${fileNumber}/
+            mkdir -p ${DOOP_OUT}/init_${ID}/split_csv/${ID}_${fileNumber}/
             output="${DOOP_OUT}/init_${ID}/split_csv/${ID}_${fileNumber}/ListReadObjectClass.csv"
             exec 3>&1 1>$output # 打开新的输出文件
             ((fileNumber++))

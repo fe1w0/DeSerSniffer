@@ -69,13 +69,16 @@ list_class() {
     # CACHE
     CACHE="--dont-cache-facts"
 
+	# Statistics
+	Statistics="--stats none"
+
     # Log Level
     LOG="--level debug"
 
 	# Xlow-mem
 	XlowMem="--Xlow-mem"
 
-    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${LOG} ${XlowMem}"
+    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${Statistics} ${LOG} ${XlowMem}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} ${EXTRA_ARG}"

@@ -26,7 +26,6 @@ sudo apt install graphviz
 
 ## 运行设置
 
-
 ## Soundness 版本
 
 在 Soundness 版本中，会根据soot生成的facts尽可能分析当前分析对象的所有依赖组件和JDK运行环境信息。
@@ -60,6 +59,19 @@ MaxNumberMaybeTaintedField 直接影响了分析范围，由于Doop基于Souffl�
 ## clojure 1.2.0
 
 # 🐞已披露漏洞
+
+## RCE
+
+
+## Dos
+
+### org.clojure:clojure == 1.12.0-alpha5
+
+Referencs:
+
+- [https://hackmd.io/@fe1w0/rymmJGida](https://hackmd.io/@fe1w0/rymmJGida)
+
+![img](https://hackmd.io/_uploads/S1PtMGsdT.gif)
 
 # 引用信息
 

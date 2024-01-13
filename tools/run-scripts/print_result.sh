@@ -3,19 +3,43 @@
 
 dir="$(dirname "$BASH_SOURCE")"
 
+trap 'echo "Script interrupted."; exit' SIGINT
 
 # execute_tasks 和 execute_results 变量来控制是否执行 get_tasks 和 get_result
 execute_tasks=false
 execute_results=false
+execute_only_table=false
+enable_id=false
+
+# 函数: 打印帮助信息
+print_help() {
+    echo -e "  Usage: $0 [options]"
+    echo -e "\tOptions:"
+    echo -e "\t  -t     Execute tasks"
+    echo -e "\t  -r     Execute results"
+    echo -e "\t  -o     Execute only table"
+    echo -e "\t    -i     Enable ID (base on -o)"
+    echo -e "\t  -h     Display this help and exit"
+}
 
 # 解析命令行选项
-while getopts "tr" opt; do
+while getopts "troih" opt; do
   case $opt in
     t)
       execute_tasks=true
       ;;
     r)
       execute_results=true
+      ;;
+	o)
+	  execute_only_table=true
+	  ;;
+	i)
+	  enable_id=true
+	  ;;
+	h)
+      print_help
+      exit 1
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -136,8 +160,6 @@ get_tasks() {
 #       列出 有结果的 LeakingTaintedInformation.csv (数量和内容)，且需要输出 DOOP_OUT/${ID}/database/LeakingTaintedInformation.csv 中的 ID
 get_result() {
 
-	declare -A result_map=()
-
     echo $module_separator
     echo -e "\n[+] Analysis Result:"
 
@@ -152,7 +174,7 @@ get_result() {
         ID=$(basename $(dirname "$(dirname "$leakingFile")"))
 
         leakingLines=$(wc -l < $leakingFile)
-
+		
 		declare tmp_list=(0 0 0)
 
 		if [ $leakingLines -gt 0 ]; then
@@ -197,20 +219,46 @@ get_result() {
 			result_map[$ID]=${tmp_list[@]}
 		fi
 	done < <(find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "LeakingTaintedInformation.csv") 
+}
 
+get_table() {
 	echo $module_separator
+	declare -i result_number=0
 
 	# 输出 result_map 表格
 	echo -e "\n[+] Summary of Analysis Results:"
 	echo -e "\tID\tLeakingLines\tPotentialLines\tReachableLines"
 	for id in "${!result_map[@]}"; do
+		result_number=$(($result_number+1))
 		results=(${result_map[$id]}) # 将字符串转换为数组
 		echo -e "\t$id\t${results[0]}\t${results[1]}\t${results[2]}"
 	done
+
+	echo -e "\n[+] ResultNumber: ${result_number}"
+}
+
+# 新函数: 在 execute_only_table 下读取用户输入的 ID 并显示对应的 LeakingTaintedInformation 文件
+read_id_and_cat_leaking() {
+    if $execute_only_table && $enable_id; then
+        echo "Please enter the user ID:"
+        read task_id  # 从用户那里读取 ID
+
+        local leaking_file="${DOOP_OUT}/${task_id}/database/LeakingTaintedInformation.csv"
+        if [ -f "$leaking_file" ]; then
+            echo "LeakingTaintedInformation for ID ${task_id}:"
+            cat "$leaking_file" | sed 's/^/\n/'  
+        else
+            echo "No LeakingTaintedInformation file found for ID ${task_id}."
+        fi
+    fi
 }
 
 print_result() {
+	# 全局的分析结果变量
+	declare -A result_map=()
+
     echo $module_separator
+
     print_centered " Print Analysis Result "
 
 	# 根据选项执行相应的函数
@@ -222,13 +270,24 @@ print_result() {
 		get_result
 	fi
 
-	# 如果没有任何选项，执行所有函数
-	if [ "$OPTIND" -eq 1 ]; then
-		get_tasks
-		get_result
+	if $execute_only_table; then
+		get_result > /dev/null
+		get_table
+		read_id_and_cat_leaking
 	fi
 }
 
 doop_config
 
-print_result
+if ! $execute_only_table && $enable_id ; then
+	print_help
+	exit 1
+fi
+
+if ! $execute_tasks && ! $execute_results && ! $execute_only_table; then
+	get_tasks
+	get_result
+	get_table
+elif [ $execute_tasks || $execute_results || $execute_only_table ] ; then
+	print_result
+fi

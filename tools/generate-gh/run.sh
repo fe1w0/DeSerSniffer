@@ -25,6 +25,6 @@ run() {
 
 Neo4jImport=/data/MangoData/neo4j/import
 DOOP_OUT=/data/MangoData/out
-INIT_DOOP_ID=commons_collections_commons_collections_3_1
-DOOP_ID=commons_collections_commons_collections_3_1_1
+INIT_DOOP_ID=org_apache_beam_beam_sdks_java_core_2_52_0
+DOOP_ID=org_apache_beam_beam_sdks_java_core_2_52_0_3
 run $Neo4jImport $DOOP_OUT $DOOP_ID

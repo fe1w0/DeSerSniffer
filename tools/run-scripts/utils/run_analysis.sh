@@ -78,6 +78,9 @@ run_analysis() {
     # Xextra-facts
     ExtraFacts="--Xextra-facts ${DOOP_OUT}/${INPUT_ID}/split_csv/${ID}/ListReadObjectClass.csv"
 
+	# Statistics
+	Statistics="--stats none"
+
     # Log Level
     LOG="--level debug"
 
@@ -87,7 +90,7 @@ run_analysis() {
 	# X_SYMLINK_INPUT_FACTS
 	X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
 
-    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${LOG} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
+    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"

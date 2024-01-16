@@ -5,12 +5,12 @@
  * DefineSinkMethod
  * InVaild Method:
  * - DefineSinkMethod("<java.lang.Class: java.lang.Object forName(java.lang.String)>").
+ * - DefineSinkMethod("<java.lang.ClassLoader: java.lang.Class loadClass(java.lang.String)>").
 */
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
 DefineSinkMethod("<java.lang.System: void load(java.lang.String)>").
 DefineSinkMethod("<java.lang.System: void loadLibrary(java.lang.String)>").
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
-DefineSinkMethod("<java.lang.ClassLoader: java.lang.Class loadClass(java.lang.String)>").
 DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
 DefineSinkMethod("<java.io.FileOutputStream: void write(byte[])>").
 DefineSinkMethod("<java.io.FileInputStream: int read(byte[])>").

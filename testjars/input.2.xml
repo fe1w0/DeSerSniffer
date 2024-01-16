@@ -1,0 +1,215 @@
+<dependency>
+		<groupId>org.apache.beam</groupId>
+		<artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
+		<version>2.52.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.apache.beam</groupId>
+		<artifactId>beam-sdks-java-extensions-protobuf</artifactId>
+		<version>2.52.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.apache.beam</groupId>
+		<artifactId>beam-runners-core-construction-java</artifactId>
+		<version>2.52.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.apache.beam</groupId>
+		<artifactId>beam-runners-spark</artifactId>
+		<version>2.45.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.apache.beam</groupId>
+		<artifactId>beam-sdks-java-core</artifactId>
+		<version>2.52.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.apache.beam</groupId>
+		<artifactId>beam-runners-core-java</artifactId>
+		<version>2.52.0</version>
+	</dependency>
+
+	<dependency>
+		<groupId>io.micronaut</groupId>
+		<artifactId>micronaut-core</artifactId>
+		<version>4.2.0</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+		<version>3.2.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.apache.tomcat.embed/tomcat-embed-core -->
+	<dependency>
+		<groupId>org.apache.tomcat.embed</groupId>
+		<artifactId>tomcat-embed-core</artifactId>
+		<version>11.0.0-M15</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/ai.h2o/h2o-genmodel -->
+	<dependency>
+		<groupId>ai.h2o</groupId>
+		<artifactId>h2o-genmodel</artifactId>
+		<version>3.44.0.3</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/ai.h2o/h2o-core -->
+	<dependency>
+		<groupId>ai.h2o</groupId>
+		<artifactId>h2o-core</artifactId>
+		<version>3.44.0.3</version>
+	</dependency>
+
+	<dependency>
+		<groupId>org.zaproxy</groupId>
+		<artifactId>zap</artifactId>
+		<version>2.14.0</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+	<dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-databind</artifactId>
+		<version>2.16.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+	<dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-core</artifactId>
+		<version>2.16.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+	<dependency>
+		<groupId>com.google.code.gson</groupId>
+		<artifactId>gson</artifactId>
+		<version>2.10.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.clojure/data.json -->
+	<dependency>
+		<groupId>org.clojure</groupId>
+		<artifactId>data.json</artifactId>
+		<version>2.5.0</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/io.circe/circe-parser -->
+	<dependency>
+		<groupId>io.circe</groupId>
+		<artifactId>circe-parser_3</artifactId>
+		<version>0.15.0-M1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/io.circe/circe-core -->
+	<dependency>
+		<groupId>io.circe</groupId>
+		<artifactId>circe-core_3</artifactId>
+		<version>0.15.0-M1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/cheshire/cheshire -->
+	<dependency>
+		<groupId>cheshire</groupId>
+		<artifactId>cheshire</artifactId>
+		<version>5.12.0</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
+	<dependency>
+		<groupId>jakarta.xml.bind</groupId>
+		<artifactId>jakarta.xml.bind-api</artifactId>
+		<version>4.0.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/xerces/xercesImpl -->
+	<dependency>
+		<groupId>xerces</groupId>
+		<artifactId>xercesImpl</artifactId>
+		<version>2.12.2</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/jakarta.xml.bind/jakarta.xml.bind-api -->
+	<dependency>
+		<groupId>jakarta.xml.bind</groupId>
+		<artifactId>jakarta.xml.bind-api</artifactId>
+		<version>4.0.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.dom4j/dom4j -->
+	<dependency>
+		<groupId>org.dom4j</groupId>
+		<artifactId>dom4j</artifactId>
+		<version>2.1.4</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.thoughtworks.xstream/xstream -->
+	<dependency>
+		<groupId>com.thoughtworks.xstream</groupId>
+		<artifactId>xstream</artifactId>
+		<version>1.4.20</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-xml -->
+	<dependency>
+		<groupId>com.fasterxml.jackson.dataformat</groupId>
+		<artifactId>jackson-dataformat-xml</artifactId>
+		<version>2.16.1</version>
+	</dependency>
+
+	<dependency>
+		<groupId>com.alibaba.fastjson2</groupId>
+		<artifactId>fastjson2</artifactId>
+		<version>2.0.42</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
+	<dependency>
+		<groupId>org.yaml</groupId>
+		<artifactId>snakeyaml</artifactId>
+		<version>2.2</version>
+	</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml -->
+<dependency>
+    <groupId>com.fasterxml.jackson.dataformat</groupId>
+    <artifactId>jackson-dataformat-yaml</artifactId>
+    <version>2.16.1</version>
+</dependency>
+
+
+<!-- https://mvnrepository.com/artifact/org.apache.groovy/groovy-yaml -->
+<dependency>
+    <groupId>org.apache.groovy</groupId>
+    <artifactId>groovy-yaml</artifactId>
+    <version>5.0.0-alpha-4</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/io.circe/circe-yaml -->
+<dependency>
+    <groupId>io.circe</groupId>
+    <artifactId>circe-yaml_3</artifactId>
+    <version>1.15.0</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.esotericsoftware.yamlbeans/yamlbeans -->
+<dependency>
+    <groupId>com.esotericsoftware.yamlbeans</groupId>
+    <artifactId>yamlbeans</artifactId>
+    <version>1.17</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.clojure/clojure -->
+<dependency>
+	<groupId>org.clojure</groupId>
+	<artifactId>clojure</artifactId>
+	<version>1.12.0-alpha5</version>
+</dependency>

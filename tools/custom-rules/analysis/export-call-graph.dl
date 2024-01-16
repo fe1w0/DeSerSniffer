@@ -21,6 +21,7 @@ EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)
 EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
 EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
 EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+EndMethodInTransfer("<java.io.ObjectInputStream: java.lang.Object readObject()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
 fromSourceCallGraph("<Start Method>", sourceMethod, label) :-

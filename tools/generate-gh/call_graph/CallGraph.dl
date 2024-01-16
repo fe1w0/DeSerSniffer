@@ -37,9 +37,9 @@ CallGraph(from_method, to_method) :-
 .output Extend_Clinit_CallGraph
 .printsize Extend_Clinit_CallGraph
 
-Extend_Clinit_CallGraph(to_method, clinit_to_method),
-CallGraph(to_method, clinit_to_method) :-
-	CallGraph(_, to_method),
-	_Method(to_method, _, _, declaringType, _, _, _),
-	_Method(clinit_from_method, _, _, declaringType, _, _, _),
-	ClinitCallGrap(clinit_from_method, clinit_to_method).
+// Extend_Clinit_CallGraph(to_method, clinit_to_method),
+// CallGraph(to_method, clinit_to_method) :-
+// 	CallGraph(_, to_method),
+// 	_Method(to_method, _, _, declaringType, _, _, _),
+// 	_Method(clinit_from_method, _, _, declaringType, _, _, _),
+// 	ClinitCallGrap(clinit_from_method, clinit_to_method).

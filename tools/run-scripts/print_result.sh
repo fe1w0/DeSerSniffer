@@ -17,13 +17,14 @@ print_help() {
     echo -e "\tOptions:"
     echo -e "\t  -t     Execute tasks"
     echo -e "\t  -r     Execute results"
-    echo -e "\t  -o     Execute only table"
-    echo -e "\t    -i     Enable ID (base on -o)"
+    echo -e "\t  -p     Execute only table"
+    echo -e "\t    -i     Enable ID (base on -p)"
+	echo -e "\t  -o     Execute export file"
     echo -e "\t  -h     Display this help and exit"
 }
 
 # 解析命令行选项
-while getopts "troih" opt; do
+while getopts "trpih" opt; do
   case $opt in
     t)
       execute_tasks=true
@@ -31,11 +32,14 @@ while getopts "troih" opt; do
     r)
       execute_results=true
       ;;
-	o)
+	p)
 	  execute_only_table=true
 	  ;;
 	i)
 	  enable_id=true
+	  ;;
+	o)
+	  enable_export=true
 	  ;;
 	h)
       print_help
@@ -53,7 +57,6 @@ source ${dir}/utils/config/doop_config.sh
 
 # 加载 print 模块
 source ${dir}/utils/print/print_separator.sh
-
 
 # ANSI 颜色代码
 RED='\033[0;31m'
@@ -154,7 +157,6 @@ get_tasks() {
 	echo -e "\n[+] TasksNumber: ${TasksNumber}"
 }
 
-
 # 函数: 输出所有的检测结果
 #       查询 DOOP_OUT 下所有的 LeakingTaintedInformation.csv 中的结果（多少行）。
 #       列出 有结果的 LeakingTaintedInformation.csv (数量和内容)，且需要输出 DOOP_OUT/${ID}/database/LeakingTaintedInformation.csv 中的 ID
@@ -185,20 +187,28 @@ get_result() {
 			echo -e "\t\tResult:"
 			echo -e "\t\t\t - LeakingTaintedInformation: $leakingLines"
 
-			tmp_list[0]=$leakingLines
+			# 获得 $leakingFile 的修改时间
+			leaking_file_info=$(stat "$leakingFile" 2>/dev/null)
+			modification_time=$(echo "$leaking_file_info" | grep "Modify:" | awk '{print $2, $3}')
+			formatted_time=$(echo "$modification_time" | cut -d. -f1)
 
+			# 计算文件行数
 			potentialLines=$(wc -l < $potentialFile)
 			reachableLines=$(wc -l < $reachableFile)
+			
+			# 添加到表格中
+			tmp_list[0]=$(echo $formatted_time | sed 's/ /-/')
+			tmp_list[1]=$leakingLines
+			tmp_list[2]=$potentialLines
+			tmp_list[3]=$reachableLines
 
-			if [ $potentialLines -gt 0 ]; then
-				tmp_list[1]=$potentialLines
+			if [ $potentialLines -gt 0 ]; then		
 				echo -e "\t\t\t - PotentialVulnGraph: $potentialLines"
 			elif [ $potentialLines -eq 0 ]; then
 				echo -e "\t\t\t - ${RED} PotentialVulnGraph: $potentialLines  $NO_COLOR"
 			fi
 
 			if [ $reachableLines -gt 0 ]; then
-				tmp_list[2]=$reachableLines
 				echo -e "\t\t\t - ReachablePotentialVulnGraph: $reachableLines"
 			elif [ $reachableLines -eq 0 ]; then
 				echo -e "\t\t\t - ${RED} ReachablePotentialVulnGraph: $reachableLines $NO_COLOR"
@@ -222,19 +232,29 @@ get_result() {
 }
 
 get_table() {
-	echo $module_separator
-	declare -i result_number=0
+    echo $module_separator
+    declare -i result_number=0
 
-	# 输出 result_map 表格
-	echo -e "\n[+] Summary of Analysis Results:"
-	echo -e "\tID\tLeakingLines\tPotentialLines\tReachableLines"
-	for id in "${!result_map[@]}"; do
-		result_number=$(($result_number+1))
-		results=(${result_map[$id]}) # 将字符串转换为数组
-		echo -e "\t$id\t${results[0]}\t${results[1]}\t${results[2]}"
-	done
+    # 计算 ID 列的最大宽度
+    max_id_length=0
+    for id in "${!result_map[@]}"; do
+        if [ ${#id} -gt $max_id_length ]; then
+            max_id_length=${#id}
+        fi
+    done
 
-	echo -e "\n[+] ResultNumber: ${result_number}"
+    # 输出 result_map 表格
+    echo -e "\n[+] Summary of Analysis Results:"
+    printf "%-${max_id_length}s %-25s %-15s %-15s %-15s\n" "ID" "Time" "LeakingLines" "PotentialLines" "ReachableLines"
+    for id in "${!result_map[@]}"; do
+        result_number=$(($result_number + 1))
+        results=(${result_map[$id]}) # 将字符串转换为数组
+
+        # 使用 printf 格式化输出，确保各列对齐
+        printf "%-${max_id_length}s %-25s %-15s %-15s %-15s\n" "$id" "${results[0]}" "${results[1]}" "${results[2]}" "${results[3]}"
+    done
+
+    echo -e "\n[+] ResultNumber: ${result_number}"
 }
 
 # 新函数: 在 execute_only_table 下读取用户输入的 ID 并显示对应的 LeakingTaintedInformation 文件
@@ -251,6 +271,25 @@ read_id_and_cat_leaking() {
             echo "No LeakingTaintedInformation file found for ID ${task_id}."
         fi
     fi
+}
+
+export_file() {
+	declare -g output_csv_file=$dir/../../output/AllLeakingInformation.csv
+	echo -e "TromLabel\tToLabel\tContext\tInvocation\tSourceValue" > $output_csv_file
+
+	while read leakingFile; do
+        ID=$(basename $(dirname "$(dirname "$leakingFile")"))
+		
+		leakingLines=$(wc -l < $leakingFile)
+	
+		if [ $leakingLines -gt 0 ]; then
+			cat $leakingFile >> $output_csv_file
+		fi
+
+	done < <(find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "LeakingTaintedInformation.csv") 
+
+
+	echo -e "\n[+] ExportResult: ${output_csv_file}"
 }
 
 print_result() {
@@ -284,10 +323,14 @@ if ! $execute_only_table && $enable_id ; then
 	exit 1
 fi
 
-if ! $execute_tasks && ! $execute_results && ! $execute_only_table; then
+if ! $execute_tasks && ! $execute_results && ! $execute_only_table ;  then
 	get_tasks
 	get_result
 	get_table
-elif [ $execute_tasks || $execute_results || $execute_only_table ] ; then
+elif $execute_tasks || $execute_results || $execute_only_table ; then
 	print_result
+fi
+
+if $enable_export; then
+	export_file
 fi

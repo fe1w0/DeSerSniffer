@@ -25,6 +25,9 @@ run() {
 
 Neo4jImport=/data/MangoData/neo4j/import
 DOOP_OUT=/data/MangoData/out
-INIT_DOOP_ID=org_apache_beam_beam_sdks_java_core_2_52_0
-DOOP_ID=org_apache_beam_beam_sdks_java_core_2_52_0_3
+# INIT_DOOP_ID=ai_h2o_h2o_core_3_44_0_3
+# DOOP_ID=ai_h2o_h2o_core_3_44_0_3_2
+
+INIT_DOOP_ID=org_clojure_clojure_1_12_0_alpha5
+DOOP_ID=org_clojure_clojure_1_12_0_alpha5_1
 run $Neo4jImport $DOOP_OUT $DOOP_ID

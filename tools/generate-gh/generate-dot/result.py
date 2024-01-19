@@ -20,42 +20,55 @@ WHERE NONE(node IN nodes(path1) WHERE node.name IN ['<clojure.core$parse_opts_PL
       NONE(node IN nodes(path2) WHERE node.name = '<org.apache.commons.collections.MultiHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>')
 RETURN path1, path2
     """
+    
+    query = """
+MATCH (startNode:Node {name: '<Start Method>'}), 
+      (endNode:Node {name: '<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>'}),
+      path = allShortestPaths((startNode)-[:CONNECTS_TO*]->(endNode))
+WHERE NONE(node IN nodes(path) WHERE node.name in [
+      '<cn.hutool.db.sql.Condition: void buildValuePartForIN(java.lang.StringBuilder,java.util.List)>',
+      '<java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)>',
+      '<cn.hutool.core.convert.Convert: java.lang.String toStr(java.lang.Object)>',
+      '<cn.hutool.core.util.ReUtil: java.lang.String get(java.util.regex.Pattern,java.lang.CharSequence,int)>',
+      '<cn.hutool.core.convert.Convert: java.lang.Integer toInt(java.lang.Object,java.lang.Integer)>',
+      '<java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite altMetafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.Object[])>',
+      '<cn.hutool.core.date.format.FastDatePrinter: void readObject(java.io.ObjectInputStream)>',
+      '<cn.hutool.core.convert.impl.BeanConverter: java.lang.Object convertInternal(java.lang.Object)>'
+])
+RETURN path
+    """
+    query="""
+MATCH (startNode:Node {name: '<Start Method>'}), 
+      (endNode:Node {name: '<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>'}),
+      (requiredNode:Node {name: '<org.dom4j.bean.BeanMetaData: void setData(int,java.lang.Object,java.lang.Object)>'})
+MATCH path1 = shortestPath((startNode)-[:CONNECTS_TO*]->(requiredNode))
+MATCH path2 = shortestPath((requiredNode)-[:CONNECTS_TO*]->(endNode))
+WHERE NONE(node IN nodes(path1) WHERE node.name in [
+      '<java.lang.invoke.LambdaMetafactory: java.lang.invoke.CallSite metafactory(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.invoke.MethodType,java.lang.invoke.MethodHandle,java.lang.invoke.MethodType)>',
+      '<java.io.ObjectInputStream: java.lang.Object readObject()>'
+])
+  AND NONE(node IN nodes(path2) WHERE node.name = '<org.apache.commons.collections.MultiHashMap: java.lang.Object put(java.lang.Object,java.lang.Object)>')
+RETURN path1, path2
+"""
+    query="""
+MATCH (startNode:Node {name: '<Start Method>'}), 
+(endNode:Node {name: '<com.alibaba.nacos.shaded.com.google.protobuf.GeneratedMessageV3: java.lang.Object invokeOrDie(java.lang.reflect.Method,java.lang.Object,java.lang.Object[])>'}),
+path = allShortestPaths((startNode)-[:CONNECTS_TO*]->(endNode))
+WHERE NONE(node IN nodes(path) WHERE node.name in [])
+RETURN path
+    """
+    
     return tx.run(query).data()  # 使用 .data() 方法获取所有结果
-
-# def create_dot_graph(data):
-#     dot = Digraph(comment='Paths Graph')
-#     added_edges = set()  # 用于跟踪已添加的边
-
-#     for record in data:
-#         elements = record["path"]
-#         previous_node_id = None
-
-#         for element in elements:
-#             if isinstance(element, dict):  # 这是一个节点
-#                 node_id = element["name"].replace('<', '').replace('>', '').replace(':', '_').replace(' ', '_')
-#                 dot.node(node_id, element["name"].replace('<', '').replace('>', '').replace(':', '_').replace(' ', '_'))
-                
-#                 if previous_node_id is not None:
-#                     edge = (previous_node_id, node_id)
-#                     if edge not in added_edges:  # 检查这条边是否已经添加
-#                         dot.edge(previous_node_id, node_id)
-#                         added_edges.add(edge)  # 记录这条边以避免重复添加
-
-#                 previous_node_id = node_id
-
-#     return dot
-
 
 def create_dot_graph(data):
     dot = Digraph(comment='Paths Graph')
     added_edges = set()  # 用于跟踪已添加的边
 
     for record in data:
-        path1 = record["path1"]
-        path2 = record["path2"]
+        elements = record["path"]
         previous_node_id = None
 
-        for element in path1 + path2:
+        for element in elements:
             if isinstance(element, dict):  # 这是一个节点
                 node_id = element["name"].replace('<', '').replace('>', '').replace(':', '_').replace(' ', '_')
                 dot.node(node_id, element["name"].replace('<', '').replace('>', '').replace(':', '_').replace(' ', '_'))
@@ -69,6 +82,28 @@ def create_dot_graph(data):
                 previous_node_id = node_id
 
     return dot
+
+# def create_dot_graph(data):
+#     dot = Digraph(comment='Paths Graph')
+#     added_edges = set()  # 用于跟踪已添加的边
+
+#     for record in data:
+#         path1 = record["path1"]
+#         path2 = record["path2"]
+#         previous_node_id = None
+
+#         for element in path1 + path2:
+#             if isinstance(element, dict):  # 这是一个节点
+#                 node_id = element["name"].replace('<', '').replace('>', '').replace(':', '_').replace(' ', '_')
+#                 dot.node(node_id, element["name"].replace('<', '').replace('>', '').replace(':', '_').replace(' ', '_'))
+                
+#                 if previous_node_id is not None:
+#                     edge = (previous_node_id, node_id)
+#                     if edge not in added_edges:  # 检查这条边是否已经添加
+#                         dot.edge(previous_node_id, node_id)
+#                         added_edges.add(edge)  # 记录这条边以避免重复添加
+#                 previous_node_id = node_id
+#     return dot
 
 # 连接并执行查询
 with driver.session() as session:

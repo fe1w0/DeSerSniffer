@@ -1,17 +1,18 @@
 #!/bin/bash
 # author: fe1w0
 
-# 函数: 导入数据到neo4j数据库
-import_neo4j_data() {
-    # 使用局部变量存储参数
+# 函数: 初始化
+init_database() {
+	# 使用局部变量存储参数
     local TmpDataPath=$1
     local DataPath=$2
-
-	# 修改 Neo4j 的 配置文件
+	
+	# 修改权限
 	local CONFIG_FILE=$DataPath/../conf/neo4j.conf
 	sudo chown -R $USER $DataPath/../
 	sudo chmod -R u+rwx $DataPath/../
 
+	# 修改 Neo4j 的 配置文件
 	sudo tee "$CONFIG_FILE" > /dev/null <<EOF
 dbms.tx_log.rotation.retention_policy=100M size
 dbms.ssl.policy.bolt.enabled=false
@@ -22,6 +23,16 @@ dbms.directories.import=import
 dbms.directories.logs=/logs
 dbms.security.auth_enabled=false
 EOF
+}
+
+# 函数: 导入数据到neo4j数据库
+import_neo4j_data() {
+    # 使用局部变量存储参数
+    local TmpDataPath=$1
+    local DataPath=$2
+
+	#初始化配置文件和文件夹权限
+	init_database $TmpDataPath $DataPath
 
 	# 将文件复制到Neo4j的导入目录
 	cp $TmpDataPath/*.csv $DataPath/

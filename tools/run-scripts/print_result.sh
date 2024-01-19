@@ -245,13 +245,13 @@ get_table() {
 
     # 输出 result_map 表格
     echo -e "\n[+] Summary of Analysis Results:"
-    printf "%-${max_id_length}s %-25s %-15s %-15s %-15s\n" "ID" "Time" "LeakingLines" "PotentialLines" "ReachableLines"
+    printf "%-${max_id_length}s\t%-25s\t%-15s\t%-15s\t%-15s\n" "ID" "Time" "LeakingLines" "PotentialLines" "ReachableLines"
     for id in "${!result_map[@]}"; do
         result_number=$(($result_number + 1))
         results=(${result_map[$id]}) # 将字符串转换为数组
 
         # 使用 printf 格式化输出，确保各列对齐
-        printf "%-${max_id_length}s %-25s %-15s %-15s %-15s\n" "$id" "${results[0]}" "${results[1]}" "${results[2]}" "${results[3]}"
+        printf "%-${max_id_length}s\t%-25s\t%-15s\t%-15s\t%-15s\n" "$id" "${results[0]}" "${results[1]}" "${results[2]}" "${results[3]}"
     done
 
     echo -e "\n[+] ResultNumber: ${result_number}"
@@ -274,7 +274,7 @@ read_id_and_cat_leaking() {
 }
 
 export_file() {
-	declare -g output_csv_file=$dir/../../output/AllLeakingInformation.csv
+	declare -g output_csv_file=$BASE_DIR/output/AllLeakingInformation.csv
 	echo -e "TromLabel\tToLabel\tContext\tInvocation\tSourceValue" > $output_csv_file
 
 	while read leakingFile; do
@@ -288,8 +288,7 @@ export_file() {
 
 	done < <(find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "LeakingTaintedInformation.csv") 
 
-
-	echo -e "\n[+] ExportResult: ${output_csv_file}"
+	echo -e "[+] ExportResult: ${output_csv_file}"
 }
 
 print_result() {

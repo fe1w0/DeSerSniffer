@@ -38,10 +38,10 @@ doop_config() {
     fi
 
     ## 允许 补充的污点源的最大数量
-    MaxNumberMaybeTaintedField=200000
+    MaxNumberMaybeTaintedField=300000
 
     ## 设置子项目对象限制数字
-    SplitLineNumber=7
+    SplitLineNumber=8
 }
 
 export -f doop_config

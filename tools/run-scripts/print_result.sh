@@ -1,7 +1,7 @@
 #!/bin/bash
 # author: fe1w0
 
-dir="$(dirname "$BASH_SOURCE")"
+MAIN_DIR="$(dirname "$BASH_SOURCE")"
 
 trap 'echo "Script interrupted."; exit' SIGINT
 
@@ -53,10 +53,10 @@ done
 
 
 # 加载 doop 配置模块, doop_config 提供 DOOP_OUT
-source ${dir}/utils/config/doop_config.sh
+source ${MAIN_DIR}/utils/config/doop_config.sh
 
 # 加载 print 模块
-source ${dir}/utils/print/print_separator.sh
+source ${MAIN_DIR}/utils/print/print_separator.sh
 
 # ANSI 颜色代码
 RED='\033[0;31m'

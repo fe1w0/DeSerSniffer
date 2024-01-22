@@ -1,16 +1,16 @@
 #!/bin/bash
 # author: fe1w0
 
-dir="$(dirname "$BASH_SOURCE")"
+CONFIG_DIR="$(dirname "$BASH_SOURCE")"
 
 # 加载 overwrite 模块
-source ${dir}/overwrite.sh
+source ${CONFIG_DIR}/overwrite.sh
 
 # 加载 生成analysis.dl文件 模块
-source ${dir}/add_custom_text_to_file.sh
+source ${CONFIG_DIR}/add_custom_text_to_file.sh
 
 # 加载 doop 配置模块
-source ${dir}/config/doop_config.sh
+source ${CONFIG_DIR}/config/doop_config.sh
 
 # 函数：初始化
 config() {

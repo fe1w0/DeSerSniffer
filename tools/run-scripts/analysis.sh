@@ -2,16 +2,16 @@
 # author: fe1w0
 
 # 导入文件
-dir="$(dirname "$BASH_SOURCE")"
+MAIN_DIR="$(dirname "$BASH_SOURCE")"
 
-source $dir/utils/timer.sh
-source $dir/utils/config.sh
-source $dir/utils/split_csv.sh
-source $dir/utils/list_class.sh
-source $dir/utils/run_analysis.sh
-source $dir/utils/stats.sh
-source $dir/utils/print/monitor_doop_log.sh
-source $dir/utils/config/extract_dependencies.sh
+source $MAIN_DIR/utils/timer.sh
+source $MAIN_DIR/utils/config.sh
+source $MAIN_DIR/utils/split_csv.sh
+source $MAIN_DIR/utils/list_class.sh
+source $MAIN_DIR/utils/run_analysis.sh
+source $MAIN_DIR/utils/stats.sh
+source $MAIN_DIR/utils/print/monitor_doop_log.sh
+source $MAIN_DIR/utils/config/extract_dependencies.sh
 
 # 函数: 单个分析
 single_analysis() {

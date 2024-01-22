@@ -23,5 +23,6 @@ def find_duplicate_dependencies(xml_file):
         if count > 1:
             print(f"Duplicate dependency found: groupId={dep[0]}, artifactId={dep[1]}, version={dep[2]} (Count: {count})")
 
+BASE_DIR = '/mnt/data-512g/liuxr-data/ENV/DeSerSniffer'
 # 使用示例
-find_duplicate_dependencies('/home/zhangying/Project/SoftwareAnalysis/DataSet-Software/testjars/input.xml')
+find_duplicate_dependencies( BASE_DIR + '/testjars/input.xml')

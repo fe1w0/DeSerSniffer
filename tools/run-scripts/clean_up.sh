@@ -50,6 +50,7 @@ clear_result() {
     fi
 }
 
+# 导入配置
 doop_config
 
 # 判断是否传入了 "-y" 参数

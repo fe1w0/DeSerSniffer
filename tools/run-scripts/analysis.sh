@@ -29,7 +29,7 @@ single_analysis() {
     monitor_doop_log $INPUT $ID
 
     if [ $? -eq 1 ]; then
-        echo -e "[+] $(print_time) End:  $ID, $INPUT, $CurrentLOG" | tee -a $CurrentLOG
+        echo -e "[+] $(print_time) End:  $ID $INPUT $CurrentLOG" | tee -a $CurrentLOG
         return 1
     fi
 

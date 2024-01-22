@@ -2,14 +2,16 @@
 # author: fe1w0
 
 # 导入文件
-source utils/timer.sh
-source utils/config.sh
-source utils/split_csv.sh
-source utils/list_class.sh
-source utils/run_analysis.sh
-source utils/stats.sh
-source utils/print/monitor_doop_log.sh
-source utils/config/extract_dependencies.sh
+dir="$(dirname "$BASH_SOURCE")"
+
+source $dir/utils/timer.sh
+source $dir/utils/config.sh
+source $dir/utils/split_csv.sh
+source $dir/utils/list_class.sh
+source $dir/utils/run_analysis.sh
+source $dir/utils/stats.sh
+source $dir/utils/print/monitor_doop_log.sh
+source $dir/utils/config/extract_dependencies.sh
 
 # 函数: 单个分析
 single_analysis() {
@@ -68,5 +70,8 @@ analysis() {
     done
 }
 
+# 导入配置
+doop_config
+
 TmpLog=/tmp/doop_$(date +%s).log
-timer analysis /home/zhangying/Project/SoftwareAnalysis/DataSet-Software/testjars/input.xml
+timer analysis $BASE_DIR/testjars/input.xml

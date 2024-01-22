@@ -8,3 +8,4 @@ tools/generate-gh/analysis.*
 tools/generate-gh/log.txt
 tools/generate-gh/generate-dot/log.txt
 tools/generate-gh/output/
+tools/run-scripts/utils/config/doop_config.sh

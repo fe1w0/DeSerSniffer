@@ -2,10 +2,10 @@
 # author: fe1w0
 
 # 导入文件
-dir="$(dirname "$BASH_SOURCE")"
+MAIN_DIR="$(dirname "$BASH_SOURCE")"
 
-source $dir/utils/config/doop_config.sh
-source $dir/utils/config/extract_dependencies.sh
+source ${MAIN_DIR}/utils/config/doop_config.sh
+source ${MAIN_DIR}/utils/config/extract_dependencies.sh
 
 # 导入配置
 doop_config

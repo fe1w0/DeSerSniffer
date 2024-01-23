@@ -1,0 +1,206 @@
+<depandencies>
+	<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>6.2.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jdbc -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
+        <version>3.2.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <version>3.2.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework/spring-webmvc -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>6.1.3</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.playframework/play -->
+    <dependency>
+        <groupId>org.playframework</groupId>
+        <artifactId>play_3</artifactId>
+        <version>3.0.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework.webflow/spring-webflow -->
+    <dependency>
+        <groupId>org.springframework.webflow</groupId>
+        <artifactId>spring-webflow</artifactId>
+        <version>3.0.0</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/io.ktor/ktor-client-core -->
+    <dependency>
+        <groupId>io.ktor</groupId>
+        <artifactId>ktor-client-core</artifactId>
+        <version>2.3.7</version>
+        <scope>runtime</scope>
+    </dependency>
+	<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-nop -->
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-nop</artifactId>
+		<version>2.0.11</version>
+		<scope>test</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-slf4j -->
+	<dependency>
+		<groupId>com.typesafe.akka</groupId>
+		<artifactId>akka-slf4j_3</artifactId>
+		<version>2.8.5</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-web -->
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-web</artifactId>
+		<version>2.22.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.taoensso/timbre -->
+	<dependency>
+		<groupId>com.taoensso</groupId>
+		<artifactId>timbre</artifactId>
+		<version>6.3.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/io.github.microutils/kotlin-logging -->
+	<dependency>
+		<groupId>io.github.microutils</groupId>
+		<artifactId>kotlin-logging</artifactId>
+		<version>3.0.5</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/ch.qos.reload4j/reload4j -->
+	<dependency>
+		<groupId>ch.qos.reload4j</groupId>
+		<artifactId>reload4j</artifactId>
+		<version>1.2.25</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
+	<dependency>
+		<groupId>jakarta.servlet</groupId>
+		<artifactId>jakarta.servlet-api</artifactId>
+		<version>6.1.0-M1</version>
+		<scope>provided</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/me.zhyd.oauth/JustAuth -->
+	<dependency>
+		<groupId>me.zhyd.oauth</groupId>
+		<artifactId>JustAuth</artifactId>
+		<version>1.16.6</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.gwtproject/gwt-user -->
+	<dependency>
+		<groupId>org.gwtproject</groupId>
+		<artifactId>gwt-user</artifactId>
+		<version>2.11.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.pcollections/pcollections -->
+	<dependency>
+		<groupId>org.pcollections</groupId>
+		<artifactId>pcollections</artifactId>
+		<version>4.0.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+		<version>2.0.11</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-classic</artifactId>
+		<version>1.4.14</version>
+		<scope>test</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-core</artifactId>
+		<version>2.22.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-simple</artifactId>
+		<version>2.0.11</version>
+		<scope>test</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
+	<dependency>
+		<groupId>commons-logging</groupId>
+		<artifactId>commons-logging</artifactId>
+		<version>1.3.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-core</artifactId>
+		<version>1.4.14</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
+	<dependency>
+		<groupId>org.jboss.logging</groupId>
+		<artifactId>jboss-logging</artifactId>
+		<version>3.5.3.Final</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.clojure/tools.logging -->
+	<dependency>
+		<groupId>org.clojure</groupId>
+		<artifactId>tools.logging</artifactId>
+		<version>1.2.4</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.typesafe.scala-logging/scala-logging -->
+	<dependency>
+		<groupId>com.typesafe.scala-logging</groupId>
+		<artifactId>scala-logging_3</artifactId>
+		<version>3.9.5</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.jakewharton.timber/timber -->
+	<dependency>
+		<groupId>com.jakewharton.timber</groupId>
+		<artifactId>timber</artifactId>
+		<version>5.0.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.wicket/wicket-core -->
+	<dependency>
+		<groupId>org.apache.wicket</groupId>
+		<artifactId>wicket-core</artifactId>
+		<version>10.0.0-M2</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+	<dependency>
+		<groupId>commons-codec</groupId>
+		<artifactId>commons-codec</artifactId>
+		<version>1.16.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/net.iharder/base64 -->
+	<dependency>
+		<groupId>net.iharder</groupId>
+		<artifactId>base64</artifactId>
+		<version>2.3.9</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
+	<dependency>
+		<groupId>org.apache.commons</groupId>
+		<artifactId>commons-collections4</artifactId>
+		<version>4.4</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-collection-compat -->
+	<dependency>
+		<groupId>org.scala-lang.modules</groupId>
+		<artifactId>scala-collection-compat_3</artifactId>
+		<version>2.11.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/it.unimi.dsi/fastutil -->
+	<!-- it_unimi_dsi_fastutil_8_5_12 的测试对象太多了，有 668 个直接的对象 -->
+	<dependency>
+		<groupId>it.unimi.dsi</groupId>
+		<artifactId>fastutil</artifactId>
+		<version>8.5.12</version>
+	</dependency>
+</depandencies>

@@ -22,7 +22,7 @@ config() {
     log_config
 
     # 创建 LOG
-    echo -e "[+] $(print_time) Start: $ID, $INPUT, $CurrentLOG, $TmpLog" | tee $CurrentLOG
+    echo -e "[+] $(print_time) Start: $ID $INPUT $CurrentLOG $TmpLog" | tee $CurrentLOG
 
     ### 生成 最终 analysis.dl 文件
     add_custom_text_to_file ${BASE_DIR}/tools/custom-rules/simple-analysis.dl ${BASE_DIR}/tools/custom-rules/analysis.dl $MaxNumberMaybeTaintedField

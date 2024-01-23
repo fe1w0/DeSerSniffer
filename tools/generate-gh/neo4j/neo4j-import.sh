@@ -35,7 +35,8 @@ import_neo4j_data() {
 	init_database $TmpDataPath $DataPath
 
 	# 将文件复制到Neo4j的导入目录
-	cp $TmpDataPath/*.csv $DataPath/
+	cp $TmpDataPath/Nodes.csv $DataPath/Nodes.csv
+	cp $TmpDataPath/CallGraph.csv $DataPath/CallGraph.csv
 
 	# 为Nodes.csv文件创建带标题的csv
 	title_row="node"

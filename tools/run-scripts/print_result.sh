@@ -292,9 +292,6 @@ export_file() {
 }
 
 print_result() {
-	# 全局的分析结果变量
-	declare -A result_map=()
-
     echo $module_separator
 
     print_centered " Print Analysis Result "
@@ -314,6 +311,9 @@ print_result() {
 		read_id_and_cat_leaking
 	fi
 }
+
+# 全局的分析结果变量
+declare -A result_map=()
 
 doop_config
 

@@ -1,284 +1,130 @@
 <dependencies>
-<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-nop -->
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-nop</artifactId>
-    <version>2.0.11</version>
-    <scope>test</scope>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-slf4j -->
-<dependency>
-    <groupId>com.typesafe.akka</groupId>
-    <artifactId>akka-slf4j_3</artifactId>
-    <version>2.8.5</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-web -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-web</artifactId>
-    <version>2.22.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.taoensso/timbre -->
-<dependency>
-    <groupId>com.taoensso</groupId>
-    <artifactId>timbre</artifactId>
-    <version>6.3.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/io.github.microutils/kotlin-logging -->
-<dependency>
-    <groupId>io.github.microutils</groupId>
-    <artifactId>kotlin-logging</artifactId>
-    <version>3.0.5</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/ch.qos.reload4j/reload4j -->
-<dependency>
-    <groupId>ch.qos.reload4j</groupId>
-    <artifactId>reload4j</artifactId>
-    <version>1.2.25</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/jakarta.servlet/jakarta.servlet-api -->
-<dependency>
-    <groupId>jakarta.servlet</groupId>
-    <artifactId>jakarta.servlet-api</artifactId>
-    <version>6.1.0-M1</version>
-    <scope>provided</scope>
-</dependency>
-<!-- https://mvnrepository.com/artifact/me.zhyd.oauth/JustAuth -->
-<dependency>
-    <groupId>me.zhyd.oauth</groupId>
-    <artifactId>JustAuth</artifactId>
-    <version>1.16.6</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.gwtproject/gwt-user -->
-<dependency>
-    <groupId>org.gwtproject</groupId>
-    <artifactId>gwt-user</artifactId>
-    <version>2.11.0</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.pcollections/pcollections -->
-<dependency>
-    <groupId>org.pcollections</groupId>
-    <artifactId>pcollections</artifactId>
-    <version>4.0.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-api</artifactId>
-    <version>2.0.11</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-    <version>1.4.14</version>
-    <scope>test</scope>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-<dependency>
-    <groupId>org.apache.logging.log4j</groupId>
-    <artifactId>log4j-core</artifactId>
-    <version>2.22.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-simple</artifactId>
-    <version>2.0.11</version>
-    <scope>test</scope>
-</dependency>
-<!-- https://mvnrepository.com/artifact/commons-logging/commons-logging -->
-<dependency>
-    <groupId>commons-logging</groupId>
-    <artifactId>commons-logging</artifactId>
-    <version>1.3.0</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
-<dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-core</artifactId>
-    <version>1.4.14</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.jboss.logging/jboss-logging -->
-<dependency>
-    <groupId>org.jboss.logging</groupId>
-    <artifactId>jboss-logging</artifactId>
-    <version>3.5.3.Final</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.clojure/tools.logging -->
-<dependency>
-    <groupId>org.clojure</groupId>
-    <artifactId>tools.logging</artifactId>
-    <version>1.2.4</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.typesafe.scala-logging/scala-logging -->
-<dependency>
-    <groupId>com.typesafe.scala-logging</groupId>
-    <artifactId>scala-logging_3</artifactId>
-    <version>3.9.5</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.jakewharton.timber/timber -->
-<dependency>
-    <groupId>com.jakewharton.timber</groupId>
-    <artifactId>timber</artifactId>
-    <version>5.0.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.apache.wicket/wicket-core -->
-<dependency>
-    <groupId>org.apache.wicket</groupId>
-    <artifactId>wicket-core</artifactId>
-    <version>10.0.0-M2</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-<dependency>
-    <groupId>commons-codec</groupId>
-    <artifactId>commons-codec</artifactId>
-    <version>1.16.0</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/net.iharder/base64 -->
-<dependency>
-    <groupId>net.iharder</groupId>
-    <artifactId>base64</artifactId>
-    <version>2.3.9</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-collections4 -->
-<dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-collections4</artifactId>
-    <version>4.4</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-collection-compat -->
-<dependency>
-    <groupId>org.scala-lang.modules</groupId>
-    <artifactId>scala-collection-compat_3</artifactId>
-    <version>2.11.0</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/it.unimi.dsi/fastutil -->
-<dependency>
-    <groupId>it.unimi.dsi</groupId>
-    <artifactId>fastutil</artifactId>
-    <version>8.5.12</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections -->
-<dependency>
-    <groupId>org.eclipse.collections</groupId>
-    <artifactId>eclipse-collections</artifactId>
-    <version>12.0.0.M3</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections-api -->
-<dependency>
-    <groupId>org.eclipse.collections</groupId>
-    <artifactId>eclipse-collections-api</artifactId>
-    <version>12.0.0.M3</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-<dependency>
-    <groupId>com.google.guava</groupId>
-    <artifactId>guava</artifactId>
-    <version>33.0.0-jre</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.mapdb/mapdb -->
-<dependency>
-    <groupId>org.mapdb</groupId>
-    <artifactId>mapdb</artifactId>
-    <version>3.1.0</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/androidx.collection/collection -->
-<dependency>
-    <groupId>androidx.collection</groupId>
-    <artifactId>collection</artifactId>
-    <version>1.4.0-rc01</version>
-    <scope>runtime</scope>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.carrotsearch/hppc -->
-<dependency>
-    <groupId>com.carrotsearch</groupId>
-    <artifactId>hppc</artifactId>
-    <version>0.9.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.googlecode.concurrentlinkedhashmap/concurrentlinkedhashmap-lru -->
-<dependency>
-    <groupId>com.googlecode.concurrentlinkedhashmap</groupId>
-    <artifactId>concurrentlinkedhashmap-lru</artifactId>
-    <version>1.4.2</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-parallel-collections -->
-<dependency>
-    <groupId>org.scala-lang.modules</groupId>
-    <artifactId>scala-parallel-collections_3</artifactId>
-    <version>1.0.4</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.roaringbitmap/RoaringBitmap -->
-<dependency>
-    <groupId>org.roaringbitmap</groupId>
-    <artifactId>RoaringBitmap</artifactId>
-    <version>1.0.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.googlecode.javaewah/JavaEWAH -->
-<dependency>
-    <groupId>com.googlecode.javaewah</groupId>
-    <artifactId>JavaEWAH</artifactId>
-    <version>1.2.3</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.squareup.okio/okio -->
-<dependency>
-    <groupId>com.squareup.okio</groupId>
-    <artifactId>okio</artifactId>
-    <version>3.7.0</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-<dependency>
-    <groupId>commons-io</groupId>
-    <artifactId>commons-io</artifactId>
-    <version>2.15.1</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-io -->
-<dependency>
-    <groupId>org.eclipse.jetty</groupId>
-    <artifactId>jetty-io</artifactId>
-    <version>12.0.5</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.uberfire/uberfire-io -->
-<dependency>
-    <groupId>org.uberfire</groupId>
-    <artifactId>uberfire-io</artifactId>
-    <version>7.74.1.Final</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.github.jnr/jnr-unixsocket -->
-<dependency>
-    <groupId>com.github.jnr</groupId>
-    <artifactId>jnr-unixsocket</artifactId>
-    <version>0.38.21</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-io -->
-<dependency>
-    <groupId>org.codehaus.plexus</groupId>
-    <artifactId>plexus-io</artifactId>
-    <version>3.4.2</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.ops4j.base/ops4j-base-io -->
-<dependency>
-    <groupId>org.ops4j.base</groupId>
-    <artifactId>ops4j-base-io</artifactId>
-    <version>1.5.1</version>
-</dependency>
+	<!-- https://mvnrepository.com/artifact/org.clojure/clojure -->
+	<dependency>
+		<groupId>org.clojure</groupId>
+		<artifactId>clojure</artifactId>
+		<version>1.12.0-alpha5</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections -->
+	<dependency>
+		<groupId>org.eclipse.collections</groupId>
+		<artifactId>eclipse-collections</artifactId>
+		<version>12.0.0.M3</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections-api -->
+	<dependency>
+		<groupId>org.eclipse.collections</groupId>
+		<artifactId>eclipse-collections-api</artifactId>
+		<version>12.0.0.M3</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+	<dependency>
+		<groupId>com.google.guava</groupId>
+		<artifactId>guava</artifactId>
+		<version>33.0.0-jre</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.mapdb/mapdb -->
+	<dependency>
+		<groupId>org.mapdb</groupId>
+		<artifactId>mapdb</artifactId>
+		<version>3.1.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/androidx.collection/collection -->
+	<dependency>
+		<groupId>androidx.collection</groupId>
+		<artifactId>collection</artifactId>
+		<version>1.4.0-rc01</version>
+		<scope>runtime</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.carrotsearch/hppc -->
+	<dependency>
+		<groupId>com.carrotsearch</groupId>
+		<artifactId>hppc</artifactId>
+		<version>0.9.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.googlecode.concurrentlinkedhashmap/concurrentlinkedhashmap-lru -->
+	<dependency>
+		<groupId>com.googlecode.concurrentlinkedhashmap</groupId>
+		<artifactId>concurrentlinkedhashmap-lru</artifactId>
+		<version>1.4.2</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-parallel-collections -->
+	<dependency>
+		<groupId>org.scala-lang.modules</groupId>
+		<artifactId>scala-parallel-collections_3</artifactId>
+		<version>1.0.4</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.roaringbitmap/RoaringBitmap -->
+	<dependency>
+		<groupId>org.roaringbitmap</groupId>
+		<artifactId>RoaringBitmap</artifactId>
+		<version>1.0.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.googlecode.javaewah/JavaEWAH -->
+	<dependency>
+		<groupId>com.googlecode.javaewah</groupId>
+		<artifactId>JavaEWAH</artifactId>
+		<version>1.2.3</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.squareup.okio/okio -->
+	<dependency>
+		<groupId>com.squareup.okio</groupId>
+		<artifactId>okio</artifactId>
+		<version>3.7.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+	<dependency>
+		<groupId>commons-io</groupId>
+		<artifactId>commons-io</artifactId>
+		<version>2.15.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-io -->
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-io</artifactId>
+		<version>12.0.5</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.uberfire/uberfire-io -->
+	<dependency>
+		<groupId>org.uberfire</groupId>
+		<artifactId>uberfire-io</artifactId>
+		<version>7.74.1.Final</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.github.jnr/jnr-unixsocket -->
+	<dependency>
+		<groupId>com.github.jnr</groupId>
+		<artifactId>jnr-unixsocket</artifactId>
+		<version>0.38.21</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-io -->
+	<dependency>
+		<groupId>org.codehaus.plexus</groupId>
+		<artifactId>plexus-io</artifactId>
+		<version>3.4.2</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.ops4j.base/ops4j-base-io -->
+	<dependency>
+		<groupId>org.ops4j.base</groupId>
+		<artifactId>ops4j-base-io</artifactId>
+		<version>1.5.1</version>
+	</dependency>
 
-<!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
-<dependency>
-    <groupId>com.caucho</groupId>
-    <artifactId>hessian</artifactId>
-    <version>4.0.66</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.alipay.common/alipay-common-lang -->
-<dependency>
-    <groupId>com.alipay.common</groupId>
-    <artifactId>alipay-common-lang</artifactId>
-    <version>2.2.22</version>
-</dependency>
-<!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-sdk-java -->
-<dependency>
-    <groupId>com.alipay.sdk</groupId>
-    <artifactId>alipay-sdk-java</artifactId>
-    <version>4.38.192.ALL</version>
-</dependency>
+	<!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
+	<dependency>
+		<groupId>com.caucho</groupId>
+		<artifactId>hessian</artifactId>
+		<version>4.0.66</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.alipay.common/alipay-common-lang -->
+	<dependency>
+		<groupId>com.alipay.common</groupId>
+		<artifactId>alipay-common-lang</artifactId>
+		<version>2.2.22</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-sdk-java -->
+	<dependency>
+		<groupId>com.alipay.sdk</groupId>
+		<artifactId>alipay-sdk-java</artifactId>
+		<version>4.38.192.ALL</version>
+	</dependency>
 </dependencies>

@@ -51,8 +51,9 @@ list_class() {
 
     # souffle
     SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
+	# SOUFFLE_PROFILE="--souffle-profile"
     SOUFFLE_MODE="--souffle-mode interpreted"
-    SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_MODE}"
+    SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${SOUFFLE_MODE}"
 
     # extra logic
     EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/init/list_readObject.dl"
@@ -69,6 +70,12 @@ list_class() {
     # CACHE
     CACHE="--dont-cache-facts"
 
+	# APP_ONLY
+	APP_ONLY="--app-only"
+
+	# Disbale Points
+	DisbalePointsTo="--disable-points-to "
+
 	# Statistics
 	Statistics="--stats none"
 
@@ -78,7 +85,7 @@ list_class() {
 	# Xlow-mem
 	XlowMem="--Xlow-mem"
 
-    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${Statistics} ${LOG} ${XlowMem}"
+    EXTRA_ARG="${PLATFORM} ${DisablePointsTo} ${APP_ONLY} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${TIMEOUT} ${FACTS} ${NoMerges} ${CACHE} ${DisbalePointsTo} ${Statistics} ${LOG} ${XlowMem}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} ${EXTRA_ARG}"

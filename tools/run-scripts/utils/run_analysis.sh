@@ -61,10 +61,10 @@ run_analysis() {
     INFORMATION_FLOW="--information-flow minimal"
 
     # TIMEOUT
-    TIMEOUT="--timeout 1440"
+    TIMEOUT="--timeout 180"
 
     # facts
-    FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
+    # FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
 
     # Reflection
     ENABLE_REFLECTION="--light-reflection-glue"
@@ -88,7 +88,7 @@ run_analysis() {
 	XlowMem="--Xlow-mem"
 
 	# X_SYMLINK_INPUT_FACTS
-	X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
+	# X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
 
     EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
 

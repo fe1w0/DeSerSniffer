@@ -35,6 +35,12 @@ DefineSinkMethod("<java.lang.ProcessImpl: int forkAndExec(int,byte[],byte[],byte
 
 /**
  * File: read and write
+LeakingSinkMethodPattern(0, "<java.io.Writer: java.io.Writer append[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: java.io.Writer append[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void print[(].*[)]>").
+LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void println[(].*[)]>").
+LeakingSinkMethodPattern(0, "<javax.servlet.jsp.JspWriter: void print[(].*[)]>").
+LeakingSinkMethodPattern(0, "<javax.servlet.jsp.JspWriter: void println[(].*[)]>").
 */
 DefineSinkMethod("<java.io.FileOutputStream: void write(byte[])>").
 DefineSinkMethod("<java.io.FileOutputStream: void write(byte[],int,int)>").
@@ -44,14 +50,8 @@ DefineSinkMethod("<java.io.FileWriter: void write(java.lang.String)>").
 DefineSinkMethod("<java.io.FileReader: int read(char[])>").
 DefineSinkMethod("<java.net.Socket: void connect(java.net.SocketAddress)>").
 DefineSinkMethod("<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>").
-LeakingSinkMethodPattern(0, "<javax.servlet.jsp.JspWriter: void print[(].*[)]>").
-LeakingSinkMethodPattern(0, "<javax.servlet.jsp.JspWriter: void println[(].*[)]>").
 LeakingSinkMethodPattern(0, "<java.io.Writer: void write[(].*[)]>").
-LeakingSinkMethodPattern(0, "<java.io.Writer: java.io.Writer append[(].*[)]>").
 LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void write[(].*[)]>").
-LeakingSinkMethodPattern(0, "<java.io.PrintWriter: java.io.Writer append[(].*[)]>").
-LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void print[(].*[)]>").
-LeakingSinkMethodPattern(0, "<java.io.PrintWriter: void println[(].*[)]>").
 
 /**
  * SQLI

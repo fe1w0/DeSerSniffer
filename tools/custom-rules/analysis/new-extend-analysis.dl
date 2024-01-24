@@ -108,14 +108,15 @@ Deny_Class_For_Extend_VarPointsTo(type) :-
         ;DataStructureInnerClass(type)
     ).
 
+#define Disable_Extend_VarPointsTo
+
+#ifndef Disable_Extend_VarPointsTo
 /**
  * 添加 VarPointsTo 信息，利用 PotentialType 来实现泛化和优化。
 */
 .decl Extend_VarPointsTo(valueType: symbol, source: symbol, base: symbol, to_method: symbol)
 
-
 .decl Allow_Class_For_Extend_VarPointsTo(type: symbol)
-
 
 /**
  * ApplicationClass, AllCollectionClass
@@ -151,6 +152,58 @@ MICRO_MOCK_VALUE_MICRO_PART(source, value_type) :-
 */
 // .output Extend_VarPointsTo
 .printsize Extend_VarPointsTo
+#endif
+
+#ifdef Disable_Extend_VarPointsTo
+/**
+ * 拓展调用图信息，用于构建新的调用图
+*/
+.decl Extend_CallGraph(ictx: symbol, hctx: symbol, invocation: symbol, base: symbol, to_method: symbol)
+
+/**
+ * Allow_Class_For_Extend_Extend_CallGraph
+*/
+.decl Allow_Class_For_Extend_Extend_CallGraph(type: symbol)
+
+
+Allow_Class_For_Extend_Extend_CallGraph(type) :-
+    basic.SupertypeOf("java.io.Serializable", type),
+	!DataStructureInnerClass(type).
+
+Extend_CallGraph(ctx, hctx, invocation, base, to_method) :-
+	Instruction_Method(invocation, in_method),
+	isMethodInSourceCallGraph(in_method),
+
+	basic.ResolveInvocation(value_type, invocation, to_method),
+    Allow_Class_For_Extend_Extend_CallGraph(value_type),
+
+	VirtualMethodInvocation_Base(invocation, base),
+	// 对于 base 的原始类型是 SubCollectionClass (如，HashMap) 不进行拓展
+	Var_Type(base, base_type),
+    !SubCollectionClass(base_type),
+	
+    mainAnalysis.isImmutableHContext(hctx),
+    mainAnalysis.isImmutableContext(ctx).
+
+.printsize Extend_CallGraph
+
+/**
+ * Log
+*/
+.decl Log_Extend_CallGraph(invocation: symbol, to_method: symbol)
+.printsize Log_Extend_CallGraph
+.output Log_Extend_CallGraph
+
+/**
+ * Log: 2024-01-24， 在 1.6.0-dev 提出采用构建调用图，不构建新的指针信息，来减少指针计算和指针计算带来的新的递归计算。
+ * 使用 Extend_CallGraph 构建新的调用图，采用 ContextRequest 来确保会重新计算过程间的指针分析和污点传播
+*/
+Log_Extend_CallGraph(invocation, to_method),
+mainAnalysis.configuration.ContextRequest(ctx, hctx, invocation, base, to_method, 1) :-
+	TaintedVarPointsTo(_, ctx, base),
+	Extend_CallGraph(ctx, hctx, invocation, base, to_method).
+
+#endif
 
 /**
  * 补充 Invoke 函数的 SinkMethod 调用图

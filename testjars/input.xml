@@ -1,22 +1,4 @@
 <dependencies>
-	<!-- https://mvnrepository.com/artifact/org.clojure/clojure -->
-	<dependency>
-		<groupId>org.clojure</groupId>
-		<artifactId>clojure</artifactId>
-		<version>1.12.0-alpha5</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections -->
-	<dependency>
-		<groupId>org.eclipse.collections</groupId>
-		<artifactId>eclipse-collections</artifactId>
-		<version>12.0.0.M3</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.eclipse.collections/eclipse-collections-api -->
-	<dependency>
-		<groupId>org.eclipse.collections</groupId>
-		<artifactId>eclipse-collections-api</artifactId>
-		<version>12.0.0.M3</version>
-	</dependency>
 	<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 	<dependency>
 		<groupId>com.google.guava</groupId>

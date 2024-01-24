@@ -9,9 +9,11 @@ source $MAIN_DIR/utils/config.sh
 source $MAIN_DIR/utils/split_csv.sh
 source $MAIN_DIR/utils/list_class.sh
 source $MAIN_DIR/utils/run_analysis.sh
+source $MAIN_DIR/utils/run_summary.sh
 source $MAIN_DIR/utils/stats.sh
 source $MAIN_DIR/utils/print/monitor_doop_log.sh
 source $MAIN_DIR/utils/config/extract_dependencies.sh
+
 # 函数: 单个分析
 single_analysis() {
 	local ID=$1
@@ -22,7 +24,7 @@ single_analysis() {
     # 初始化
     timer config
 
-	timer run_analysis $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $InitID $JOBS
+	timer run_summary $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $InitID $JOBS
 	monitor_doop_log $INPUT $SubID
 
     # 分析阶段
@@ -36,5 +38,4 @@ TmpLog=/tmp/doop_$(date +%s).log
 
 echo "[+] TmpLog: ${TmpLog}"
 
-single_analysis org_clojure_clojure_1_12_0_alpha5_1 org.clojure:clojure:1.12.0-alpha5 org_clojure_clojure_1_12_0_alpha5
-# single_analysis org_clojure_clojure_1_12_0_alpha5_3 org.clojure:clojure:1.12.0-alpha5
+single_analysis org_clojure_clojure_1_12_0_alpha5_1_1 org.clojure:clojure:1.12.0-alpha5 org_clojure_clojure_1_12_0_alpha5

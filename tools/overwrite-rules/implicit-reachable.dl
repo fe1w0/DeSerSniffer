@@ -1,4 +1,4 @@
-#ifndef EXCLUDE_IMPLICITLY_REACHABLE_CODE
+// #ifndef EXCLUDE_IMPLICITLY_REACHABLE_CODE
 
 /**
  * Implicitly reachable methods are invoked by the JVM on startup.
@@ -53,7 +53,9 @@ ApplicationEntryPoint(?meth) :-
 // Forced reachable methods are invoked by unknown callers.
 ForcedReachableContext(?ctx, ?method) :-
   ForcedReachable(?method),
-  isImmutableContext(?ctx).
+  ?ctx = ?method.
+  
+//   isImmutableContext(?ctx).
 
 // Forced-reachable contexts are reachable contexts.
 ReachableContext(?ctx, ?meth) :-
@@ -178,4 +180,4 @@ ForcedReachableContext(?ctx, ?method) :-
 
 #endif // MICRO
 
-#endif // EXCLUDE_IMPLICITLY_REACHABLE_CODE
+// #endif // EXCLUDE_IMPLICITLY_REACHABLE_CODE

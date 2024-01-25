@@ -38,6 +38,8 @@
 .output TargetMethod(filename="TargetMethod.facts")
 .printsize TargetMethod
 
+// 83686
+
 TargetMethod(method) :-
 	isMethod(method).
 
@@ -52,17 +54,19 @@ TargetMethod(method) :-
 
 TaintSourceVariable(var, in_method) :-
 	(
-		FormalParam(_, in_method, var)
-		;ThisVar(in_method, var),
-		// 第三种，对象字段，不精确
-		// Load: v = o.f
-		// 参考 1-version 中 extend-readObject.dl
-		(
-			Method_DeclaringType(in_method, method_declaring_type),
-			Field_DeclaringType(field_signature, method_declaring_type),
-   			LoadInstanceField(_, field_signature, var, in_method)
-		)
+		FormalParam(_, in_method, var);
+		ThisVar(in_method, var)
 	),
+	TargetMethod(in_method).
+
+
+// 第三种，对象字段，不精确
+// Load: v = o.f
+// 参考 1-version 中 extend-readObject.dl
+TaintSourceVariable(var, in_method) :-
+	Method_DeclaringType(in_method, method_declaring_type),
+	Field_DeclaringType(field_signature, method_declaring_type),
+	LoadInstanceField(_, field_signature, var, in_method),
 	TargetMethod(in_method).
 
 /**
@@ -72,5 +76,40 @@ TaintSourceVariable(var, in_method) :-
  * 实现:
 */
 
+/**
+ * 声明 ImMethod_WithInvocation
+*/
+.decl ImMethod_WithInvocation(method: Method)
+.printsize ImMethod_WithInvocation
+
+ImMethod_WithInvocation(in_method) :-
+	isMethodInvocation(instruction),
+	Instruction_Method(instruction, in_method).
+
+.decl ImMethod_WithoutInvocation(method: Method)
+.printsize ImMethod_WithoutInvocation
+
+ImMethod_WithoutInvocation(method):-
+	isMethod(method),
+	!ImMethod_WithInvocation(method).
+
+/**
+ * 声明 Bottom
+*/
+.decl BottomMethod(method: Method)
+.output BottomMethod(filename="BottomMethod.facts")
+.printsize BottomMethod
+
+BottomMethod(in_method) :-
+	ImMethod_WithoutInvocation(in_method).
+
+mainAnalysis.ForcedReachable(method) :-
+	BottomMethod(method).
+
 // 2.0.0-dev 版本中直接采用 tools/custom-rules/analysis/method-summary.dl，用于验证思想
 
+/**
+ * 目标:
+ *  2.3 对于函数内变量被污染的情况下，计算 Extend_CallGraph 、Dynamic_CallGraph 和 Original_CallGraph
+ * 实现:
+*/

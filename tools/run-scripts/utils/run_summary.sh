@@ -47,12 +47,13 @@ run_summary() {
     # doop setup
     ANALYSIS="context-insensitive"
 
-    OPEN_PROGRAM="--open-programs concrete-types"
+    # OPEN_PROGRAM="--open-programs concrete-types"
 
     # souffle
     SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
+	SOUFFLE_PROFILE="--souffle-profile"
     SOUFFLE_MODE="--souffle-mode interpreted"
-    SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_MODE}"
+    SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${SOUFFLE_MODE}"
 
     # extra logic
     EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/summary/summary.dl"
@@ -84,28 +85,24 @@ run_summary() {
     # Log Level
     LOG="--level debug"
 
+	# EXCLUDE_IMPLICITLY_REACHABLE_CODE
+	EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
+
 	# Xlow-mem
 	XlowMem="--Xlow-mem"
 
 	# X_SYMLINK_INPUT_FACTS
 	# X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
 
-    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
+    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
 
     # 执行 doop 分析
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
-    echo "[+] $(print_time) doop: $CMD" >> $TmpLog
-    eval "$CMD" >> $TmpLog
+    echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
+    eval "$CMD" | tee -a $CurrentLOG
 
     echo "[+] $(print_time) Finish: run_summary." | tee -a $CurrentLOG
-
-	# Test
-	sleep 5
-
-	rm -rf ${DOOP_OUT}/${ID}/database/*.facts
-
-	rm -rf ${DOOP_HOME}/${ID}/database/jimple
 
 	echo "[+] $(print_time) Finish: clean up temporary data (facts and jimple files)." | tee -a $CurrentLOG
 }

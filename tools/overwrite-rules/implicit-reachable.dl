@@ -145,7 +145,7 @@ MockObject(?value, ?class) :-
   ; (ForcedReachable(?method), Method_DeclaringType(?method, ?class))),
   ThisVar(?method, ?receiver),
   ?value = MOCK_OBJECT_OF_TYPE(?class),
-  mainAnalysis.isImmutableContext(?ctx),
+  ?ctx = ?method,
   mainAnalysis.isImmutableHContext(?hctx).
 
 

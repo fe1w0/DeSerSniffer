@@ -1,0 +1,84 @@
+// -----------------------------------------------------------------------------
+// Start bottom - VarPointsTo analysis rules
+// -----------------------------------------------------------------------------
+
+/**
+ * 目标:
+ *  2.2 选取某个污点源，如第一个函数参数，假设第一个函数参数为污点源，计算在函数内，哪些变量被污染
+ *  具体算法参考 B 算法中的细节，同时参考 1.6.0-dev 中的 tools/custom-rules/analysis/method-summary.dl
+ * 实现:
+*/
+
+/**
+ * 声明 ImMethod_WithInvocation
+*/
+.decl ImMethod_WithInvocation(method: Method)
+.printsize ImMethod_WithInvocation
+
+ImMethod_WithInvocation(in_method) :-
+	isMethodInvocation(instruction),
+	Instruction_Method(instruction, in_method).
+
+.decl ImMethod_WithoutInvocation(method: Method)
+.printsize ImMethod_WithoutInvocation
+
+ImMethod_WithoutInvocation(method):-
+	isMethod(method),
+	!ImMethod_WithInvocation(method).
+
+/**
+ * 声明 Bottom
+*/
+.decl BottomMethod(method: Method)
+.output BottomMethod(filename="BottomMethod.facts")
+.printsize BottomMethod
+
+BottomMethod(in_method) :-
+	ImMethod_WithoutInvocation(in_method).
+	
+/**
+ * 通过 ForcedReachable 强制产生, 上下文为 BottomMethod 的 指针信息
+ * 指针信息：包括，形式参数 和 this 指针
+ * 潜在问题，field 和 数组 上的指针信息可能会丢失
+*/
+mainAnalysis.ForcedReachable(method) :-
+	BottomMethod(method).
+
+
+
+.decl Target_Lost_Store_Target(base: symbol, signature: symbol, in_method: symbol)
+.output Target_Lost_Store_Target
+.printsize Target_Lost_Store_Target
+
+Target_Lost_Store_Target(base, signature, in_method) :-
+	LoadInstanceField(base, signature, _, in_method),
+	!StoreInstanceField(_, base, signature, in_method),
+	TargetMethod(in_method).
+
+/**
+ * 在利用 ForcedReachable 计算函数内的指针时，需要对 this.field 进行 mock
+ * 在使用 ForcedReachable 计算时，会将 this 的 value 直接 java.util.LinkedList::MockObject
+ * 注意，本版本中不采用计算下面的信息:
+ * mainAnalysis.Value_isMock(new_value), isValue(new_value), mainAnalysis.Value_Type(new_value, value_type), mainAnalysis.Value_DeclaringType(new_value, declaring_type),
+ * 会有循环计算的开销，而且很大
+*/
+.decl Extension_Value(hctx: symbol, new_value: symbol, signature: symbol, base_ctx: symbol, base_value: symbol, method: Method)
+.output Extension_Value
+.printsize Extension_Value
+
+Extension_Value(hctx, new_value, signature, hctx, base_value, in_method) :-
+	new_value = cat(value_type, "::MockObject"),
+	Field_Type(signature, value_type),
+	Target_Lost_Store_Target(base, signature, in_method),
+	Method_DeclaringType(in_method, declaring_type),
+	mainAnalysis.VarPointsTo(hctx, base_value, in_method, base).
+
+mainAnalysis.InstanceFieldPointsTo(hctx, new_value, signature, hctx, base_value) :-
+	!mainAnalysis.Value_Null(new_value),
+	Extension_Value(hctx, new_value, signature, hctx, base_value, in_method).
+
+.output mainAnalysis.LoadHeapInstanceField
+
+// -----------------------------------------------------------------------------
+// End bottom - VarPointsTo analysis rules
+// -----------------------------------------------------------------------------

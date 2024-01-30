@@ -1,3 +1,6 @@
+// 加载自定义宏
+#include "micro.dl"
+
 /**
  * [-] Log: 2024.01.24, 1.6.0-dev 中的算法还是太慢了
  * 新算法，污点分析摘要算法，首先对每个函数进行构建污点分析摘要信息。
@@ -37,16 +40,8 @@
 #include "utils/List-Targets.dl"
 
 
-// 2.0.0-dev 版本中直接采用 tools/custom-rules/analysis/method-summary.dl，用于验证思想
-
-/**
- * 目标:
- *  2.3 对于函数内变量被污染的情况下，计算 Extend_CallGraph 、Dynamic_CallGraph 和 Original_CallGraph
- * 实现:
-*/
-
-// 多态多态问题
-
+// Step 2 : 计算 Bottom 中的 指针分析 和 污点分析
+#include "utils/Bottom-VarPointsTo-analysis.dl"
 
 // -----------------------------------------------------------------------------
 // End Summary Analysis rules

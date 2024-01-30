@@ -38,4 +38,4 @@ TmpLog=/tmp/doop_$(date +%s).log
 
 echo "[+] TmpLog: ${TmpLog}"
 
-single_analysis org_clojure_clojure_1_12_0_alpha5_1_1 org.clojure:clojure:1.12.0-alpha5 org_clojure_clojure_1_12_0_alpha5
+single_analysis summary_org_clojure_clojure_1_12_0_alpha5 org.clojure:clojure:1.12.0-alpha5 org_clojure_clojure_1_12_0_alpha5

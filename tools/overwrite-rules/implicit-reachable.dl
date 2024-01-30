@@ -127,7 +127,8 @@ VarPointsTo(?hctx, ?mockObj, ?ctx, ?formal) :-
   FormalOfForcedReachableContext(?ctx, ?formal, ?formalType),
   TypeToConcreteImplementation(?formalType, ?class),
   isImmutableHContext(?hctx),
-  ?mockObj = cat("<mock value for forced-reachable parameter ", cat(?class, ">")).
+  ?mockObj = cat("<mock value for forced-reachable parameter ", cat(cat(?class, ">:: "), ?ctx)).
+//   ?mockObj = cat("<mock value for forced-reachable parameter ", cat(?class, ">")).
 
 // Helper/statistics relation.
 UnmockableFormalOfForcedReachableContext(?formal, ?formalType) :-
@@ -144,7 +145,8 @@ MockObject(?value, ?class) :-
   ( ExercisedEntryPointMethod(?class, ?method)
   ; (ForcedReachable(?method), Method_DeclaringType(?method, ?class))),
   ThisVar(?method, ?receiver),
-  ?value = MOCK_OBJECT_OF_TYPE(?class),
+//   ?value = MOCK_OBJECT_OF_TYPE(?class),
+  ?value = cat("<mock value for this ", cat(cat(?class, ">:: "), ?ctx)),
   ?ctx = ?method,
   mainAnalysis.isImmutableHContext(?hctx).
 

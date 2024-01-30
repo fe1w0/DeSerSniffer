@@ -65,7 +65,7 @@ run_summary() {
     TIMEOUT="--timeout 180"
 
     # facts
-    # FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
+    FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
 
     # Reflection
     ENABLE_REFLECTION="--light-reflection-glue"
@@ -91,13 +91,17 @@ run_summary() {
 	# Xlow-mem
 	XlowMem="--Xlow-mem"
 
+	# Input_ID
+	Input_ID="--input-id ${INPUT_ID}"
+
 	# X_SYMLINK_INPUT_FACTS
 	# X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
 
-    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
+    EXTRA_ARG="${Input_ID} ${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
 
     # 执行 doop 分析
-    local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"
+    # local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"
+    local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
     eval "$CMD" | tee -a $CurrentLOG

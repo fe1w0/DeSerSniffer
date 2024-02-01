@@ -27,9 +27,6 @@ single_analysis() {
 	timer run_summary $SubID $INPUT $DOOP_HOME $BASE_DIR $FuzzChainsPath $JAVA_HOME $JAVA_VERSION $InitID $JOBS
 	monitor_doop_log $INPUT $SubID
 
-    # 分析阶段
-	stats $SubID
-
     # 完成 analysis
     echo -e "[+] $(print_time) End:  $SubID $INPUT $CurrentLOG" | tee -a $CurrentLOG
 }

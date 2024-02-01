@@ -38,8 +38,14 @@
     TaintSourceMethod(label, method), \
     LabelFromSource(invo, label)
 
-
-#define MICRO_CUSTOM_TAINT(source, value, method) \
+/**
+ * MICRO_CUSTOM_TAINT 中:
+ * source -> method
+ * value -> mock value
+ * lable -> method
+*/
+#define MICRO_CUSTOM_TAINT(source, value, method, label) \
     SourceValueAndMethod(source, method), \
     TaintedValue(value), \
-    SourceFromTaintedValue(value, source)
+    SourceFromTaintedValue(value, source), \
+	LabelFromSource(source, label)

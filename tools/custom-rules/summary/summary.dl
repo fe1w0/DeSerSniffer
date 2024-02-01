@@ -40,8 +40,16 @@
 #include "utils/List-Targets.dl"
 
 
-// Step 2 : 计算 Bottom 中的 指针分析 和 污点分析
+// Step 2 : 计算 Bottom 中的 指针分析 和 污点分析 (摘要)
+// 注意还需要考虑静态field、静态array、array设置
 #include "utils/Bottom-VarPointsTo-analysis.dl"
+#include "utils/Bottom-TaintTransfer-analysis.dl"
+
+.output SourceFromTaintedValue
+.output TaintedValue
+.output TaintedValueTransferred
+.output VarIsTaintedFromVar
+.output TaintObjTransfer
 
 // -----------------------------------------------------------------------------
 // End Summary Analysis rules

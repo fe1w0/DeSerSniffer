@@ -22,12 +22,6 @@ MICRO_CUSTOM_TAINT(source, value, method, label) :-
 	label = method,
 	Bottom_Method_Forced_Source_Value(value, method).
 
-/**
- * 根据污点源信息，摘要出污点传播图
-*/
-
-
-
 
 // -----------------------------------------------------------------------------
 // End bottom - taint analysis rules

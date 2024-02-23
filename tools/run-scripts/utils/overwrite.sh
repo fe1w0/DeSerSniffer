@@ -33,7 +33,7 @@ function overwrite() {
     fi
 
     # overwrite
-    overwrite_rules=("init.dl" "context-insensitive-analysis.dl" "basic.dl" "entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl", "implicit-reachable.dl")
+    overwrite_rules=("init.dl" "context-insensitive-analysis.dl" "rules.dl" "basic.dl" "entry-points.dl" "light-Class.dl" "light-reflection-glue.dl" "minimal-sources-and-sinks.dl" "app-only.dl", "native-reflection.dl", "implicit-reachable.dl")
     
     echo -e "\t[+] $(print_time) overwrite-rules:" | tee -a $CurrentLOG
     for overwrite_rule in "${overwrite_rules[@]}"
@@ -48,6 +48,9 @@ function overwrite() {
 
     # 屏蔽 Main
     cp ${BASE_DIR}/tools/overwrite-rules/basic.dl $DOOP_HOME/souffle-logic/basic/basic.dl
+
+	# 使 TaintObjTransfer 可以 output
+	cp ${BASE_DIR}/tools/overwrite-rules/rules.dl $DOOP_HOME/souffle-logic/addons/information-flow/rules.dl
 
 	# 屏蔽 ContextResponse
 	cp ${BASE_DIR}/tools/overwrite-rules/context-insensitive-analysis.dl  $DOOP_HOME/souffle-logic/analyses/context-insensitive/analysis.dl

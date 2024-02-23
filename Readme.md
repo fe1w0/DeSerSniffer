@@ -1,4 +1,4 @@
-# DeSerSniffer
+# DeSerSniffer-TaintSummary
 
 # 项目介绍
 
@@ -97,3 +97,5 @@ Referencs:
 * [ ] 适用于上下文敏感的分析算法
 
   * 当前 release 分支中的 DeSerSniffer 仅支持 Doop 中的 context-insensitive 分析方法
+
+- [ ] 2.0 中采用的是函数摘要的算法

@@ -5,14 +5,13 @@
 .decl MethodInSummaries(method: Method)
 .output MethodInSummaries
 
-
-
 /**
  * 变量传播摘要需要自动计算提供以下关系:
  * - BaseToRetTaintTransferMethod
  * - BaseToParamTaintTransferMethod
  * - ParamToBaseTaintTransferMethod
  * - ParamToRetTaintTransferMethod
+ * 
  * - ParamIndexToBaseTaintTransferMethod
 */
 
@@ -22,14 +21,10 @@
 // index-th 参数 可以传递到 base(this)
 .decl ParamToBaseSummarizeMethod(index:number, method:Method)
 
-// original_index-th 参数是 alias_index 参数的别名对象
-.decl ParamToOtherParamSummarizeMethod(method: Method, original_index: number, alias_index: number)
-
 // base(this) 可以 传递到 index-th 参数
 .decl BaseToParamSummarizeMethod(index:number, method:Method)
 
 // base(this) 可以传递到 return
 .decl BaseToRetSummarizeMethod(method: Method)
-
 
 

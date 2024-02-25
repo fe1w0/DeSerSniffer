@@ -4,6 +4,7 @@
 
 /**
  * Bottom Method 中需要强制设置的污点源 
+
 */
 .decl Bottom_Method_Forced_Source_Value(value: symbol, method: Method)
 .output Bottom_Method_Forced_Source_Value
@@ -14,14 +15,26 @@ Bottom_Method_Forced_Source_Value(value, method) :-
 	TaintSourceVariable(var, method),
 	mainAnalysis.VarPointsTo(_, value, method, var).
 
-Bottom_Method_Forced_Source_Value(value, method) :-
-	Extension_Value(_, value, _, _, _, method).
+// /**
+//  * Log 2024-02-23, 不可以直接采用直接Extension_Value
+// */
+// Bottom_Method_Forced_Source_Value(value, method) :-
+// 	Extension_Value(_, value, _, _, _, method, _).
+
+// 使用 Doop 中的 VarIsTaintedFromVar 或者 VarIsTaintedFromValue 来解决
+
+// 这个有问题，分析的时间好长！！！
+// 但思路应该没有什么问题呀
+// VarIsTaintedFromValue(field_type, base_value, in_method, to) :-
+// 	TaintedValue(base_value),
+// 	Var_Type(to, field_type),
+// 	Extension_Value(_, _, signature, _, base_value, in_method, base),
+// 	LoadInstanceField(base, signature, to, in_method).
 
 MICRO_CUSTOM_TAINT(source, value, method, label) :-
 	source = method,
 	label = method,
 	Bottom_Method_Forced_Source_Value(value, method).
-
 
 // -----------------------------------------------------------------------------
 // End bottom - taint analysis rules

@@ -64,6 +64,7 @@
 // 无法正常输出，需要先处理plan
 // 在 overwrite 上进行修改
 .output TaintObjTransfer
+.output TaintedVarPointsTo
 
 // -----------------------------------------------------------------------------
 // End Summary Analysis rules

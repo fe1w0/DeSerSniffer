@@ -1,3 +1,15 @@
+.decl TaintedTransferResult(fromCtx: symbol, from: symbol, toCtx: symbol, to: symbol)
+.output TaintedTransferResult
+
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintObjTransfer(fromCtx, from, toCtx, to).
+
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintObjFieldTransfer(fromCtx, from, toCtx, to).
+
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintedTransferResult(fromCtx, from, toCtx, tmp),
+	TaintedTransferResult(fromCtx, tmp, toCtx, to).
 
 /**
  * 统计哪些函数已经触发了摘要过程
@@ -6,25 +18,62 @@
 .output MethodInSummaries
 
 /**
+ * 需设计:
  * 变量传播摘要需要自动计算提供以下关系:
  * - BaseToRetTaintTransferMethod
  * - BaseToParamTaintTransferMethod
  * - ParamToBaseTaintTransferMethod
  * - ParamToRetTaintTransferMethod
- * 
+ * 未考虑:
  * - ParamIndexToBaseTaintTransferMethod
 */
+.comp MethodSummarizer {
 
-// index-th 可以传递到 return
-.decl ParamToRetSummarizeMethod(index:number, method:Method)
+	/**
+	* base(this) 可以 传递到 index-th 参数
+	*/
+	.decl BaseToParamSummarizeMethod(index:number, method:Method)
 
-// index-th 参数 可以传递到 base(this)
-.decl ParamToBaseSummarizeMethod(index:number, method:Method)
+	BaseToParamSummarizeMethod(index, method):-
+		TaintedTransferResult(method, from, method, to),
+		FormalParam(index, method, to),
+		ThisVar(method, from).
 
-// base(this) 可以 传递到 index-th 参数
-.decl BaseToParamSummarizeMethod(index:number, method:Method)
+	/**
+	* base(this) 可以传递到 return
+	*/
+	.decl BaseToRetSummarizeMethod(method: Method)
 
-// base(this) 可以传递到 return
-.decl BaseToRetSummarizeMethod(method: Method)
+	BaseToRetSummarizeMethod(method) :-
+		TaintedTransferResult(method, from, method, to),
+		ReturnVar(to, method),
+		ThisVar(method, from).
+
+	/**
+	* index-th 可以传递到 return
+	*/
+	.decl ParamToRetSummarizeMethod(index:number, method:Method)
+
+	ParamToRetSummarizeMethod(index, method) :-
+		TaintedTransferResult(method, from, method, to),
+		ReturnVar(to, method),
+		FormalParam(index, method, from).
+
+	/**	
+	* index-th 参数 可以传递到 base(this)
+	*/
+	.decl ParamToBaseSummarizeMethod(index:number, method:Method)
+
+	ParamToBaseSummarizeMethod(index, method) :-
+		TaintedTransferResult(method, from, method, to),
+		ThisVar(method, to),
+		FormalParam(index, method, from).
+}
 
 
+.init Summarizer = MethodSummarizer
+
+.printsize Summarizer.BaseToParamSummarizeMethod
+.printsize Summarizer.BaseToRetSummarizeMethod
+.printsize Summarizer.ParamToRetSummarizeMethod
+.printsize Summarizer.ParamToBaseSummarizeMethod

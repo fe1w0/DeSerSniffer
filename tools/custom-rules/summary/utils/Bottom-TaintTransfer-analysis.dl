@@ -15,26 +15,31 @@ Bottom_Method_Forced_Source_Value(value, method) :-
 	TaintSourceVariable(var, method),
 	mainAnalysis.VarPointsTo(_, value, method, var).
 
-// /**
-//  * Log 2024-02-23, 不可以直接采用直接Extension_Value
-// */
-// Bottom_Method_Forced_Source_Value(value, method) :-
-// 	Extension_Value(_, value, _, _, _, method, _).
-
-// 使用 Doop 中的 VarIsTaintedFromVar 或者 VarIsTaintedFromValue 来解决
-
-// 这个有问题，分析的时间好长！！！
-// 但思路应该没有什么问题呀
-// VarIsTaintedFromValue(field_type, base_value, in_method, to) :-
-// 	TaintedValue(base_value),
-// 	Var_Type(to, field_type),
-// 	Extension_Value(_, _, signature, _, base_value, in_method, base),
-// 	LoadInstanceField(base, signature, to, in_method).
-
 MICRO_CUSTOM_TAINT(source, value, method, label) :-
 	source = method,
 	label = method,
 	Bottom_Method_Forced_Source_Value(value, method).
+
+/**
+ * 需要考虑 to = base.field
+ * from: base.field, to: to
+ * 想到的思路是, 若 base 指向的是 TaintedValue
+ * 则允许 field 指向的 TaintedValue 也为 TaintedValue
+*/
+
+.decl TaintObjFieldTransfer(callerCtx: symbol, from: symbol, calleeCtx: symbol, to: symbol)
+// .output TaintObjFieldTransfer
+
+TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
+MICRO_CUSTOM_TAINT(source, value, in_method, label):-
+	source = baseValue,
+	value = field_value,
+	label = in_method,
+	callerCtx = in_method,
+	calleeCtx = in_method,
+	from = base,
+	TaintedVarPointsTo(baseValue, baseCtx, base),
+	Extension_Value(_, field_value, _, baseValue, in_method, base, to).
 
 // -----------------------------------------------------------------------------
 // End bottom - taint analysis rules

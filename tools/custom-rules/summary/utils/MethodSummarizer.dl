@@ -77,3 +77,6 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 .printsize Summarizer.BaseToRetSummarizeMethod
 .printsize Summarizer.ParamToRetSummarizeMethod
 .printsize Summarizer.ParamToBaseSummarizeMethod
+
+.output Summarizer.BaseToRetSummarizeMethod
+.output Summarizer.ParamToRetSummarizeMethod

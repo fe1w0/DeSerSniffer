@@ -42,19 +42,19 @@
 // Start Summary Analysis rules
 // -----------------------------------------------------------------------------
 
+// 基本组件: 根据method中的传播情况，实时增量新的传播摘要信息
+#include "utils/MethodSummarizer.dl"
+
 // Step 1 : 列出所有的函数
 #include "utils/List-Targets.dl"
 
 // Step 2 : 计算 Bottom 中的 指针分析 和 污点分析 (摘要)
-// 注意还需要考虑静态field、静态array、array设置
 #include "utils/Bottom-VarPointsTo-analysis.dl"
 #include "utils/Bottom-TaintTransfer-analysis.dl"
 
+// Step 2 : 计算 Node 中的 指针分析 和 污点分析 (摘要)
 #include "utils/Node-VarPointsTo-analysis.dl"
 #include "utils/Node-TaintTransfer-analysis.dl"
-
-// 基本组件: 根据method中的传播情况，实时增量新的传播摘要信息
-#include "utils/MethodSummarizer.dl"
 
 .output SourceFromTaintedValue
 .output TaintedValue

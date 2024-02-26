@@ -4,7 +4,6 @@
 
 /**
  * Bottom Method 中需要强制设置的污点源 
-
 */
 .decl Bottom_Method_Forced_Source_Value(value: symbol, method: Method)
 .output Bottom_Method_Forced_Source_Value
@@ -38,6 +37,7 @@ MICRO_CUSTOM_TAINT(source, value, in_method, label):-
 	callerCtx = in_method,
 	calleeCtx = in_method,
 	from = base,
+	BottomMethod(in_method),
 	TaintedVarPointsTo(baseValue, baseCtx, base),
 	Extension_Value(_, field_value, _, baseValue, in_method, base, to).
 

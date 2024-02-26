@@ -29,7 +29,7 @@ MICRO_CUSTOM_TAINT(source, value, method, label) :-
 .decl TaintObjFieldTransfer(callerCtx: symbol, from: symbol, calleeCtx: symbol, to: symbol)
 // .output TaintObjFieldTransfer
 
-TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
+// TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
 	source = baseValue,
 	value = field_value,
@@ -38,7 +38,7 @@ MICRO_CUSTOM_TAINT(source, value, in_method, label):-
 	calleeCtx = in_method,
 	from = base,
 	BottomMethod(in_method),
-	TaintedVarPointsTo(baseValue, baseCtx, base),
+	// TaintedVarPointsTo(baseValue, _, base),
 	Extension_Value(_, field_value, _, baseValue, in_method, base, to).
 
 // -----------------------------------------------------------------------------

@@ -18,9 +18,9 @@
 //     ContextRequest(?callerCtx, ?hctx, ?invo, ?value, ?tomethod, _),
 //     ?calleeCtx = ?callerCtx.
 
-  StaticContextResponse(?callerCtx, ?invo, ?calleeCtx) :-
-    StaticContextRequest(?callerCtx, ?invo),
-    ?calleeCtx = ?callerCtx.
+//   StaticContextResponse(?callerCtx, ?invo, ?calleeCtx) :-
+//     StaticContextRequest(?callerCtx, ?invo),
+//     ?calleeCtx = ?callerCtx.
       
    /**
     * Some library modules are generically defined, and need the macro

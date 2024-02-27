@@ -27,16 +27,16 @@ MICRO_CUSTOM_TAINT(source, value, method, label) :-
 */
 
 .decl TaintObjFieldTransfer(callerCtx: symbol, from: symbol, calleeCtx: symbol, to: symbol)
-// .output TaintObjFieldTransfer
+.output TaintObjFieldTransfer
 
 // TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
 	source = baseValue,
 	value = field_value,
 	label = in_method,
-	callerCtx = in_method,
-	calleeCtx = in_method,
-	from = base,
+	// callerCtx = in_method,
+	// calleeCtx = in_method,
+	// from = base,
 	BottomMethod(in_method),
 	// TaintedVarPointsTo(baseValue, _, base),
 	Extension_Value(_, field_value, _, baseValue, in_method, base, to).

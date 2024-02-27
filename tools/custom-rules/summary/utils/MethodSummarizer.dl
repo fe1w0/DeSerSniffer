@@ -5,15 +5,15 @@
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintObjTransfer(fromCtx, from, toCtx, to).
 
-TaintObjFieldTransfer(fromCtx, from, toCtx, to) :-
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	toCtx = in_method,
 	fromCtx = in_method,
 	from = base,
 	TaintedVarPointsTo(baseValue, _, base),
 	Extension_Value(_, field_value, _, baseValue, in_method, base, to).
 
-TaintedTransferResult(fromCtx, from, toCtx, to) :-
-	TaintObjFieldTransfer(fromCtx, from, toCtx, to).
+// TaintedTransferResult(fromCtx, from, toCtx, to) :-
+// 	TaintObjFieldTransfer(fromCtx, from, toCtx, to).
 
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintedTransferResult(fromCtx, from, toCtx, tmp),

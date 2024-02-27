@@ -18,16 +18,16 @@ Node_Method_Forced_Source_Value(value, method) :-
 MICRO_CUSTOM_TAINT(source, value, method, label) :-
 	source = method,
 	label = method,
-	Bottom_Method_Forced_Source_Value(value, method).
+	Node_Method_Forced_Source_Value(value, method).
 
 // TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
 	source = baseValue,
 	value = field_value,
 	label = in_method,
-	callerCtx = in_method,
-	calleeCtx = in_method,
-	from = base,
+	// callerCtx = in_method,
+	// calleeCtx = in_method,
+	// from = base,
 	NodeMethod(in_method),
 	// TaintedVarPointsTo(baseValue, _, base),
 	Extension_Value(_, field_value, _, baseValue, in_method, base, to).

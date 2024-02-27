@@ -45,7 +45,7 @@ ImMethod_WithoutInvocation(method):-
  * 声明 Bottom
 */
 .decl BottomMethod(method: Method)
-.output BottomMethod(filename="BottomMethod.facts")
+.output BottomMethod
 .printsize BottomMethod
 
 BottomMethod(in_method) :-
@@ -89,7 +89,7 @@ mainAnalysis.StoreHeapInstanceField(signature, hctx, base_value, in_method, from
 	from = cat(cat(from_base, "."), signature),
 	!mainAnalysis.Value_Null(new_value),
 	Extension_Value(hctx, new_value, signature, base_value, in_method, from_base, _).
- 
+
 .output mainAnalysis.StoreHeapInstanceField
 .output mainAnalysis.LoadHeapInstanceField
 .output mainAnalysis.InstanceFieldPointsTo

@@ -2,7 +2,6 @@
 // Start Node - taint analysis rules
 // -----------------------------------------------------------------------------
 
-
 /**
  * Bottom Method 中需要强制设置的污点源 
 */
@@ -11,26 +10,21 @@
 .printsize Node_Method_Forced_Source_Value
 
 Node_Method_Forced_Source_Value(value, method) :-
+	mainAnalysis.VarPointsTo(_, value, method, var),
 	NodeMethod(method),
-	TaintSourceVariable(var, method),
-	mainAnalysis.VarPointsTo(_, value, method, var).
+	TaintSourceVariable(var, method).
 
 MICRO_CUSTOM_TAINT(source, value, method, label) :-
+	Node_Method_Forced_Source_Value(value, method),
 	source = method,
-	label = method,
-	Node_Method_Forced_Source_Value(value, method).
+	label = method.
 
-// TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
-	source = baseValue,
+	Extension_Value(hctx, field_value, signature, in_method, base, to),
+	source = in_method,
 	value = field_value,
 	label = in_method,
-	// callerCtx = in_method,
-	// calleeCtx = in_method,
-	// from = base,
-	NodeMethod(in_method),
-	// TaintedVarPointsTo(baseValue, _, base),
-	Extension_Value(_, field_value, _, baseValue, in_method, base, to).
+	NodeMethod(in_method).
 
 // -----------------------------------------------------------------------------
 // End Node - taint analysis rules

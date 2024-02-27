@@ -6,8 +6,6 @@
 .printsize NodeMethod
 .output NodeMethod
 
-// .input NodeMethod(filename="NodeMethod.facts")
-
 NodeMethod(method) :-
 	isMethod(method),
 	ImMethod_WithInvocation(method).

@@ -19,27 +19,12 @@ MICRO_CUSTOM_TAINT(source, value, method, label) :-
 	label = method,
 	Bottom_Method_Forced_Source_Value(value, method).
 
-/**
- * 需要考虑 to = base.field
- * from: base.field, to: to
- * 想到的思路是, 若 base 指向的是 TaintedValue
- * 则允许 field 指向的 TaintedValue 也为 TaintedValue
-*/
-
-.decl TaintObjFieldTransfer(callerCtx: symbol, from: symbol, calleeCtx: symbol, to: symbol)
-.output TaintObjFieldTransfer
-
-// TaintObjFieldTransfer(callerCtx, from, calleeCtx, to),
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
-	source = baseValue,
+	Extension_Value(hctx, field_value, signature, in_method, base, to), 
+	source = in_method,
 	value = field_value,
 	label = in_method,
-	// callerCtx = in_method,
-	// calleeCtx = in_method,
-	// from = base,
-	BottomMethod(in_method),
-	// TaintedVarPointsTo(baseValue, _, base),
-	Extension_Value(_, field_value, _, baseValue, in_method, base, to).
+	BottomMethod(in_method).
 
 // -----------------------------------------------------------------------------
 // End bottom - taint analysis rules

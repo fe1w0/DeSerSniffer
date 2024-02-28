@@ -20,6 +20,23 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintedTransferResult(fromCtx, from, toCtx, tmp),
 	TaintedTransferResult(fromCtx, tmp, toCtx, to).
 
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintedVarPointsTo(from_value, fromCtx, from),
+	StoreInstanceField(from, base, signature, in_method),
+	to = base,
+	toCtx = in_method.
+
+/**
+ * formal @this <-> actual @this
+*/
+TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, Rto) :-
+	TaintedTransferResult(fromCtx, from, toCtx, to),
+	ThisVar(method, from),
+	Rto = from,
+	RtoCtx = fromCtx,
+	Rfrom = to,
+	RfromCtx = toCtx.
+
 /**
  * 在利用 ForcedReachable 计算函数内的指针时，需要对 this.field 进行 mock
 */
@@ -39,7 +56,6 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 .output mainAnalysis.StoreHeapInstanceField
 .output mainAnalysis.LoadHeapInstanceField
 .output mainAnalysis.InstanceFieldPointsTo
-
 
 /**
  * 统计哪些函数已经触发了摘要过程
@@ -64,6 +80,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	*/
 	.decl BaseToParamSummarizeMethod(index:number, method:Method)
 
+	BaseToParamTaintTransferMethod(method),
 	BaseToParamSummarizeMethod(index, method):-
 		TaintedTransferResult(method, from, method, to),
 		FormalParam(index, method, to),
@@ -74,6 +91,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	*/
 	.decl BaseToRetSummarizeMethod(method: Method)
 
+	BaseToRetTaintTransferMethod(method),
 	BaseToRetSummarizeMethod(method) :-
 		TaintedTransferResult(method, from, method, to),
 		ReturnVar(to, method),
@@ -84,6 +102,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	*/
 	.decl ParamToRetSummarizeMethod(index:number, method:Method)
 
+	ParamToRetTaintTransferMethod(method),
 	ParamToRetSummarizeMethod(index, method) :-
 		TaintedTransferResult(method, from, method, to),
 		ReturnVar(to, method),
@@ -94,12 +113,121 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	*/
 	.decl ParamToBaseSummarizeMethod(index:number, method:Method)
 
+	ParamToBaseTaintTransferMethod(index, method),
 	ParamToBaseSummarizeMethod(index, method) :-
 		TaintedTransferResult(method, from, method, to),
 		ThisVar(method, to),
 		FormalParam(index, method, from).
 }
 
+/**
+ * 采用 May 分析的方式，处理 Native 函数
+*/
+.comp NativeMethodSummarize {
+
+	.decl NativeMethod(method: Method)
+
+	NativeMethod(method) :-
+		Method_Modifier("native", method).
+
+	/**
+	* base(this) 可以 传递到 index-th 参数
+	*/
+	.decl BaseToParamSummarizeMethod(index:number, method:Method)
+
+	BaseToParamTaintTransferMethod(method),
+	BaseToParamSummarizeMethod(index, method):-
+		FormalParam(index, method, _),
+		!Method_Modifier("static", method),
+		NativeMethod(method).
+
+	/**
+	* base(this) 可以传递到 return
+	*/
+	.decl BaseToRetSummarizeMethod(method: Method)
+
+	BaseToRetTaintTransferMethod(method),
+	BaseToRetSummarizeMethod(method) :-
+		!Method_Modifier("static", method),
+		Method_ReturnType(method, _),
+		NativeMethod(method).
+
+	/**
+	* index-th 可以传递到 return
+	*/
+	.decl ParamToRetSummarizeMethod(index:number, method:Method)
+
+	ParamToRetTaintTransferMethod(method),
+	ParamToRetSummarizeMethod(index, method) :-
+		FormalParam(index, method, _),
+		Method_ReturnType(method, _),
+		NativeMethod(method).
+	
+	/**	
+	* index-th 参数 可以传递到 base(this)
+	*/
+	.decl ParamToBaseSummarizeMethod(index:number, method:Method)
+
+	ParamToBaseTaintTransferMethod(index, method),
+	ParamToBaseSummarizeMethod(index, method) :-
+		FormalParam(index, method, _),
+		!Method_Modifier("static", method),
+		NativeMethod(method).
+}
+
+
+/**
+ * 解决过程间的传播问题:
+ * 1. Merge 潜在调用的CallEdge的污点传播摘要信息
+ * 2. 解决两种特殊图问题, Recursion and circular calls
+*/
+.comp InterproceduralTransfer {
+
+	/**
+	* 摘要函数中的CallEdge，主要用过过程间摘要函数的污点传播过程，利用Bottom和Node中的传播摘要信息
+	*/
+	.decl CallEdgeInSummarizer(caller_ctx: symbol, caller_invocation: symbol, callee_ctx: symbol, callee_method: symbol)
+
+	/**
+	* 处理传统调用问题:
+	* VirtualMethodInvocation
+	* SuperMethodInvocation
+	* StaticMethodInvocation
+	* SpecialMethodInvocation
+	* DynamicMethodInvocation
+	* PolymorphicInvocation
+	*/
+	mainAnalysis.OptVirtualMethodInvocationBase(invocation, base) :-
+		mainAnalysis.ForcedReachable(method),
+		Instruction_Method(invocation, method),
+		VirtualMethodInvocation_Base(invocation, base).
+
+	mainAnalysis.OptSuperMethodInvocationBase(invocation, base) :-
+		mainAnalysis.ForcedReachable(method),
+		Instruction_Method(invocation, method),
+		SuperMethodInvocation_Base(invocation, base).
+
+	mainAnalysis.OptSpecialMethodInvocationBase(invocation, base) :-
+		mainAnalysis.ForcedReachable(method),
+		Instruction_Method(invocation, method),
+		SpecialMethodInvocation_Base(invocation, base).
+
+	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
+		mainAnalysis.configuration.ContextRequest(caller_ctx, _, caller_invocation, _, callee_method, 1),
+		callee_ctx = callee_method.
+	
+	/**
+	* 主要依靠 MethodInvocationInContext 来传递摘要
+	*/
+	MethodInvocationInContextInApplication(caller_ctx, caller_invocation, callee_method),
+	MethodInvocationInContext(caller_ctx, caller_invocation, callee_method) :-
+		CallEdgeInSummarizer(caller_ctx, caller_invocation, _, callee_method).
+}
+
+.init InterproceduralTransferAnalysis = InterproceduralTransfer
+
+.printsize mainAnalysis.configuration.ContextRequest
+.output mainAnalysis.configuration.ContextRequest
 
 .init Summarizer = MethodSummarizer
 
@@ -108,5 +236,19 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 .printsize Summarizer.ParamToRetSummarizeMethod
 .printsize Summarizer.ParamToBaseSummarizeMethod
 
+.output Summarizer.BaseToParamSummarizeMethod
 .output Summarizer.BaseToRetSummarizeMethod
 .output Summarizer.ParamToRetSummarizeMethod
+.output Summarizer.ParamToBaseSummarizeMethod
+
+.init NativeSummarize = NativeMethodSummarize
+
+.printsize NativeSummarize.BaseToParamSummarizeMethod
+.printsize NativeSummarize.BaseToRetSummarizeMethod
+.printsize NativeSummarize.ParamToRetSummarizeMethod
+.printsize NativeSummarize.ParamToBaseSummarizeMethod
+
+.output NativeSummarize.BaseToParamSummarizeMethod
+.output NativeSummarize.BaseToRetSummarizeMethod
+.output NativeSummarize.ParamToRetSummarizeMethod
+.output NativeSummarize.ParamToBaseSummarizeMethod

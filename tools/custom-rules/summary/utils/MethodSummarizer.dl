@@ -224,6 +224,11 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		CallEdgeInSummarizer(caller_ctx, caller_invocation, _, callee_method).
 }
 
+.output mainAnalysis.OptSpecialMethodInvocationBase
+.output SpecialMethodInvocation_Base
+.output MethodInvocation_Method
+.output AssignHeapAllocation
+
 .init InterproceduralTransferAnalysis = InterproceduralTransfer
 
 .printsize mainAnalysis.configuration.ContextRequest

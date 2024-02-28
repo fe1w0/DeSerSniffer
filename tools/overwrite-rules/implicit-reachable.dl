@@ -58,8 +58,8 @@ ForcedReachableContext(?ctx, ?method) :-
 //   isImmutableContext(?ctx).
 
 // Forced-reachable contexts are reachable contexts.
-// ReachableContext(?ctx, ?meth) :-
-//   ForcedReachableContext(?ctx, ?meth).
+ReachableContext(?ctx, ?meth) :-
+  ForcedReachableContext(?ctx, ?meth).
 
 // Formals of forced-reachable contexts, recorded here for mocking.
 .decl FormalOfForcedReachableContext(?ctx:configuration.Context, ?formal:Var, ?formalType:Type)

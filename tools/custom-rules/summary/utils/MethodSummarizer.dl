@@ -187,15 +187,10 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	* 摘要函数中的CallEdge，主要用过过程间摘要函数的污点传播过程，利用Bottom和Node中的传播摘要信息
 	*/
 	.decl CallEdgeInSummarizer(caller_ctx: symbol, caller_invocation: symbol, callee_ctx: symbol, callee_method: symbol)
+	.output CallEdgeInSummarizer
 
 	/**
 	* 处理传统调用问题:
-	* VirtualMethodInvocation
-	* SuperMethodInvocation
-	* StaticMethodInvocation
-	* SpecialMethodInvocation
-	* DynamicMethodInvocation
-	* PolymorphicInvocation
 	*/
 	mainAnalysis.OptVirtualMethodInvocationBase(invocation, base) :-
 		mainAnalysis.ForcedReachable(method),
@@ -212,48 +207,82 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		Instruction_Method(invocation, method),
 		SpecialMethodInvocation_Base(invocation, base).
 
+	/**
+	* 将影响 污点传播，以及指针传播
+	*/
 	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
 		mainAnalysis.configuration.ContextRequest(caller_ctx, _, caller_invocation, _, callee_method, 1),
 		callee_ctx = callee_method.
+
+	/**
+	* 需要考虑静态调用
+	*/
+	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
+		mainAnalysis.configuration.StaticContextRequest(caller_ctx, caller_invocation),
+		MethodInvocation_Method(caller_invocation, callee_method),
+		callee_ctx = callee_method.
 	
+	/**
+	* 需要考虑虚拟化调用时，
+	* ret 需要有 VarPointsTo 分配
+	* souffle-logic/main/method-handles.dl
+	*/
+	mainAnalysis.VarPointsTo(hctx, val, callerCtx, var) :-
+		CallEdgeInSummarizer(callerCtx, invo, calleeCtx, method),
+		ReturnVar(ret, method),
+		mainAnalysis.VarPointsTo(hctx, val, calleeCtx, ret),
+		AssignReturnValue(invo, var),
+		Var_Type(ret, retType),
+		Var_Type(var, varType),
+		mainAnalysis.CompatibleTypes(retType, varType).
+
 	/**
 	* 主要依靠 MethodInvocationInContext 来传递摘要
 	*/
 	MethodInvocationInContextInApplication(caller_ctx, caller_invocation, callee_method),
 	MethodInvocationInContext(caller_ctx, caller_invocation, callee_method) :-
 		CallEdgeInSummarizer(caller_ctx, caller_invocation, _, callee_method).
-}
 
-.output mainAnalysis.OptSpecialMethodInvocationBase
-.output SpecialMethodInvocation_Base
-.output MethodInvocation_Method
-.output AssignHeapAllocation
+	/**
+	* 主要依靠 MethodInvocationInContext 来传递摘要
+	*/
+	mainAnalysis.VarPointsTo(hctx, value, callerCtx, local) :-
+		CallEdgeInSummarizer(callerCtx, invocation, calleeCtx, method),
+		AssignReturnValue(invocation, local),
+		ReturnVar(return, method),
+		!SanitizationMethod(method),
+		mainAnalysis.OptRetVarPointsTo(hctx, value, calleeCtx, return).
+
+	/**
+	* 解决 Const 数值问题
+	*/
+	.decl CreateNumberValue(const:symbol, type:Type, declaringType:ReferenceType)
+
+	CreateNumberValue(const, type, className) :-
+		AssignNumConstant_Id(insn, const),
+		NumConstantRaw(const, type),
+		Instruction_Method(insn, meth),
+		Method_DeclaringType(meth, className).
+
+	mainAnalysis.VarPointsTo(hctx, constValue, toCtx, to),
+	mainAnalysis.Value_Num(constValue, const, type),
+	isValue(constValue),
+	mainAnalysis.Value_Type(constValue, type),
+	mainAnalysis.Value_DeclaringType(constValue, declaringType) :-
+		mainAnalysis.ReachableContext(toCtx, inmethod),
+		Instruction_Method(insn, inmethod),
+		(
+			AssignNumConstant_Id(insn, const);
+    		AssignCastNumConstant_Id(insn, const)
+		),
+		AssignInstruction_To(insn, to),
+		CreateNumberValue(const, type, declaringType),
+		constValue = cat("num-constant-", const),
+		mainAnalysis.isImmutableHContext(hctx).
+}
 
 .init InterproceduralTransferAnalysis = InterproceduralTransfer
 
-.printsize mainAnalysis.configuration.ContextRequest
-.output mainAnalysis.configuration.ContextRequest
-
 .init Summarizer = MethodSummarizer
 
-.printsize Summarizer.BaseToParamSummarizeMethod
-.printsize Summarizer.BaseToRetSummarizeMethod
-.printsize Summarizer.ParamToRetSummarizeMethod
-.printsize Summarizer.ParamToBaseSummarizeMethod
-
-.output Summarizer.BaseToParamSummarizeMethod
-.output Summarizer.BaseToRetSummarizeMethod
-.output Summarizer.ParamToRetSummarizeMethod
-.output Summarizer.ParamToBaseSummarizeMethod
-
 .init NativeSummarize = NativeMethodSummarize
-
-.printsize NativeSummarize.BaseToParamSummarizeMethod
-.printsize NativeSummarize.BaseToRetSummarizeMethod
-.printsize NativeSummarize.ParamToRetSummarizeMethod
-.printsize NativeSummarize.ParamToBaseSummarizeMethod
-
-.output NativeSummarize.BaseToParamSummarizeMethod
-.output NativeSummarize.BaseToRetSummarizeMethod
-.output NativeSummarize.ParamToRetSummarizeMethod
-.output NativeSummarize.ParamToBaseSummarizeMethod

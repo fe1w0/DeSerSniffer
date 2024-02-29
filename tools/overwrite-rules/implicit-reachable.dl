@@ -125,7 +125,8 @@ MockValueConsMacro(?mockObj, ?class),
 MockObjFromOpenProgramEntryPointArg(?mockObj),
 VarPointsTo(?hctx, ?mockObj, ?ctx, ?formal) :-
   FormalOfForcedReachableContext(?ctx, ?formal, ?formalType),
-  TypeToConcreteImplementation(?formalType, ?class),
+  ?class = ?formalType,
+//   TypeToConcreteImplementation(?formalType, ?class),
   isImmutableHContext(?hctx),
   ?mockObj = cat("<mock value for forced-reachable parameter ", cat(cat(?class, ">:: "), ?ctx)).
 //   ?mockObj = cat("<mock value for forced-reachable parameter ", cat(?class, ">")).

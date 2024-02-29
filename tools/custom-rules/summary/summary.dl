@@ -6,6 +6,7 @@
 
 // 基本组件: 根据method中的传播情况，实时增量新的传播摘要信息
 #include "utils/MethodSummarizer.dl"
+#include "utils/debug.dl"
 
 // Step 1 : 列出所有的函数
 #include "utils/List-Targets.dl"
@@ -17,16 +18,6 @@
 // Step 2 : 计算 Node 中的 指针分析 和 污点分析 (摘要)
 #include "utils/Node-VarPointsTo-analysis.dl"
 #include "utils/Node-TaintTransfer-analysis.dl"
-
-.output SourceFromTaintedValue
-.output TaintedValue
-.output TaintedValueTransferred
-.output VarIsTaintedFromVar
-
-// 无法正常输出，需要先处理plan
-// 在 overwrite 上进行修改
-// .output TaintObjTransfer
-.output TaintedVarPointsTo
 
 // -----------------------------------------------------------------------------
 // End Summary Analysis rules

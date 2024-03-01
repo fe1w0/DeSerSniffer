@@ -208,14 +208,14 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		SpecialMethodInvocation_Base(invocation, base).
 
 	/**
-	* 多态问题，将摘要的结果进行Merge:
+	* 多态问题，将摘要的结果进行Merge:s
 	*/
-	mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?tomethod, 1) :-
-		OptVirtualMethodInvocationBase(?invocation, ?base),
-		mainAnalysis.VarPointsTo(?hctx, ?value, ?callerCtx, ?base),
-		Value_Type.Value_Type(?value, ?valuetype),
+	mainAnalysis.configuration.ContextRequest(callerCtx, hctx, invocation, value, tomethod, 1) :-
+		mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
+		mainAnalysis.VarPointsTo(hctx, value, callerCtx, base),
+		mainAnalysis.Value_Type(value, valuetype),
 		basic.SubtypeOf(sub_type, valuetype),
-		basic.ResolveInvocation(?sub_type, ?invocation, ?tomethod).
+		basic.ResolveInvocation(sub_type, invocation, tomethod).
 	
 	/**
 	* 将影响 污点传播，以及指针传播
@@ -244,11 +244,14 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	* 将 Ret = base.method(params,) 中的 Ret 进行 Mock_Value 设置
 	* 避免 污点摘要分析中的 value 影响到 Ret 的 Value
 	*/
-	MockValueConsMacro(value, type),
+	MockValueConsMacro(value, varType),
 	mainAnalysis.VarPointsTo(hctx, value, callerCtx, var) :-
 		AssignReturnValue(invo, var),
 		Var_Type(var, varType),
+		callerCtx = in_method,
+		Instruction_Method(invo, in_method),
 		MethodInvocation_Method(invo, signature),
+		mainAnalysis.isImmutableHContext(hctx),
 		value = cat(cat(cat("<method-ret ", signature), " in "), invo).
 
 	// /**

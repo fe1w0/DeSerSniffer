@@ -49,3 +49,9 @@
     TaintedValue(value), \
     SourceFromTaintedValue(value, source), \
 	LabelFromSource(source, label)
+
+#define MockValueConsMacro(value, type) \
+   mainAnalysis.Value_isMock(value), \
+   isValue(value), \
+   mainAnalysis.Value_Type(value, type), \
+   mainAnalysis.Value_DeclaringType(value, "java.lang.Object")

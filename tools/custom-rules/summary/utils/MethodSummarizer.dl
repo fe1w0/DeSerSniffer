@@ -208,6 +208,16 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		SpecialMethodInvocation_Base(invocation, base).
 
 	/**
+	* 多态问题，将摘要的结果进行Merge:
+	*/
+	mainAnalysis.configuration.ContextRequest(?callerCtx, ?hctx, ?invocation, ?value, ?tomethod, 1) :-
+		OptVirtualMethodInvocationBase(?invocation, ?base),
+		mainAnalysis.VarPointsTo(?hctx, ?value, ?callerCtx, ?base),
+		Value_Type.Value_Type(?value, ?valuetype),
+		basic.SubtypeOf(sub_type, valuetype),
+		basic.ResolveInvocation(?sub_type, ?invocation, ?tomethod).
+	
+	/**
 	* 将影响 污点传播，以及指针传播
 	*/
 	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
@@ -223,18 +233,45 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		callee_ctx = callee_method.
 	
 	/**
-	* 需要考虑虚拟化调用时，
-	* ret 需要有 VarPointsTo 分配
-	* souffle-logic/main/method-handles.dl
+	* 需要考虑 Interface 的情况
 	*/
-	mainAnalysis.VarPointsTo(hctx, val, callerCtx, var) :-
-		CallEdgeInSummarizer(callerCtx, invo, calleeCtx, method),
-		ReturnVar(ret, method),
-		mainAnalysis.VarPointsTo(hctx, val, calleeCtx, ret),
+	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
+		mainAnalysis.configuration.StaticContextRequest(caller_ctx, caller_invocation),
+		MethodInvocation_Method(caller_invocation, callee_method),
+		callee_ctx = callee_method.
+
+	/**
+	* 将 Ret = base.method(params,) 中的 Ret 进行 Mock_Value 设置
+	* 避免 污点摘要分析中的 value 影响到 Ret 的 Value
+	*/
+	MockValueConsMacro(value, type),
+	mainAnalysis.VarPointsTo(hctx, value, callerCtx, var) :-
 		AssignReturnValue(invo, var),
-		Var_Type(ret, retType),
 		Var_Type(var, varType),
-		mainAnalysis.CompatibleTypes(retType, varType).
+		MethodInvocation_Method(invo, signature),
+		value = cat(cat(cat("<method-ret ", signature), " in "), invo).
+
+	// /**
+	// * 需要考虑虚拟化调用时，
+	// * ret 需要有 VarPointsTo 分配
+	// * souffle-logic/main/method-handles.dl
+	// */
+	// mainAnalysis.VarPointsTo(hctx, val, callerCtx, var) :-
+	// 	CallEdgeInSummarizer(callerCtx, invo, calleeCtx, method),
+	// 	ReturnVar(ret, method),
+	// 	mainAnalysis.VarPointsTo(hctx, val, calleeCtx, ret),
+	// 	AssignReturnValue(invo, var),
+	// 	Var_Type(ret, retType),
+	// 	Var_Type(var, varType),
+	// 	mainAnalysis.CompatibleTypes(retType, varType).
+	// /**
+	// * 主要依靠 MethodInvocationInContext 来传递摘要
+	// */
+	// mainAnalysis.VarPointsTo(hctx, value, callerCtx, local) :-
+	// 	CallEdgeInSummarizer(callerCtx, invocation, calleeCtx, method),
+	// 	AssignReturnValue(invocation, local),
+	// 	ReturnVar(return, method),
+	// 	mainAnalysis.OptRetVarPointsTo(hctx, value, calleeCtx, return).
 
 	/**
 	* 主要依靠 MethodInvocationInContext 来传递摘要
@@ -242,16 +279,6 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	MethodInvocationInContextInApplication(caller_ctx, caller_invocation, callee_method),
 	MethodInvocationInContext(caller_ctx, caller_invocation, callee_method) :-
 		CallEdgeInSummarizer(caller_ctx, caller_invocation, _, callee_method).
-
-	/**
-	* 主要依靠 MethodInvocationInContext 来传递摘要
-	*/
-	mainAnalysis.VarPointsTo(hctx, value, callerCtx, local) :-
-		CallEdgeInSummarizer(callerCtx, invocation, calleeCtx, method),
-		AssignReturnValue(invocation, local),
-		ReturnVar(return, method),
-		!SanitizationMethod(method),
-		mainAnalysis.OptRetVarPointsTo(hctx, value, calleeCtx, return).
 
 	/**
 	* 解决 Const 数值问题
@@ -279,6 +306,40 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		CreateNumberValue(const, type, declaringType),
 		constValue = cat("num-constant-", const),
 		mainAnalysis.isImmutableHContext(hctx).
+
+	/**
+	* 解决 Native Value 问题
+	*/
+	#define NativeReturnValId(type, method) cat("<native ", cat(type, cat(" value allocated in ", cat(method, ">"))))
+
+	.decl NativeMethodReturningValue(m:Method, t:Type, return:Var, v:Value)
+	.printsize NativeMethodReturningValue
+	.output NativeMethodReturningValue
+
+	.decl ReachableNativeMethodInvocation(ctx:symbol, invo:MethodInvocation, nativeMethod:Method)
+	.output ReachableNativeMethodInvocation
+
+	.decl _NativeMethodInvocation(invo:MethodInvocation, nativeMethod:Method)
+
+	_NativeMethodInvocation(invo, nativeMethod) :-
+		Method_Modifier("native", nativeMethod),
+		MethodInvocation_Method(invo, nativeMethod).
+
+	ReachableNativeMethodInvocation(ctx, invo, nativeMethod) :-
+		_NativeMethodInvocation(invo, nativeMethod),
+		mainAnalysis.ReachableContext(ctx, nativeMethod).
+
+	mainAnalysis.VarPointsTo(hctx, native_value, ctx, return),
+	NativeMethodReturningValue(m, t, return, native_value),
+	MockValueConsMacro(native_value, t),
+	mainAnalysis.ReachableValue(hctx, native_value) :-
+		native_value =  NativeReturnValId(t, m),
+		ctx = m,
+		NativeReturnVar(return, m),
+		Var_Type(return, t),
+		mainAnalysis.isImmutableHContext(hctx).
+
+
 }
 
 .init InterproceduralTransferAnalysis = InterproceduralTransfer

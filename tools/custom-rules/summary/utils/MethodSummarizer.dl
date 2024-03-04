@@ -1,4 +1,3 @@
-
 /**
  * 通过污点传播过程 
 */
@@ -208,7 +207,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		SpecialMethodInvocation_Base(invocation, base).
 
 	/**
-	* 多态问题，将摘要的结果进行Merge:s
+	* 多态问题，将摘要的结果进行Merge:
 	*/
 	mainAnalysis.configuration.ContextRequest(callerCtx, hctx, invocation, value, tomethod, 1) :-
 		mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
@@ -254,28 +253,6 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		mainAnalysis.isImmutableHContext(hctx),
 		value = cat(cat(cat("<method-ret ", signature), " in "), invo).
 
-	// /**
-	// * 需要考虑虚拟化调用时，
-	// * ret 需要有 VarPointsTo 分配
-	// * souffle-logic/main/method-handles.dl
-	// */
-	// mainAnalysis.VarPointsTo(hctx, val, callerCtx, var) :-
-	// 	CallEdgeInSummarizer(callerCtx, invo, calleeCtx, method),
-	// 	ReturnVar(ret, method),
-	// 	mainAnalysis.VarPointsTo(hctx, val, calleeCtx, ret),
-	// 	AssignReturnValue(invo, var),
-	// 	Var_Type(ret, retType),
-	// 	Var_Type(var, varType),
-	// 	mainAnalysis.CompatibleTypes(retType, varType).
-	// /**
-	// * 主要依靠 MethodInvocationInContext 来传递摘要
-	// */
-	// mainAnalysis.VarPointsTo(hctx, value, callerCtx, local) :-
-	// 	CallEdgeInSummarizer(callerCtx, invocation, calleeCtx, method),
-	// 	AssignReturnValue(invocation, local),
-	// 	ReturnVar(return, method),
-	// 	mainAnalysis.OptRetVarPointsTo(hctx, value, calleeCtx, return).
-
 	/**
 	* 主要依靠 MethodInvocationInContext 来传递摘要
 	*/
@@ -286,29 +263,31 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	/**
 	* 解决 Const 数值问题
 	*/
-	.decl CreateNumberValue(const:symbol, type:Type, declaringType:ReferenceType)
+	// .decl CreateNumberValue(const:symbol, constValue: symbol, type:Type, declaringType:ReferenceType)
+	// .output CreateNumberValue
+	// .printsize CreateNumberValue
 
-	CreateNumberValue(const, type, className) :-
-		AssignNumConstant_Id(insn, const),
-		NumConstantRaw(const, type),
-		Instruction_Method(insn, meth),
-		Method_DeclaringType(meth, className).
+	// CreateNumberValue(const, constValue, type, className) :-
+	// 	constValue = cat("num-constant-", const),
+	// 	AssignNumConstant_Id(insn, const),
+	// 	NumConstantRaw(const, type),
+	// 	Instruction_Method(insn, meth),
+	// 	Method_DeclaringType(meth, className).
 
-	mainAnalysis.VarPointsTo(hctx, constValue, toCtx, to),
-	mainAnalysis.Value_Num(constValue, const, type),
-	isValue(constValue),
-	mainAnalysis.Value_Type(constValue, type),
-	mainAnalysis.Value_DeclaringType(constValue, declaringType) :-
-		mainAnalysis.ReachableContext(toCtx, inmethod),
-		Instruction_Method(insn, inmethod),
-		(
-			AssignNumConstant_Id(insn, const);
-    		AssignCastNumConstant_Id(insn, const)
-		),
-		AssignInstruction_To(insn, to),
-		CreateNumberValue(const, type, declaringType),
-		constValue = cat("num-constant-", const),
-		mainAnalysis.isImmutableHContext(hctx).
+	// mainAnalysis.VarPointsTo(hctx, constValue, toCtx, to),
+	// mainAnalysis.Value_Num(constValue, const, type),
+	// isValue(constValue),
+	// mainAnalysis.Value_Type(constValue, type),
+	// mainAnalysis.Value_DeclaringType(constValue, declaringType) :-
+	// 	toCtx = inmethod,
+	// 	Instruction_Method(insn, inmethod),
+	// 	CreateNumberValue(const, constValue, type, declaringType),
+	// 	(
+	// 		AssignNumConstant_Id(insn, const);
+    // 		AssignCastNumConstant_Id(insn, const)
+	// 	),
+	// 	AssignInstruction_To(insn, to),
+	// 	mainAnalysis.isImmutableHContext(hctx).
 
 	/**
 	* 解决 Native Value 问题
@@ -342,7 +321,45 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		Var_Type(return, t),
 		mainAnalysis.isImmutableHContext(hctx).
 
+	/**
+	* 解决 AssignBinop Value
+	*/
+	// #define BinopReturnValue(operation, invocation) cat("<Binop ", cat(operation, cat(" value Assgined in ", cat(invocation, ">"))))
 
+	// mainAnalysis.VarPointsTo(hctx, value, ctx, to),
+	// MockValueConsMacro(value, type):-
+	// 	value = BinopReturnValue(operation, instruction),
+	// 	ctx = method,
+	// 	_OperatorAt(instruction, operation),
+	// 	isAssignBinop_Insn(instruction),
+	// 	Var_Type(to, type),
+	// 	Instruction_Method(instruction, method),
+	// 	AssignInstruction_To(instruction, to),
+	// 	mainAnalysis.isImmutableHContext(hctx).
+
+	// /**
+	// * 解决 AssignUnop Value
+	// */
+
+	// #define UnopReturnValue(operation, invocation) cat("<Unop ", cat(operation, cat(" value Assgined in ", cat(invocation, ">"))))
+
+	// mainAnalysis.VarPointsTo(hctx, value, ctx, to),
+	// MockValueConsMacro(value, type) :-
+	// 	value = UnopReturnValue(operation, instruction),
+	// 	ctx = method,
+	// 	_OperatorAt(instruction, operation),
+	// 	isAssignUnop_Insn(instruction),
+	// 	Var_Type(to, type),
+	// 	Instruction_Method(instruction, method),
+	// 	AssignInstruction_To(instruction, to),
+	// 	mainAnalysis.isImmutableHContext(hctx).
+
+	// /**
+	// * 解决 Expection Value，需不需要优化
+	// */
+	// mainAnalysis.Instruction_Throws(hctx, value, callerCtx, invocation) :-
+	// 	mainAnalysis.ThrowPointsTo(hctx, value, calleeCtx, tomethod),
+	// 	CallEdgeInSummarizer(callerCtx, invocation, calleeCtx, tomethod).
 }
 
 .init InterproceduralTransferAnalysis = InterproceduralTransfer

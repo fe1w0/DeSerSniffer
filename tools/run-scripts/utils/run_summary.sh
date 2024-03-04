@@ -70,6 +70,9 @@ run_summary() {
     # Reflection
     ENABLE_REFLECTION="--light-reflection-glue"
 
+    # Proxy
+    ENABLE_PROXY="--reflection-dynamic-proxies"
+
     # --no-merges
     NoMerges="--no-merges"
 
@@ -97,7 +100,7 @@ run_summary() {
 	# X_SYMLINK_INPUT_FACTS
 	# X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
 
-    EXTRA_ARG="${Input_ID} ${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
+    EXTRA_ARG="${Input_ID} ${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
 
     # 执行 doop 分析
     # local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"

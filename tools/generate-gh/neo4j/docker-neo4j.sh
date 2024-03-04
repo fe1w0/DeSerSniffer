@@ -16,4 +16,4 @@ mkdir -p $DOOP_RESULT/neo4j/logs
 mkdir -p $DOOP_RESULT/neo4j/conf
 mkdir -p $DOOP_RESULT/neo4j/import
 
-sudo docker run -d --name neo4j_local -p 27474:7474 -p 27687:7687 -v $DOOP_RESULT/neo4j/data/:/data -v $DOOP_RESULT/neo4j/logs:/logs -v $DOOP_RESULT/neo4j/conf:/var/lib/neo4j/conf -v $DOOP_RESULT/neo4j/import:/var/lib/neo4j/import --env NEO4J_AUTH=neo4j/neo4j@ncnipc neo4j
+sudo docker run -d --name neo4j_local -p 27474:7474 -p 27687:7687 -v $DOOP_RESULT/neo4j/data/:/data -v $DOOP_RESULT/neo4j/logs:/logs -v $DOOP_RESULT/neo4j/conf:/var/lib/neo4j/conf -v $DOOP_RESULT/neo4j/import:/var/lib/neo4j/import --env NEO4J_AUTH=neo4j/password neo4j

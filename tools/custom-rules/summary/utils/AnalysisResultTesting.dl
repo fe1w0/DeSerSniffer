@@ -1,0 +1,11 @@
+/**
+ * 如何利用调用图的信息，构建
+*/
+.decl CallGraphInSummarizer(fromMethod: Method, toMethod: Method)
+.output CallGraphInSummarizer
+.printsize CallGraphInSummarizer
+
+CallGraphInSummarizer(fromMethod, toMethod) :-
+    toMethod = callee_method,
+    InterproceduralTransferAnalysis.CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method),
+    Instruction_Method(caller_invocation, fromMethod).

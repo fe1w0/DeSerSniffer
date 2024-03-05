@@ -21,7 +21,6 @@ DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[])
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>").
 
-
 /**
  * Execution: start
 */

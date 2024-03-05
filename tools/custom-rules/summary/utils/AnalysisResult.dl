@@ -5,9 +5,178 @@
 .output CallGraphInSummarizer
 .printsize CallGraphInSummarizer
 
+/**
+ * method 被认为 无法在 fromSourceCallGraph中传递，只能作为 End 结点。
+*/
+.decl EndMethodInTransfer(method: Method)
+
+EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
+EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+EndMethodInTransfer("<java.io.ObjectInputStream: java.lang.Object readObject()>").
+EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+
 CallGraphInSummarizer(fromMethod, toMethod) :-
     toMethod = callee_method,
     InterproceduralTransferAnalysis.CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method),
-    Instruction_Method(caller_invocation, fromMethod).
+    Instruction_Method(caller_invocation, fromMethod),
+    !EndMethodInTransfer(fromMethod).
 
 
+/**
+ * 检测 TaintedTransferResult 过程中，是否由以下的字段来传播
+ * Static Field
+ * transient Field 
+ * 若是，则中断实际传播过程
+*/
+.decl EndObjectFieldInTransfer(var: symbol, in_method: Method)
+.printsize EndObjectFieldInTransfer
+.output EndObjectFieldInTransfer
+
+EndObjectFieldInTransfer(to, in_method) :-
+    LoadInstanceField(base, signature, to, in_method),
+    (
+        Field_Modifier("transient", signature);
+        Field_Modifier("staic", signature)
+    ).
+
+
+/**
+ * 用于中断实际传播过程的临时变量
+*/
+.decl InValidVariableInTransfer(var: symbol, in_method: Method)
+.printsize InValidVariableInTransfer
+.output InValidVariableInTransfer
+
+InValidVariableInTransfer(var, in_method) :-
+    EndObjectFieldInTransfer(var, in_method).
+
+InValidVariableInTransfer(to, in_method) :-
+    EndObjectFieldInTransfer(from, in_method),
+    TaintedTransferResult(in_method, from, in_method, to).
+
+/**
+ * this / param -> formal_this
+*/
+.decl TaintedToInvocationBase(from: symbol, from_method: Method, this: symbol, to_method: Method)
+.printsize TaintedToInvocationBase
+
+TaintedToInvocationBase(from, from_method, this, to_method) :-
+    TaintedTransferResult(from_method, from, from_method, base),
+    InterproceduralTransferAnalysis.CallEdgeInSummarizer(from_method, invocation, to_method, to_method),
+    !InValidVariableInTransfer(from_method, base),
+    !EndMethodInTransfer(from_method),
+    (
+        FormalParam(_, from_method, from);
+        ThisVar(from_method, from)
+    ),
+    ThisVar(to_method, this),
+    Instruction_Method(invocation, from_method),
+    MethodInvocation_Base(invocation, base).
+
+/**
+ * this / param -> formal_param
+*/
+.decl TaintedToInvocationParam(from: symbol, from_method: Method, formal_param: symbol, to_method: Method)
+.printsize TaintedToInvocationParam
+
+TaintedToInvocationParam(from, from_method, formal_param, to_method) :-
+    TaintedTransferResult(from_method, from, from_method, param),
+    InterproceduralTransferAnalysis.CallEdgeInSummarizer(from_method, invocation, to_method, to_method),
+    !InValidVariableInTransfer(from_method, param),
+    !EndMethodInTransfer(from_method),
+    (
+        FormalParam(_, from_method, from);
+        ThisVar(from_method, from)
+    ),
+    Instruction_Method(invocation, from_method),
+    ActualParam(index, invocation, param),
+    FormalParam(index, to_method, formal_param).
+
+/**
+ * this / param -> invocation: param/base
+*/
+.decl TaintedToInvocationVariable(from: symbol, from_method: Method, to: symbol, to_method: Method)
+.printsize TaintedToInvocationVariable
+.output TaintedToInvocationVariable
+
+TaintedToInvocationVariable(from, from_method, to, to_method) :-
+    (
+        TaintedToInvocationParam(from, from_method, to, to_method);
+        TaintedToInvocationBase(from, from_method, to, to_method)
+    ).
+
+/**
+ * 自低向上，构建 ReachableTaintedCallGraph(NodeMethod, Variable, SinkMethod)
+*/
+.decl ReachableTaintedCallGraph(NodeMethod: Method, from_var: Var, ToMethod: Method, to_var: Var, SinkMethod: Method)
+.output ReachableTaintedCallGraph
+.printsize ReachableTaintedCallGraph
+
+/**
+ * from: this/param,
+ * to: this/param
+*/
+ReachableTaintedCallGraph(NodeMethod, from, SinkMethod, to, SinkMethod) :-
+    TaintedToInvocationVariable(from, NodeMethod, to, SinkMethod),
+    ApplicationMethod(NodeMethod),
+    DefineSinkMethod(SinkMethod).
+
+/**
+ * from: this/param,
+ * PreviousFrom: formal_param
+*/
+ReachableTaintedCallGraph(NodeMethod, from, PreviousNodeMethod, PreviousFrom, SinkMethod) :-
+    TaintedToInvocationVariable(from, NodeMethod, PreviousFrom, PreviousNodeMethod),
+    ReachableTaintedCallGraph(PreviousNodeMethod, PreviousFrom, PreviousToMethod, PreviousTo, SinkMethod).
+
+// Sink Method
+.decl DefineSinkMethod(method: symbol)
+
+/**
+ * Execution: exec
+*/
+// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
+// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>").
+// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>").
+// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>").
+// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>").
+
+/**
+ * Execution: start
+*/
+DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
+
+// /**
+//  * Execution: forkAndExec
+// */
+// DefineSinkMethod("<java.lang.UNIXProcess: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
+// DefineSinkMethod("<java.lang.ProcessImpl: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
+
+// /**
+//  * File: read and write
+// */
+// DefineSinkMethod("<java.io.FileOutputStream: void write(byte[])>").
+// DefineSinkMethod("<java.io.FileOutputStream: void write(byte[],int,int)>").
+// DefineSinkMethod("<java.io.FileInputStream: int read(byte[])>").
+// DefineSinkMethod("<java.io.FileInputStream: int read(byte[],int,int)>").
+// DefineSinkMethod("<java.io.FileWriter: void write(java.lang.String)>").
+// DefineSinkMethod("<java.io.FileReader: int read(char[])>").
+// DefineSinkMethod("<java.net.Socket: void connect(java.net.SocketAddress)>").
+// DefineSinkMethod("<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>").
+
+// /**
+//  * SQLI
+// */
+// DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
+
+// /**
+//  * RMI , JNDI and Reflect
+// */
+// DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
+// DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>").
+// DefineSinkMethod("<javax.naming.InitialContext: void rebind(java.lang.String, java.lang.Object)>").
+// DefineSinkMethod("<javax.naming.InitialContext: void rebind(javax.naming.Name, java.lang.Object)>").
+// DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").

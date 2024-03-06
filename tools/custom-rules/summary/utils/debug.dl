@@ -6,7 +6,6 @@ UnprocessedVariable(var) :-
 	isVar(var),
 	!mainAnalysis.VarPointsTo(_, _, _, var).
 
-
 .output mainAnalysis.OptVirtualMethodInvocationBase
 
 .output mainAnalysis.TypeToConcreteImplementation

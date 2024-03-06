@@ -20,13 +20,11 @@ EndMethodInTransfer(method) :-
     !DefineSinkMethod(method),
     Method_DeclaringType(method, class).
 
-
 CallGraphInSummarizer(fromMethod, toMethod) :-
     toMethod = callee_method,
-    InterproceduralTransferAnalysis.CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method),
+    InterproceduralTransferAnalysis.CallEdgeInSummarizer(_, caller_invocation, _, callee_method),
     Instruction_Method(caller_invocation, fromMethod),
     !EndMethodInTransfer(fromMethod).
-
 
 /**
  * 检测 TaintedTransferResult 过程中，是否由以下的字段来传播
@@ -37,7 +35,7 @@ CallGraphInSummarizer(fromMethod, toMethod) :-
 .decl EndObjectFieldInTransfer(var: symbol, in_method: Method)
 
 EndObjectFieldInTransfer(to, in_method) :-
-    LoadInstanceField(base, signature, to, in_method),
+    LoadInstanceField(_, signature, to, in_method),
     (
         Field_Modifier("transient", signature);
         Field_Modifier("staic", signature)
@@ -130,13 +128,10 @@ ReachableTaintedToSinkeMethod(NodeMethod, from, SinkMethod, to),
 ReachableTaintedCallGraph(NodeMethod, from, PreviousNodeMethod, PreviousFrom, SinkMethod) :-
     ReachableTaintedToSinkeMethod(PreviousNodeMethod, PreviousFrom, SinkMethod, to),
     TaintedToInvocationVariable(from, NodeMethod, PreviousFrom, PreviousNodeMethod),
-    ReachableTaintedCallGraph(PreviousNodeMethod, PreviousFrom, PreviousToMethod, PreviousTo, SinkMethod).
-
+    ReachableTaintedCallGraph(PreviousNodeMethod, PreviousFrom, _, _, SinkMethod).
 
 .decl ReachabelSinkingMethod(SourceMethod: Method, SourceFrom: Var, SinkMethod: Method, SinkTo: Var)
 
 ReachabelSinkingMethod(SourceMethod, from, SinkMethod, to) :-
     readObject.ListReadObjectMethod(SourceMethod),
     ReachableTaintedToSinkeMethod(SourceMethod, from, SinkMethod, to).
-
-

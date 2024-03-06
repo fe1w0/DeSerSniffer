@@ -7,10 +7,11 @@
 // 最主要的输出
 .output ReachabelSinkingMethod
 
-// printsize
-
-
+/**
+ * 统计分析结果 
+*/
 .decl ProgramInfo(label: symbol, number: number)
+.output ProgramInfo
 
 ProgramInfo("BottomMethod", number) :-
 	number = count:{

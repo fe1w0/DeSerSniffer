@@ -129,7 +129,6 @@ ApplicationClassPrefix(class_prefix) :-
     ApplicationClass(class),
     class_prefix = cat(class, "$").
 
-
 .decl AbortClassJavaLang(type: symbol)
 
 AbortClassJavaLang(type) :-
@@ -169,7 +168,6 @@ AbortClass(type) :-
 
 AbortClass(type) :-
     AllCollectionClass(type).
-
 
 // Todo: 提取能力，过于弱小
 #ifndef ListReadObject

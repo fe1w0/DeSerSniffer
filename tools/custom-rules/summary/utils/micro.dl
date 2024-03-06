@@ -30,7 +30,6 @@
 //     TaintSourceMethod(label, method), \
 //     LabelFromSource(invo, label)
 
-
 #define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \
     SourceValueAndMethod(invo, method), \
     TaintedValue(value), \

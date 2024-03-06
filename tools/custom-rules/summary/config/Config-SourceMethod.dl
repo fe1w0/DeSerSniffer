@@ -62,7 +62,6 @@
         Method_DeclaringType(method, class),
         ReadObjectMethod(method).
 
-
     /**
     * label 用于区分 DirectSerializableClass 和 InheritSerializableClass
     */

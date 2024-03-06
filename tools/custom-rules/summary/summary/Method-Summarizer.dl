@@ -21,8 +21,8 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	toCtx = in_method,
 	fromCtx = in_method,
 	from = base,
-	TaintedVarPointsTo(baseValue, _, base),
-	Extension_Value(hctx, field_value, signature, in_method, base, to).
+	TaintedVarPointsTo(_, _, base),
+	Extension_Value(_, _, _, in_method, base, to).
 
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintedTransferResult(fromCtx, from, toCtx, tmp),
@@ -30,8 +30,8 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	.plan 1:(2,1)
 
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
-	TaintedVarPointsTo(from_value, fromCtx, from),
-	StoreInstanceField(from, base, signature, in_method),
+	TaintedVarPointsTo(_, fromCtx, from),
+	StoreInstanceField(from, base, _, in_method),
 	to = base,
 	toCtx = in_method.
 
@@ -40,7 +40,7 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 */
 TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, Rto) :-
 	TaintedTransferResult(fromCtx, from, toCtx, to),
-	ThisVar(method, from),
+	ThisVar(fromCtx, from),
 	Rto = from,
 	RtoCtx = fromCtx,
 	Rfrom = to,
@@ -53,7 +53,6 @@ TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, base) :-
 	// base.array = from
 	TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, from),
 	mainAnalysis.OptStoreArrayIndex(from, base).
-
 
 .decl TaintedToBaseInvocation(from: symbol, from_method: Method, base: symbol, invocation: symbol)
 .printsize TaintedToBaseInvocation
@@ -193,7 +192,6 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 		!Method_Modifier("static", method),
 		NativeMethod(method).
 }
-
 
 /**
  * 解决过程间的传播问题:

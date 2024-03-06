@@ -8,8 +8,6 @@
  * 实现:
 */
 .decl TargetMethod(method: Method)
-.output TargetMethod(filename="TargetMethod.facts")
-.printsize TargetMethod
 
 TargetMethod(method) :-
 	isMethod(method).
@@ -20,8 +18,6 @@ TargetMethod(method) :-
  * 实现:
 */
 .decl TaintSourceVariable(variable: Var, in_method: Method)
-.output TaintSourceVariable(filename="TaintSourceVariable.facts")
-.printsize TaintSourceVariable
 
 TaintSourceVariable(var, in_method) :-
 	(
@@ -29,18 +25,6 @@ TaintSourceVariable(var, in_method) :-
 		ThisVar(in_method, var)
 	),
 	TargetMethod(in_method).
-
-
-// 感觉 不太需要，可以对 this  设置为 taintedvalue 
-// 第三种，对象字段，不精确
-// Load: v = o.f
-// 参考 1-version 中 extend-readObject.dl
-
-// TaintSourceVariable(var, in_method) :-
-// 	Method_DeclaringType(in_method, method_declaring_type),
-// 	Field_DeclaringType(field_signature, method_declaring_type),
-// 	LoadInstanceField(_, field_signature, var, in_method),
-// 	TargetMethod(in_method).
 
 // -----------------------------------------------------------------------------
 // End bottom - Targets analysis rules

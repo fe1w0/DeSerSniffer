@@ -39,8 +39,7 @@
     * 查找那些直接实现 void readObject(java.io.ObjectInputStream)
     */
     .decl DirectSerializableClass(class: ClassType)
-    .output DirectSerializableClass
-
+	
     DirectSerializableClass(class) :-
         basic.SupertypeOf("java.io.Serializable", class),
         Method_DeclaringType(method, class),
@@ -56,10 +55,7 @@
         !DirectSerializableClass(class),
         basic.SupertypeOf(sup_class, class).
 
-
     .decl ListReadObjectMethod(Method: Method)
-    .printsize ListReadObjectMethod
-    .output ListReadObjectMethod
 
     ListReadObjectMethod(method) :- 
         ListReadObjectClass(class, _),
@@ -71,9 +67,6 @@
     * label 用于区分 DirectSerializableClass 和 InheritSerializableClass
     */
     .decl ListReadObjectClass(class: ClassType, label: symbol)
-    .printsize ListReadObjectClass
-    .output ListReadObjectClass
-
 
     #ifdef LimitReadObject
     #ifdef ListReadObjectApplication
@@ -115,5 +108,3 @@
 }
 
 .init readObject = ReadObject
-.output readObject.ListReadObjectClass
-.printsize readObject.ListReadObjectClass

@@ -1,9 +1,18 @@
+// Step 1 : 列出所有需要摘要的函数
+#include "List-Targets.dl"
+
+// Step 2 : 计算 Bottom 中的 指针分析 和 污点分析 (摘要)
+#include "Bottom-VarPointsTo-analysis.dl"
+#include "Bottom-TaintTransfer-analysis.dl"
+
+// Step 2 : 计算 Node 中的 指针分析 和 污点分析 (摘要)
+#include "Node-VarPointsTo-analysis.dl"
+#include "Node-TaintTransfer-analysis.dl"
+
 /**
  * 通过污点传播过程 
 */
 .decl TaintedTransferResult(fromCtx: symbol, from: symbol, toCtx: symbol, to: symbol)
-.output TaintedTransferResult
-.printsize TaintedTransferResult
 
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintObjTransfer(fromCtx, from, toCtx, to).
@@ -63,8 +72,6 @@ TaintedToBaseInvocation(from, from_method, base, invocation) :-
  * 在利用 ForcedReachable 计算函数内的指针时，需要对 this.field 进行 mock
 */
 .decl Extension_Value(hctx: symbol, field_value: symbol, signature: symbol, method: Method, from_base: symbol, to: symbol)
-.output Extension_Value
-.printsize Extension_Value
 
 mainAnalysis.VarPointsTo(hctx, field_value, in_method, to),
 mainAnalysis.Value_isMock(field_value), isValue(field_value), mainAnalysis.Value_Type(field_value, value_type), mainAnalysis.Value_DeclaringType(field_value, declaring_type),
@@ -74,16 +81,6 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	field_value = cat(cat("<mock value for ", signature), cat(">:: ", in_method)),
 	Field_Type(signature, value_type),
 	Method_DeclaringType(in_method, declaring_type).
-
-.output mainAnalysis.StoreHeapInstanceField
-.output mainAnalysis.LoadHeapInstanceField
-.output mainAnalysis.InstanceFieldPointsTo
-
-/**
- * 统计哪些函数已经触发了摘要过程
-*/
-.decl MethodInSummaries(method: Method)
-.output MethodInSummaries
 
 /**
  * 需设计:
@@ -209,7 +206,6 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	* 摘要函数中的CallEdge，主要用过过程间摘要函数的污点传播过程，利用Bottom和Node中的传播摘要信息
 	*/
 	.decl CallEdgeInSummarizer(caller_ctx: symbol, caller_invocation: symbol, callee_ctx: symbol, callee_method: symbol)
-	.output CallEdgeInSummarizer
 
 	/**
 	* 处理传统调用问题:
@@ -320,11 +316,8 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	#define NativeReturnValId(type, method) cat("<native ", cat(type, cat(" value allocated in ", cat(method, ">"))))
 
 	.decl NativeMethodReturningValue(m:Method, t:Type, return:Var, v:Value)
-	.printsize NativeMethodReturningValue
-	.output NativeMethodReturningValue
 
 	.decl ReachableNativeMethodInvocation(ctx:symbol, invo:MethodInvocation, nativeMethod:Method)
-	.output ReachableNativeMethodInvocation
 
 	.decl _NativeMethodInvocation(invo:MethodInvocation, nativeMethod:Method)
 

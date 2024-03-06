@@ -56,7 +56,7 @@ run_summary() {
     SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${SOUFFLE_MODE}"
 
     # extra logic
-    EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/summary/summary.dl"
+    EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/summary/analysis.dl"
 
     # Information-flow
     INFORMATION_FLOW="--information-flow minimal"

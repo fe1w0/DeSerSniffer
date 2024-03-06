@@ -83,14 +83,11 @@ DataStructureInnerClass(inner_class) :-
 */
 .decl DataStructureMapClass(class: Type)
 .decl DataStructureCollectionClass(class: Type)
-.output DataStructureMapClass
-.output DataStructureCollectionClass
 
 /**
  * DataStructureClass contains DataStructureMapClass and DataStructureCollectionClass.
 */
 .decl DataStructureClass(class: Type)
-.output DataStructureClass
 
 DataStructureMapClass(class) :-
     isClassType(class),
@@ -116,7 +113,6 @@ DataStructureClass(class) :-
  * DataStructureMappingClass records data structure classes which using other data structure class as fields to storing data.
 */
 .decl DataStructureMappingClass(class: Type, field_signature: symbol, field_type: Type)
-.output DataStructureMappingClass
 
 /**
  * DataStructureMappingClass 需要包含详细且完善的field信息
@@ -135,7 +131,6 @@ ApplicationClassPrefix(class_prefix) :-
 
 
 .decl AbortClassJavaLang(type: symbol)
-.output AbortClassJavaLang
 
 AbortClassJavaLang(type) :-
     (type = "java.lang.Void"
@@ -253,8 +248,8 @@ PotentialAllType(type) :-
 // .output DataStructureInnerClass
 // .output PotentialOnlyType
 // .output basic.SubtypeOf
-.output SubCollectionClass
-.output AllCollectionClass
+// .output SubCollectionClass
+// .output AllCollectionClass
 // .output Field_DeclaringType
 // .output PotentialType
 // .output PotenticalField

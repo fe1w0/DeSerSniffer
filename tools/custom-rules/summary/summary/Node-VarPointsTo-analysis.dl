@@ -3,8 +3,6 @@
 // -----------------------------------------------------------------------------
 
 .decl NodeMethod(method: Method)
-.printsize NodeMethod
-.output NodeMethod
 
 NodeMethod(method) :-
 	isMethod(method),

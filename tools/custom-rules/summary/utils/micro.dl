@@ -17,7 +17,7 @@
     mainAnalysis.Value_Type(value, type)
 
 .decl SourceValueAndMethod(value: symbol, method: symbol)
-.output SourceValueAndMethod
+
 /**
  * 设置 MICRO_CUSTOM_TAINT
 */

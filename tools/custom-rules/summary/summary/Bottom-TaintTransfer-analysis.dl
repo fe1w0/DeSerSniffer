@@ -1,31 +1,30 @@
 // -----------------------------------------------------------------------------
-// Start Node - taint analysis rules
+// Start bottom - taint analysis rules
 // -----------------------------------------------------------------------------
 
 /**
  * Bottom Method 中需要强制设置的污点源 
 */
-.decl Node_Method_Forced_Source_Value(value: symbol, method: Method)
-.output Node_Method_Forced_Source_Value
-.printsize Node_Method_Forced_Source_Value
+.decl Bottom_Method_Forced_Source_Value(value: symbol, method: Method)
 
-Node_Method_Forced_Source_Value(value, method) :-
-	mainAnalysis.VarPointsTo(_, value, method, var),
-	NodeMethod(method),
-	TaintSourceVariable(var, method).
+Bottom_Method_Forced_Source_Value(value, method) :-
+	BottomMethod(method),
+	TaintSourceVariable(var, method),
+	mainAnalysis.VarPointsTo(_, value, method, var).
 
 MICRO_CUSTOM_TAINT(source, value, method, label) :-
-	Node_Method_Forced_Source_Value(value, method),
 	source = method,
-	label = method.
+	label = method,
+	Bottom_Method_Forced_Source_Value(value, method).
+
 
 // 处理 field
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
-	Extension_Value(hctx, field_value, signature, in_method, base, to),
+	Extension_Value(hctx, field_value, signature, in_method, base, to), 
 	source = in_method,
 	value = field_value,
 	label = in_method,
-	NodeMethod(in_method).
+	BottomMethod(in_method).
 
 // 处理 array
 MICRO_CUSTOM_TAINT(source, value, in_method, label):-
@@ -36,8 +35,7 @@ MICRO_CUSTOM_TAINT(source, value, in_method, label):-
 	value = field_value,
 	label = in_method,
 	mainAnalysis.isImmutableHContext(hctx),
-	NodeMethod(in_method).
-
+	BottomMethod(in_method).
 // -----------------------------------------------------------------------------
-// End Node - taint analysis rules
+// End bottom - taint analysis rules
 // -----------------------------------------------------------------------------

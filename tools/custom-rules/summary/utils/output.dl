@@ -1,0 +1,43 @@
+// Output
+.output readObject.ListReadObjectMethod
+
+.output ReachableTaintedToSinkeMethod
+.output ReachableTaintedCallGraph
+
+// 最主要的输出
+.output ReachabelSinkingMethod
+
+// printsize
+
+
+.decl ProgramInfo(label: symbol, number: number)
+
+ProgramInfo("BottomMethod", number) :-
+	number = count:{
+		BottomMethod(_)
+	}.
+
+ProgramInfo("NodeMethod", number) :-
+	number = count:{
+		NodeMethod(_)
+	}.
+
+ProgramInfo("ListReadObjectMethod", number) :-
+	number = count:{
+		readObject.ListReadObjectMethod(_)
+	}.
+
+ProgramInfo("ReachabelSinkingMethod", number) :-
+	number = count:{
+		ReachabelSinkingMethod(_, _, _, _)
+	}.
+
+ProgramInfo("ReachableTaintedCallGraph", number) :-
+	number = count:{
+		ReachableTaintedCallGraph(_, _, _, _, _)
+	}.
+
+ProgramInfo("TaintedToInvocationVariable", number) :-
+	number = count:{
+		TaintedToInvocationVariable(_, _, _, _)
+	}.

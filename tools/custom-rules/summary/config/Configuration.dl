@@ -6,52 +6,108 @@
 #include "Config-SourceMethod.dl"
 #include "Data-Struction.dl"
 
+
+/**
+ * 表示那些SourceMethod, 可以事实上控制SinkMethod
+*/
+.decl TaintedSinkMethod(SourceMethod: Method, SinkMethod: Method)
+
 // Sink Method
 .decl DefineSinkMethod(method: symbol)
+
+#define TaintedSinkMethodMicro(source, sink) \
+	DefineSinkMethod(sink).\
+	TaintedSinkMethod(source, sink)
 
 /**
  * Execution: exec
 */
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
 
 /**
  * Execution: start
 */
 DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.ProcessBuilder: java.lang.Process start()>",
+	ReachabelSinkingMethod(source, _, sink, this),
+	ThisVar(sink, this).
 
-// /**
-//  * Execution: forkAndExec
-// */
-DefineSinkMethod("<java.lang.UNIXProcess: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
-DefineSinkMethod("<java.lang.ProcessImpl: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
-
-// /**
-//  * File: read and write
-// */
-// DefineSinkMethod("<java.io.FileOutputStream: void write(byte[])>").
-// DefineSinkMethod("<java.io.FileOutputStream: void write(byte[],int,int)>").
-// DefineSinkMethod("<java.io.FileInputStream: int read(byte[])>").
-// DefineSinkMethod("<java.io.FileInputStream: int read(byte[],int,int)>").
-// DefineSinkMethod("<java.io.FileWriter: void write(java.lang.String)>").
-// DefineSinkMethod("<java.io.FileReader: int read(char[])>").
-// DefineSinkMethod("<java.net.Socket: void connect(java.net.SocketAddress)>").
-// DefineSinkMethod("<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>").
+DefineSinkMethod("<java.lang.ProcessImpl: java.lang.Process start(java.lang.String[],java.util.Map,java.lang.String,java.lang.ProcessBuilder$Redirect[],boolean)>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.ProcessImpl: java.lang.Process start(java.lang.String[],java.util.Map,java.lang.String,java.lang.ProcessBuilder$Redirect[],boolean)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
 
 /**
  * SQLI
 */
 DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.sql.Statement: boolean execute(java.lang.String)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
+/**
+ * Refelect
+*/
+DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	ReachabelSinkingMethod(source, _, sink, two),
+	FormalParam(0, sink, one),
+	FormalParam(0, sink, two).
 
 /**
  * RMI , JNDI and Reflect
 */
 DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
 DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>").
-DefineSinkMethod("<javax.naming.InitialContext: void rebind(java.lang.String, java.lang.Object)>").
-DefineSinkMethod("<javax.naming.InitialContext: void rebind(javax.naming.Name, java.lang.Object)>").
-DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+TaintedSinkMethod(source, sink) :-
+	sink = "<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>",
+	ReachabelSinkingMethod(source, _, sink, one),
+	FormalParam(0, sink, one).
+
+// DefineSinkMethod("<javax.naming.InitialContext: void rebind(java.lang.String, java.lang.Object)>").
+// DefineSinkMethod("<javax.naming.InitialContext: void rebind(javax.naming.Name, java.lang.Object)>").
+// DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").

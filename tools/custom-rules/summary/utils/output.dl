@@ -6,6 +6,7 @@
 
 // 最主要的输出
 .output ReachabelSinkingMethod
+.output TaintedSinkMethod
 
 /**
  * 统计分析结果 
@@ -27,6 +28,11 @@ ProgramInfo("ListReadObjectMethod", number) :-
 	number = count:{
 		readObject.ListReadObjectMethod(_)
 	}.
+
+ProgramInfo("TaintedSinkMethod", number) :-
+	number = count:{
+		TaintedSinkMethod(_, _)
+	}.	
 
 ProgramInfo("ReachabelSinkingMethod", number) :-
 	number = count:{

@@ -130,6 +130,9 @@ ReachableTaintedCallGraph(NodeMethod, from, PreviousNodeMethod, PreviousFrom, Si
     TaintedToInvocationVariable(from, NodeMethod, PreviousFrom, PreviousNodeMethod),
     ReachableTaintedCallGraph(PreviousNodeMethod, PreviousFrom, _, _, SinkMethod).
 
+/**
+ * 统计哪些SourceMethod的变量可以传递到SinkMethod的那些变量
+*/
 .decl ReachabelSinkingMethod(SourceMethod: Method, SourceFrom: Var, SinkMethod: Method, SinkTo: Var)
 
 ReachabelSinkingMethod(SourceMethod, from, SinkMethod, to) :-

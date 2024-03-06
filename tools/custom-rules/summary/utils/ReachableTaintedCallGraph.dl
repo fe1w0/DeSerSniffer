@@ -9,6 +9,7 @@
  * method 被认为 无法在 fromSourceCallGraph中传递，只能作为 End 结点。
 */
 .decl EndMethodInTransfer(method: Method)
+.output EndMethodInTransfer
 
 EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
 EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
@@ -16,6 +17,12 @@ EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.l
 EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: java.lang.Object readObject()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+
+EndMethodInTransfer(method) :- 
+    DenyEntryClass(class),
+    !DefineSinkMethod(method),
+    Method_DeclaringType(method, class).
+
 
 CallGraphInSummarizer(fromMethod, toMethod) :-
     toMethod = callee_method,
@@ -40,7 +47,6 @@ EndObjectFieldInTransfer(to, in_method) :-
         Field_Modifier("transient", signature);
         Field_Modifier("staic", signature)
     ).
-
 
 /**
  * 用于中断实际传播过程的临时变量
@@ -114,10 +120,19 @@ TaintedToInvocationVariable(from, from_method, to, to_method) :-
 .output ReachableTaintedCallGraph
 .printsize ReachableTaintedCallGraph
 
+
+/**
+ * 自低向上，计算 NodeMethod 到 SinkMethod 的可达性
+*/
+.decl ReachableTaintedToSinkeMethod(NodeMethod: Method, from: Var, SinkMethod: Method, Sink_to: Var)
+.output ReachableTaintedToSinkeMethod
+.printsize ReachableTaintedToSinkeMethod
+
 /**
  * from: this/param,
  * to: this/param
 */
+ReachableTaintedToSinkeMethod(NodeMethod, from, SinkMethod, to),
 ReachableTaintedCallGraph(NodeMethod, from, SinkMethod, to, SinkMethod) :-
     TaintedToInvocationVariable(from, NodeMethod, to, SinkMethod),
     ApplicationMethod(NodeMethod),
@@ -127,9 +142,20 @@ ReachableTaintedCallGraph(NodeMethod, from, SinkMethod, to, SinkMethod) :-
  * from: this/param,
  * PreviousFrom: formal_param
 */
+ReachableTaintedToSinkeMethod(NodeMethod, from, SinkMethod, to),
 ReachableTaintedCallGraph(NodeMethod, from, PreviousNodeMethod, PreviousFrom, SinkMethod) :-
+    ReachableTaintedToSinkeMethod(PreviousNodeMethod, PreviousFrom, SinkMethod, to),
     TaintedToInvocationVariable(from, NodeMethod, PreviousFrom, PreviousNodeMethod),
     ReachableTaintedCallGraph(PreviousNodeMethod, PreviousFrom, PreviousToMethod, PreviousTo, SinkMethod).
+
+
+.decl ReachabelSinkingMethod(SourceMethod: Method, SourceFrom: Var, SinkMethod: Method, SinkTo: Var)
+.output ReachabelSinkingMethod
+.printsize ReachabelSinkingMethod
+
+ReachabelSinkingMethod(SourceMethod, from, SinkMethod, to) :-
+    readObject.ListReadObjectMethod(SourceMethod),
+    ReachableTaintedToSinkeMethod(SourceMethod, from, SinkMethod, to).
 
 // Sink Method
 .decl DefineSinkMethod(method: symbol)

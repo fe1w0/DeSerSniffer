@@ -45,6 +45,20 @@ TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, base) :-
 	TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, from),
 	mainAnalysis.OptStoreArrayIndex(from, base).
 
+
+.decl TaintedToBaseInvocation(from: symbol, from_method: Method, base: symbol, invocation: symbol)
+.printsize TaintedToBaseInvocation
+
+TaintedToBaseInvocation(from, from_method, base, invocation) :-
+    TaintedTransferResult(from_method, from, from_method, base),
+    !EndMethodInTransfer(from_method),
+    (
+        FormalParam(_, from_method, from);
+        ThisVar(from_method, from)
+    ),
+    Instruction_Method(invocation, from_method),
+    MethodInvocation_Base(invocation, base).
+
 /**
  * 在利用 ForcedReachable 计算函数内的指针时，需要对 this.field 进行 mock
 */
@@ -221,6 +235,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	*/
 	CallEdgeInSummarizer(in_mehtod, invocation, tomethod, tomethod) :-
 		Instruction_Method(invocation, in_mehtod),
+		TaintedToBaseInvocation(_, in_mehtod, base, invocation),
 		mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
 		Var_Type(base, var_type),
 		basic.SubtypeOf(sub_type, var_type),

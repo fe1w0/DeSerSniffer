@@ -11,6 +11,11 @@
 // #include "utils/Support-Reflect.dl"
 // #include "utils/Support-Proxy.dl"
 
+// 基本组件: 列出测试对象
+#include "utils/ListSourceMethod.dl"
+#include "utils/data-structure.dl"
+
+
 #include "utils/debug.dl"
 
 // Step 1 : 列出所有的函数
@@ -25,7 +30,7 @@
 #include "utils/Node-TaintTransfer-analysis.dl"
 
 // Step 3: 处理分析结果
-#include "utils/AnalysisResult.dl"
+#include "utils/ReachableTaintedCallGraph.dl"
 
 
 // -----------------------------------------------------------------------------

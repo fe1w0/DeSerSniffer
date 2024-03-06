@@ -163,11 +163,11 @@ ReachabelSinkingMethod(SourceMethod, from, SinkMethod, to) :-
 /**
  * Execution: exec
 */
-// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
-// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>").
-// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>").
-// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>").
-// DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>").
+DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>").
 
 /**
@@ -178,8 +178,8 @@ DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
 // /**
 //  * Execution: forkAndExec
 // */
-// DefineSinkMethod("<java.lang.UNIXProcess: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
-// DefineSinkMethod("<java.lang.ProcessImpl: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
+DefineSinkMethod("<java.lang.UNIXProcess: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
+DefineSinkMethod("<java.lang.ProcessImpl: int forkAndExec(int,byte[],byte[],byte[],int,byte[],int,byte[],int[],boolean)>").
 
 // /**
 //  * File: read and write
@@ -193,16 +193,16 @@ DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
 // DefineSinkMethod("<java.net.Socket: void connect(java.net.SocketAddress)>").
 // DefineSinkMethod("<javax.script.ScriptEngine: java.lang.Object eval(java.lang.String)>").
 
-// /**
-//  * SQLI
-// */
-// DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
+/**
+ * SQLI
+*/
+DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
 
-// /**
-//  * RMI , JNDI and Reflect
-// */
-// DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
-// DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>").
-// DefineSinkMethod("<javax.naming.InitialContext: void rebind(java.lang.String, java.lang.Object)>").
-// DefineSinkMethod("<javax.naming.InitialContext: void rebind(javax.naming.Name, java.lang.Object)>").
-// DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+/**
+ * RMI , JNDI and Reflect
+*/
+DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
+DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>").
+DefineSinkMethod("<javax.naming.InitialContext: void rebind(java.lang.String, java.lang.Object)>").
+DefineSinkMethod("<javax.naming.InitialContext: void rebind(javax.naming.Name, java.lang.Object)>").
+DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").

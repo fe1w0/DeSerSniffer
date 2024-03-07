@@ -1,0 +1,100 @@
+<dependencies>
+	<!-- https://mvnrepository.com/artifact/org.mapdb/mapdb -->
+	<dependency>
+		<groupId>org.mapdb</groupId>
+		<artifactId>mapdb</artifactId>
+		<version>3.1.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/androidx.collection/collection -->
+	<dependency>
+		<groupId>androidx.collection</groupId>
+		<artifactId>collection</artifactId>
+		<version>1.4.0-rc01</version>
+		<scope>runtime</scope>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.carrotsearch/hppc -->
+	<dependency>
+		<groupId>com.carrotsearch</groupId>
+		<artifactId>hppc</artifactId>
+		<version>0.9.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.googlecode.concurrentlinkedhashmap/concurrentlinkedhashmap-lru -->
+	<dependency>
+		<groupId>com.googlecode.concurrentlinkedhashmap</groupId>
+		<artifactId>concurrentlinkedhashmap-lru</artifactId>
+		<version>1.4.2</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.scala-lang.modules/scala-parallel-collections -->
+	<dependency>
+		<groupId>org.scala-lang.modules</groupId>
+		<artifactId>scala-parallel-collections_3</artifactId>
+		<version>1.0.4</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.roaringbitmap/RoaringBitmap -->
+	<dependency>
+		<groupId>org.roaringbitmap</groupId>
+		<artifactId>RoaringBitmap</artifactId>
+		<version>1.0.1</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.googlecode.javaewah/JavaEWAH -->
+	<dependency>
+		<groupId>com.googlecode.javaewah</groupId>
+		<artifactId>JavaEWAH</artifactId>
+		<version>1.2.3</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.squareup.okio/okio -->
+	<dependency>
+		<groupId>com.squareup.okio</groupId>
+		<artifactId>okio</artifactId>
+		<version>3.7.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-io -->
+	<dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-io</artifactId>
+		<version>12.0.5</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.uberfire/uberfire-io -->
+	<dependency>
+		<groupId>org.uberfire</groupId>
+		<artifactId>uberfire-io</artifactId>
+		<version>7.74.1.Final</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.github.jnr/jnr-unixsocket -->
+	<dependency>
+		<groupId>com.github.jnr</groupId>
+		<artifactId>jnr-unixsocket</artifactId>
+		<version>0.38.21</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-io -->
+	<dependency>
+		<groupId>org.codehaus.plexus</groupId>
+		<artifactId>plexus-io</artifactId>
+		<version>3.4.2</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.ops4j.base/ops4j-base-io -->
+	<dependency>
+		<groupId>org.ops4j.base</groupId>
+		<artifactId>ops4j-base-io</artifactId>
+		<version>1.5.1</version>
+	</dependency>
+
+	<!-- https://mvnrepository.com/artifact/com.caucho/hessian -->
+	<dependency>
+		<groupId>com.caucho</groupId>
+		<artifactId>hessian</artifactId>
+		<version>4.0.66</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.alipay.common/alipay-common-lang -->
+	<dependency>
+		<groupId>com.alipay.common</groupId>
+		<artifactId>alipay-common-lang</artifactId>
+		<version>2.2.22</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.alipay.sdk/alipay-sdk-java -->
+	<dependency>
+		<groupId>com.alipay.sdk</groupId>
+		<artifactId>alipay-sdk-java</artifactId>
+		<version>4.38.192.ALL</version>
+	</dependency>
+</dependencies>

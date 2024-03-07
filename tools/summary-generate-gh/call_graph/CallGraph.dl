@@ -2,28 +2,45 @@
 .type Label = symbol
 .type ReferenceType = symbol
 .type Type = symbol
+.type Var = symbol
 .type JVMDescriptor = symbol
 
 /**
- * Todo: 
- * - [ ] 实现任意 source - > sink 的调用图构建，即调用图切割功能，需要依赖 CallGraphInSummarizer.csv
- * - [x] 考虑 clinit 部分，从 soundness 考虑，直接将 clinit 复制到 每个类的函数调用中
+ * 表示那些SourceMethod, 可以事实上控制SinkMethod
 */
+.decl TaintedSinkMethod(SourceMethod: Method, SinkMethod: Method)
+.input TaintedSinkMethod(filename="TaintedSinkMethod.csv")
 
-.decl CallGraphInSummarizer(from_method: Method, to_method: Method)
-.input CallGraphInSummarizer(filename="CallGraphInSummarizer.csv")
+/**
+ * 自低向上，构建 ReachableTaintedCallGraph(NodeMethod, Variable, SinkMethod)
+*/
+.decl ReachableTaintedCallGraph(NodeMethod: Method, from_var: Var, ToMethod: Method, to_var: Var, SinkMethod: Method)
+.input ReachableTaintedCallGraph(filename="ReachableTaintedCallGraph.csv")
 
+.decl TmpCallGraph(FromMethod: Method, ToMethod: Method, SourceMethod: Method, SinkMethod: Method, neo4j_label: Label)
+.printsize TmpCallGraph
 
-.decl CallGraph(from_method: Method, to_method: Method, label: symbol)
+TmpCallGraph(SourceMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
+	ReachableTaintedCallGraph(SourceMethod, _, ToMethod, _, SinkMethod),
+	TaintedSinkMethod(SourceMethod, SinkMethod),
+	neo4j_label = "CONNECTS_TO".
+
+TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
+	TmpCallGraph(_, FromMethod, SourceMethod, SinkMethod, neo4j_label),
+	ReachableTaintedCallGraph(FromMethod, _, ToMethod, _, SinkMethod).
+.plan 0:(2,1)
+
+.decl CallGraph(FromMethod: Method, ToMethod: Method, label: Label, neo4j_label: Label)
 .output CallGraph(filename="CallGraph.csv")
 .printsize CallGraph
 
-.decl Node(method: Method, label: symbol)
+CallGraph(FromMethod, ToMethod, label, neo4j_label) :-
+	label = cat(cat(SourceMethod, "->"), SinkMethod),
+	TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label).
+
+.decl Node(method: Method, neo4j_label: Label)
 .output Node(filename="Nodes.csv")
 .printsize Node
 
 Node(method, "Node") :-
-	CallGraphInSummarizer(method, _) ; CallGraphInSummarizer(_, method). 
-
-CallGraph(from_method, to_method, "CONNECTS_TO") :-
-	CallGraphInSummarizer(from_method, to_method).
+	TmpCallGraph(method, _, _, _, _) ; TmpCallGraph(_, method, _, _, _). 

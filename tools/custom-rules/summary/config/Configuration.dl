@@ -6,7 +6,6 @@
 #include "Config-SourceMethod.dl"
 #include "Data-Struction.dl"
 
-
 /**
  * 表示那些SourceMethod, 可以事实上控制SinkMethod
 */
@@ -88,13 +87,15 @@ TaintedSinkMethod(source, sink) :-
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>",
+	ReachabelSinkingMethod(source, _, sink, this),
 	ReachabelSinkingMethod(source, _, sink, one),
 	ReachabelSinkingMethod(source, _, sink, two),
+	ThisVar(sink, this),
 	FormalParam(0, sink, one),
-	FormalParam(0, sink, two).
+	FormalParam(1, sink, two).
 
 /**
- * RMI , JNDI and Reflect
+ * RMI , JNDI
 */
 DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
 TaintedSinkMethod(source, sink) :-

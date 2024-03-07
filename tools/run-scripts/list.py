@@ -31,7 +31,7 @@ def parse_xml_to_csv(file_name, output_csv_file):
 # 计算输出路径
 current_dir = os.path.dirname(__file__)
 
-file_name = os.path.join(current_dir, '../../testjars', 'total.xml')
-output_csv_file = os.path.join(current_dir, '../../output', 'total.csv')
+file_name = os.path.join(current_dir, '../../testjars', 'finish.xml')
+output_csv_file = os.path.join(current_dir, '../../output', 'finish.csv')
 
 parse_xml_to_csv(file_name, output_csv_file)

@@ -38,7 +38,7 @@ EndObjectFieldInTransfer(to, in_method) :-
     LoadInstanceField(_, signature, to, in_method),
     (
         Field_Modifier("transient", signature);
-        Field_Modifier("staic", signature)
+        Field_Modifier("static", signature)
     ).
 
 /**

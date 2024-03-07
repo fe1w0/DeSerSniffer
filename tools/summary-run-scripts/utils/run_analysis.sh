@@ -2,7 +2,7 @@
 # author: fe1w0
 
 # 函数：执行分析
-run_summary() {
+run_analysis() {
     if [ $# -lt 8 ]; then
         echo "[-] $(print_time) Error: Not enough arguments" | tee -a $CurrentLOG
         echo " $(print_time) run_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [INPUT_ID] [JOBS (optional)] " | tee -a $CurrentLOG
@@ -47,16 +47,15 @@ run_summary() {
     # doop setup
     ANALYSIS="context-insensitive"
 
-    # OPEN_PROGRAM="--open-programs concrete-types"
+    OPEN_PROGRAM="--open-programs concrete-types"
 
     # souffle
     SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
-	# SOUFFLE_PROFILE="--souffle-profile"
     SOUFFLE_MODE="--souffle-mode interpreted"
-    SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${SOUFFLE_MODE}"
+    SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_MODE}"
 
     # extra logic
-    EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/summary/analysis.dl"
+    EXTRA_LOGIC="--extra-logic $BASE_DIR/tools/custom-rules/analysis.dl"
 
     # Information-flow
     INFORMATION_FLOW="--information-flow minimal"
@@ -65,13 +64,10 @@ run_summary() {
     TIMEOUT="--timeout 180"
 
     # facts
-    FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
+    # FACTS="--report-phantoms --fact-gen-cores ${JOBS} --generate-jimple --Xignore-factgen-errors"
 
     # Reflection
     ENABLE_REFLECTION="--light-reflection-glue"
-
-    # Proxy
-    ENABLE_PROXY="--reflection-dynamic-proxies"
 
     # --no-merges
     NoMerges="--no-merges"
@@ -80,39 +76,39 @@ run_summary() {
     CACHE="--dont-cache-facts"
 
     # Xextra-facts
-    # ExtraFacts="--Xextra-facts ${DOOP_OUT}/${INPUT_ID}/split_csv/${ID}/ListReadObjectClass.csv"
+    ExtraFacts="--Xextra-facts ${DOOP_OUT}/${INPUT_ID}/split_csv/${ID}/ListReadObjectClass.csv"
 
 	# Statistics
 	Statistics="--stats none"
 
     # Log Level
-    # LOG="--level debug"
-
-	# EXCLUDE_IMPLICITLY_REACHABLE_CODE
-	EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
+    LOG="--level debug"
 
 	# Xlow-mem
-	# XlowMem="--Xlow-mem"
-
-	# Input_ID
-	Input_ID="--input-id ${INPUT_ID}"
+	XlowMem="--Xlow-mem"
 
 	# X_SYMLINK_INPUT_FACTS
 	# X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
 
-    EXTRA_ARG="${Input_ID} ${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${ENABLE_PROXY} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${EXCLUDE_IMPLICITLY_REACHABLE_CODE} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
+    EXTRA_ARG="${PLATFORM} ${OPEN_PROGRAM} ${SOUFFLE} ${EXTRA_LOGIC} ${INFORMATION_FLOW} ${TIMEOUT} ${FACTS} ${ENABLE_REFLECTION} ${NoMerges} ${CACHE} ${ExtraFacts} ${Statistics} ${LOG} ${XlowMem} ${X_SYMLINK_INPUT_FACTS}"
 
     # 执行 doop 分析
-    # local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"
-    local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} ${EXTRA_ARG}"
+    local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} --input-id ${INPUT_ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
-    echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
-    eval "$CMD" | tee -a $CurrentLOG
+    echo "[+] $(print_time) doop: $CMD" >> $TmpLog
+    eval "$CMD" >> $TmpLog
 
-    echo "[+] $(print_time) Finish: run_summary." | tee -a $CurrentLOG
+    echo "[+] $(print_time) Finish: run_analysis." | tee -a $CurrentLOG
+
+	# Test
+	sleep 5
+
+	rm -rf ${DOOP_OUT}/${ID}/database/*.facts
+
+	rm -rf ${DOOP_HOME}/${ID}/database/jimple
 
 	echo "[+] $(print_time) Finish: clean up temporary data (facts and jimple files)." | tee -a $CurrentLOG
 }
 
 # 导出函数
-export -f run_summary
+export -f run_analysis

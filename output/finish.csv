@@ -1,0 +1,17 @@
+Component Name,Component Version
+org_mapdb_mapdb_3_1_0,org.mapdb:mapdb:3.1.0
+androidx_collection_collection_1_4_0_rc01,androidx.collection:collection:1.4.0-rc01
+com_carrotsearch_hppc_0_9_1,com.carrotsearch:hppc:0.9.1
+com_googlecode_concurrentlinkedhashmap_concurrentlinkedhashmap_lru_1_4_2,com.googlecode.concurrentlinkedhashmap:concurrentlinkedhashmap-lru:1.4.2
+org_scala_lang_modules_scala_parallel_collections_3_1_0_4,org.scala-lang.modules:scala-parallel-collections_3:1.0.4
+org_roaringbitmap_RoaringBitmap_1_0_1,org.roaringbitmap:RoaringBitmap:1.0.1
+com_googlecode_javaewah_JavaEWAH_1_2_3,com.googlecode.javaewah:JavaEWAH:1.2.3
+com_squareup_okio_okio_3_7_0,com.squareup.okio:okio:3.7.0
+org_eclipse_jetty_jetty_io_12_0_5,org.eclipse.jetty:jetty-io:12.0.5
+org_uberfire_uberfire_io_7_74_1_Final,org.uberfire:uberfire-io:7.74.1.Final
+com_github_jnr_jnr_unixsocket_0_38_21,com.github.jnr:jnr-unixsocket:0.38.21
+org_codehaus_plexus_plexus_io_3_4_2,org.codehaus.plexus:plexus-io:3.4.2
+org_ops4j_base_ops4j_base_io_1_5_1,org.ops4j.base:ops4j-base-io:1.5.1
+com_caucho_hessian_4_0_66,com.caucho:hessian:4.0.66
+com_alipay_common_alipay_common_lang_2_2_22,com.alipay.common:alipay-common-lang:2.2.22
+com_alipay_sdk_alipay_sdk_java_4_38_192_ALL,com.alipay.sdk:alipay-sdk-java:4.38.192.ALL

@@ -25,4 +25,4 @@ def find_duplicate_dependencies(xml_file):
 
 BASE_DIR = '/mnt/data-512g/liuxr-data/ENV/DeSerSniffer'
 # 使用示例
-find_duplicate_dependencies( BASE_DIR + '/testjars/total.xml')
+find_duplicate_dependencies( BASE_DIR + '/testjars/input.xml')

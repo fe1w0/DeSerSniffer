@@ -5,7 +5,7 @@
 run_summary() {
     if [ $# -lt 8 ]; then
         echo "[-] $(print_time) Error: Not enough arguments" | tee -a $CurrentLOG
-        echo " $(print_time) run_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [INPUT_ID] [JOBS (optional)] " | tee -a $CurrentLOG
+        echo " $(print_time) run_analysis [ID] [INPUT] [DOOP_HOME] [BASE_DIR] [FuzzChainsPath] [JAVA_HOME] [JAVA_VERSION] [JOBS (optional)] " | tee -a $CurrentLOG
         return 1
     fi
 
@@ -16,8 +16,7 @@ run_summary() {
     local FuzzChainsPath=$5
     local JAVA_HOME=$6
     local JAVA_VERSION=$7
-	local INPUT_ID=$8       # INPUT_ID 用于减低soot-generator的开销
-    local JOBS=${9:-8}      # 如果没有提供第9个参数，则默认为8
+    local JOBS=${8:-8}      # 如果没有提供第9个参数，则默认为8
 
     # 配置 JVM 环境
     echo "Export JVM ENV."
@@ -51,7 +50,7 @@ run_summary() {
 
     # souffle
     SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
-	# SOUFFLE_PROFILE="--souffle-profile"
+	SOUFFLE_PROFILE="--souffle-profile"
     SOUFFLE_MODE="--souffle-mode interpreted"
     SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${SOUFFLE_MODE}"
 
@@ -86,16 +85,16 @@ run_summary() {
 	Statistics="--stats none"
 
     # Log Level
-    # LOG="--level debug"
+    LOG="--level debug"
 
 	# EXCLUDE_IMPLICITLY_REACHABLE_CODE
 	EXCLUDE_IMPLICITLY_REACHABLE_CODE="--exclude-implicitly-reachable-code"
 
 	# Xlow-mem
-	# XlowMem="--Xlow-mem"
+	XlowMem="--Xlow-mem"
 
-	# Input_ID
-	Input_ID="--input-id ${INPUT_ID}"
+	# # Input_ID
+	# Input_ID="--input-id ${INPUT_ID}"
 
 	# X_SYMLINK_INPUT_FACTS
 	# X_SYMLINK_INPUT_FACTS="--Xsymlink-input-facts"
@@ -107,7 +106,7 @@ run_summary() {
     local CMD="${DOOP_HOME}/bin/doop -a $ANALYSIS -i ${INPUT} --id ${ID} ${EXTRA_ARG}"
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
     echo "[+] $(print_time) doop: $CMD" | tee -a $CurrentLOG
-    eval "$CMD" | tee -a $CurrentLOG
+    eval "$CMD" >> $TmpLog
 
     echo "[+] $(print_time) Finish: run_summary." | tee -a $CurrentLOG
 

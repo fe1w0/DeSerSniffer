@@ -179,7 +179,7 @@ get_result() {
 
 		if [ $leakingLines -gt 0 ]; then
 			potentialFile=$(dirname "$leakingFile")/readObject.ListReadObjectMethod.csv
-			reachableFile=$(dirname "$leakingFile")/TaintedSinkMethod.csv
+			reachableFile=$(dirname "$leakingFile")/ReachabelSinkingMethod.csv
 
 			echo -e "\t${RED}ID: ${ID}${NO_COLOR}"
 			echo -e "\t\tResult:"
@@ -226,7 +226,7 @@ get_result() {
 
 			result_map[$ID]=${tmp_list[@]}
 		fi
-	done < <(find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "ReachabelSinkingMethod.csv") 
+	done < <(find "$DOOP_OUT" -maxdepth 3 -mindepth 3 -type f -name "TaintedSinkMethod.csv") 
 }
 
 get_table() {

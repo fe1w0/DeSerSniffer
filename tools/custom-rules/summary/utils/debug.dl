@@ -55,3 +55,16 @@ UnprocessedVariable(var) :-
 .output mainAnalysis.ReflectiveMethodCall_Candidate
 .output mainAnalysis.ReflectiveMethodCall
 .output mainAnalysis.java_lang_reflect_Method_invoke
+
+
+.output TaintedTransferResult
+.output Target_Lost_Store_Target
+.output Extension_Value
+
+.output TaintedToInvocationVariable
+.output TaintedToInvocationParam
+.output TaintedToInvocationBase
+
+// 无效设置
+.output InValidVariableInTransfer
+.output EndObjectFieldInTransfer

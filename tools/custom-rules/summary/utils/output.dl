@@ -7,6 +7,8 @@
 // 最主要的输出
 .output ReachabelSinkingMethod
 .output TaintedSinkMethod
+.output MethodToSinkMethodSummarizer
+.output MethodCallGraphSummarizer
 
 /**
  * 统计分析结果 
@@ -47,4 +49,14 @@ ProgramInfo("ReachableTaintedCallGraph", number) :-
 ProgramInfo("TaintedToInvocationVariable", number) :-
 	number = count:{
 		TaintedToInvocationVariable(_, _, _, _)
+	}.
+
+ProgramInfo("MethodToSinkMethodSummarizer", number) :-
+	number = count:{
+		MethodToSinkMethodSummarizer(_, _, _)
+	}.
+
+ProgramInfo("MethodCallGraphSummarizer", number) :-
+	number = count:{
+		MethodCallGraphSummarizer(_, _, _)
 	}.

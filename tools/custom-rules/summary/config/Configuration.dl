@@ -14,6 +14,14 @@
 // Sink Method
 .decl DefineSinkMethod(method: symbol)
 
+/**
+ * rule:
+ * 0 	This
+ * 1	ParamOne
+ * 120	ParamOne-Two-This
+*/
+.decl SinkSummarizerRule(sink: Method, rule: number)
+
 #define TaintedSinkMethodMicro(source, sink) \
 	DefineSinkMethod(sink).\
 	TaintedSinkMethod(source, sink)
@@ -21,37 +29,44 @@
 /**
  * Execution: exec
 */
+
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String)>",
 	ReachabelSinkingMethod(source, _, sink, one),
 	FormalParam(0, sink, one).
 
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[])>",
 	ReachabelSinkingMethod(source, _, sink, one),
 	FormalParam(0, sink, one).
 
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String,java.lang.String[],java.io.File)>",
 	ReachabelSinkingMethod(source, _, sink, one),
 	FormalParam(0, sink, one).
 
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String[])>",
 	ReachabelSinkingMethod(source, _, sink, one),
 	FormalParam(0, sink, one).
 
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[])>",
 	ReachabelSinkingMethod(source, _, sink, one),
 	FormalParam(0, sink, one).
 
 DefineSinkMethod("<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.Runtime: java.lang.Process exec(java.lang.String[],java.lang.String[],java.io.File)>",
 	ReachabelSinkingMethod(source, _, sink, one),
@@ -61,12 +76,14 @@ TaintedSinkMethod(source, sink) :-
  * Execution: start
 */
 DefineSinkMethod("<java.lang.ProcessBuilder: java.lang.Process start()>").
+SinkSummarizerRule(sink, 0),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.ProcessBuilder: java.lang.Process start()>",
 	ReachabelSinkingMethod(source, _, sink, this),
 	ThisVar(sink, this).
 
 DefineSinkMethod("<java.lang.ProcessImpl: java.lang.Process start(java.lang.String[],java.util.Map,java.lang.String,java.lang.ProcessBuilder$Redirect[],boolean)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.ProcessImpl: java.lang.Process start(java.lang.String[],java.util.Map,java.lang.String,java.lang.ProcessBuilder$Redirect[],boolean)>",
 	ReachabelSinkingMethod(source, _, sink, one),
@@ -76,6 +93,7 @@ TaintedSinkMethod(source, sink) :-
  * SQLI
 */
 DefineSinkMethod("<java.sql.Statement: boolean execute(java.lang.String)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.sql.Statement: boolean execute(java.lang.String)>",
 	ReachabelSinkingMethod(source, _, sink, one),
@@ -85,6 +103,7 @@ TaintedSinkMethod(source, sink) :-
  * Refelect
 */
 DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+SinkSummarizerRule(sink, 120),
 TaintedSinkMethod(source, sink) :-
 	sink = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>",
 	ReachabelSinkingMethod(source, _, sink, this),
@@ -98,12 +117,14 @@ TaintedSinkMethod(source, sink) :-
  * RMI , JNDI
 */
 DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<javax.naming.InitialContext: java.lang.Object lookup(java.lang.String)>",
 	ReachabelSinkingMethod(source, _, sink, one),
 	FormalParam(0, sink, one).
 
 DefineSinkMethod("<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>").
+SinkSummarizerRule(sink, 1),
 TaintedSinkMethod(source, sink) :-
 	sink = "<javax.naming.InitialContext: java.lang.Object lookup(javax.naming.Name)>",
 	ReachabelSinkingMethod(source, _, sink, one),

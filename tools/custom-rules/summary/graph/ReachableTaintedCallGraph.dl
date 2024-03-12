@@ -15,6 +15,9 @@ EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: java.lang.Object readObject()>").
 EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
+// EndMethodInTransfer("<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>").
+// EndMethodInTransfer("<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>").
+
 EndMethodInTransfer(method) :- 
     DenyEntryClass(class),
     !DefineSinkMethod(method),
@@ -36,10 +39,11 @@ CallGraphInSummarizer(fromMethod, toMethod) :-
 
 EndObjectFieldInTransfer(to, in_method) :-
     LoadInstanceField(_, signature, to, in_method),
-    (
-        Field_Modifier("transient", signature);
-        Field_Modifier("static", signature)
-    ).
+    Field_Modifier("transient", signature).
+
+EndObjectFieldInTransfer(to, in_method) :-
+    LoadInstanceField(_, signature, to, in_method),
+    Field_Modifier("static", signature).
 
 /**
  * 用于中断实际传播过程的临时变量
@@ -49,20 +53,52 @@ EndObjectFieldInTransfer(to, in_method) :-
 InValidVariableInTransfer(var, in_method) :-
     EndObjectFieldInTransfer(var, in_method).
 
+/**
+ * 未序列化导致的无效参数
+*/
+InValidMethodInTransfer(in_method, invocation),
+InValidVariableInTransfer(to, in_method) :-
+    TaintedTransferResult(in_method, from, in_method, to),
+    Method_DeclaringType(in_method, type),
+    !basic.SupertypeOf("java.io.Serializable", type),
+    ThisVar(in_method, from),
+    Instruction_Method(invocation, in_method),
+    MethodInvocation_Base(invocation, to).
+
+InValidMethodInTransfer(in_method, invocation),
+InValidVariableInTransfer(to, in_method) :-
+    TaintedTransferResult(in_method, from, in_method, to),
+    Method_DeclaringType(in_method, type),
+    !basic.SupertypeOf("java.io.Serializable", type),
+    ThisVar(in_method, from),
+    ActualParam(_, invocation, to),
+    Instruction_Method(invocation, in_method).
+    
+/**
+ * 受到 EndObjectFieldInTransfer 的影响的 后续变量
+*/
 InValidVariableInTransfer(to, in_method) :-
     EndObjectFieldInTransfer(from, in_method),
     TaintedTransferResult(in_method, from, in_method, to).
 
 /**
+ * 因为无法Assgin变量，导致的无法调用函数
+*/
+.decl InValidMethodInTransfer(from_method: Method, invocation: symbol)
+
+/**
  * this / param -> formal_this
+ * 有问题，需要修复
 */
 .decl TaintedToInvocationBase(from: symbol, from_method: Method, this: symbol, to_method: Method)
 
 TaintedToInvocationBase(from, from_method, this, to_method) :-
     TaintedTransferResult(from_method, from, from_method, base),
     InterproceduralTransferAnalysis.CallEdgeInSummarizer(from_method, invocation, to_method, to_method),
-    !InValidVariableInTransfer(from_method, base),
+    !InValidVariableInTransfer(base, from_method),
     !EndMethodInTransfer(from_method),
+    !EndMethodInTransfer(to_method),
+    !InValidMethodInTransfer(from_method, invocation),
     (
         FormalParam(_, from_method, from);
         ThisVar(from_method, from)
@@ -73,14 +109,17 @@ TaintedToInvocationBase(from, from_method, this, to_method) :-
 
 /**
  * this / param -> formal_param
+ * 有问题，需要修复
 */
 .decl TaintedToInvocationParam(from: symbol, from_method: Method, formal_param: symbol, to_method: Method)
 
 TaintedToInvocationParam(from, from_method, formal_param, to_method) :-
     TaintedTransferResult(from_method, from, from_method, param),
     InterproceduralTransferAnalysis.CallEdgeInSummarizer(from_method, invocation, to_method, to_method),
-    !InValidVariableInTransfer(from_method, param),
+    !InValidVariableInTransfer(param, from_method),
     !EndMethodInTransfer(from_method),
+    !EndMethodInTransfer(to_method),
+    !InValidMethodInTransfer(from_method, invocation),
     (
         FormalParam(_, from_method, from);
         ThisVar(from_method, from)
@@ -135,6 +174,52 @@ ReachableTaintedCallGraph(NodeMethod, from, PreviousNodeMethod, PreviousFrom, Si
 */
 .decl ReachabelSinkingMethod(SourceMethod: Method, SourceFrom: Var, SinkMethod: Method, SinkTo: Var)
 
+// 设计有点冗余了
 ReachabelSinkingMethod(SourceMethod, from, SinkMethod, to) :-
     readObject.ListReadObjectMethod(SourceMethod),
     ReachableTaintedToSinkeMethod(SourceMethod, from, SinkMethod, to).
+
+/**
+ * 计算任何函数到Sink的可达性
+ * rule:
+ * 0 	This
+ * 1	ParamOne
+ * 120	ParamOne-Two-This
+*/
+.decl MethodToSinkMethodSummarizer(method: Method, sink: Method, rule: number)
+
+MethodToSinkMethodSummarizer(method, sink, rule) :-
+    ReachableTaintedToSinkeMethod(method, _, sink, this),
+	ThisVar(sink, this),
+    SinkSummarizerRule(sink, rule),
+    rule = 0.
+
+MethodToSinkMethodSummarizer(method, sink, rule) :-
+    ReachableTaintedToSinkeMethod(method, _, sink, one),
+	FormalParam(0, sink, one),
+    SinkSummarizerRule(sink, rule),
+    rule = 1.
+
+MethodToSinkMethodSummarizer(method, sink, rule) :-
+	ReachableTaintedToSinkeMethod(method, _, sink, this),
+	ReachableTaintedToSinkeMethod(method, _, sink, one),
+	ReachableTaintedToSinkeMethod(method, _, sink, two),
+	ThisVar(sink, this),
+	FormalParam(0, sink, one),
+	FormalParam(1, sink, two),
+    SinkSummarizerRule(sink, rule),
+    rule = 120.
+
+/**
+ * 有效的调用图
+*/
+.decl MethodCallGraphSummarizer(from: Method, to: Method, sink: Method)
+
+MethodCallGraphSummarizer(from, sink, sink) :- 
+    MethodToSinkMethodSummarizer(from, sink, rule),
+    CallGraphInSummarizer(from, sink).
+
+MethodCallGraphSummarizer(from, to, sink) :-
+    MethodToSinkMethodSummarizer(from, sink, rule),
+    MethodToSinkMethodSummarizer(to, sink, rule),
+    CallGraphInSummarizer(from, to).

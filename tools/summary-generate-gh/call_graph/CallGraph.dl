@@ -11,24 +11,20 @@
 .decl TaintedSinkMethod(SourceMethod: Method, SinkMethod: Method)
 .input TaintedSinkMethod(filename="TaintedSinkMethod.csv")
 
-/**
- * 自低向上，构建 ReachableTaintedCallGraph(NodeMethod, Variable, SinkMethod)
-*/
-.decl ReachableTaintedCallGraph(NodeMethod: Method, from_var: Var, ToMethod: Method, to_var: Var, SinkMethod: Method)
-.input ReachableTaintedCallGraph(filename="ReachableTaintedCallGraph.csv")
+.decl MethodCallGraphSummarizer(from: Method, to: Method, sink: Method)
+.input MethodCallGraphSummarizer(filename="MethodCallGraphSummarizer.csv")
 
 .decl TmpCallGraph(FromMethod: Method, ToMethod: Method, SourceMethod: Method, SinkMethod: Method, neo4j_label: Label)
 .printsize TmpCallGraph
 
 TmpCallGraph(SourceMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
-	ReachableTaintedCallGraph(SourceMethod, _, ToMethod, _, SinkMethod),
+	MethodCallGraphSummarizer(SourceMethod, ToMethod, SinkMethod),
 	TaintedSinkMethod(SourceMethod, SinkMethod),
 	neo4j_label = "CONNECTS_TO".
 
 TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
 	TmpCallGraph(_, FromMethod, SourceMethod, SinkMethod, neo4j_label),
-	ReachableTaintedCallGraph(FromMethod, _, ToMethod, _, SinkMethod).
-.plan 0:(2,1)
+	MethodCallGraphSummarizer(FromMethod, ToMethod, SinkMethod).
 
 .decl CallGraph(FromMethod: Method, ToMethod: Method, label: Label, neo4j_label: Label)
 .output CallGraph(filename="CallGraph.csv")

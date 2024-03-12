@@ -36,3 +36,4 @@ TmpLog=/tmp/doop_$(date +%s).log
 echo "[+] TmpLog: ${TmpLog}"
 
 single_analysis summary_org_clojure_clojure_1_12_0_alpha5 org.clojure:clojure:1.12.0-alpha5 org_clojure_clojure_1_12_0_alpha5
+# single_analysis summary_com_alibaba_nacos_nacos_client_2_3_0 /home/liuxr/.ivy2/cache/com.alibaba.nacos/nacos-client/jars/nacos-client-2.3.0.jar com_alibaba_nacos_nacos_client_2_3_0

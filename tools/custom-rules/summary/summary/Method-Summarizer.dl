@@ -17,6 +17,7 @@
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintObjTransfer(fromCtx, from, toCtx, to).
 
+// base.field -> base
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	toCtx = in_method,
 	fromCtx = in_method,
@@ -29,6 +30,7 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintedTransferResult(fromCtx, tmp, toCtx, to).
 	.plan 1:(2,1)
 
+// base.field <- from
 TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintedVarPointsTo(_, fromCtx, from),
 	StoreInstanceField(from, base, _, in_method),
@@ -82,6 +84,12 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 	Method_DeclaringType(in_method, declaring_type).
 
 /**
+ * Java 中的反射函数
+*/
+.decl JavaReflectMethod(Method: Method)
+JavaReflectMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+
+/**
  * 需设计:
  * 变量传播摘要需要自动计算提供以下关系:
  * - BaseToRetTaintTransferMethod
@@ -100,6 +108,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 
 	BaseToParamTaintTransferMethod(method),
 	BaseToParamSummarizeMethod(index, method):-
+		!JavaReflectMethod(method),
 		TaintedTransferResult(method, from, method, to),
 		FormalParam(index, method, to),
 		ThisVar(method, from).
@@ -133,6 +142,7 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 
 	ParamToBaseTaintTransferMethod(index, method),
 	ParamToBaseSummarizeMethod(index, method) :-
+		!JavaReflectMethod(method),
 		TaintedTransferResult(method, from, method, to),
 		ThisVar(method, to),
 		FormalParam(index, method, from).

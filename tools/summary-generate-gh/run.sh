@@ -30,7 +30,8 @@ DOOP_OUT=$DOOP_OUT
 
 ###################################### Set Doop ID #####################################
 
-DOOP_ID=com_alibaba_nacos_nacos_client_2_3_0
+DOOP_ID=summary_com_alibaba_nacos_nacos_client_2_3_0
+DOOP_ID=summary_org_clojure_clojure_1_12_0_alpha5
 
 ########################################### End #########################################
 

@@ -7,7 +7,7 @@ doop_config() {
     DOOP_HOME=/mnt/data-512g/liuxr-data/ENV/doop-other/build/install/doop
     DOOP_RESULT=/mnt/data-512g/liuxr-data/Data
     DOOP_CACHE=$DOOP_RESULT/cache
-    DOOP_OUT=$DOOP_RESULT/summary-data
+    DOOP_OUT=$DOOP_RESULT/summary-data/
     BASE_DIR=/mnt/data-512g/liuxr-data/ENV/DeSerSniffer-summary-algorithm
     FuzzChainsPath=/mnt/data-512g/liuxr-data/ENV/FuzzChains
     JAVA_HOME=/home/liuxr/opt/jdk-17.0.10

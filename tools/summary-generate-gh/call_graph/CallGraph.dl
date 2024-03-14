@@ -17,6 +17,9 @@
 .decl TmpCallGraph(FromMethod: Method, ToMethod: Method, SourceMethod: Method, SinkMethod: Method, neo4j_label: Label)
 .printsize TmpCallGraph
 
+
+TaintedSinkMethod("<cn.hutool.json.JSONConverter: java.lang.Object jsonToBean(java.lang.reflect.Type,java.lang.Object,boolean)>", "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+
 TmpCallGraph(SourceMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
 	MethodCallGraphSummarizer(SourceMethod, ToMethod, SinkMethod),
 	TaintedSinkMethod(SourceMethod, SinkMethod),

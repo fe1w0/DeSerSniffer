@@ -8,13 +8,13 @@
 */
 .decl EndMethodInTransfer(method: Method)
 
-EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
 EndMethodInTransfer("<java.lang.Throwable: void printStackTrace()>").
-EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
-EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
-EndMethodInTransfer("<java.io.ObjectInputStream: java.lang.Object readObject()>").
-EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
 
+// EndMethodInTransfer("<java.io.ObjectInputStream: void defaultReadObject()>").
+// EndMethodInTransfer("<java.lang.Class: java.lang.Class forName(java.lang.String)>").
+// EndMethodInTransfer("<java.io.ObjectInputStream: java.lang.Object readObject()>").
+// EndMethodInTransfer("<java.lang.Class: java.lang.Object newInstance()>").
+// EndMethodInTransfer("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
 // EndMethodInTransfer("<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.Object)>").
 // EndMethodInTransfer("<java.lang.StringBuffer: java.lang.StringBuffer append(java.lang.Object)>").
 
@@ -156,7 +156,7 @@ TaintedToInvocationVariable(from, from_method, to, to_method) :-
 ReachableTaintedToSinkeMethod(NodeMethod, from, SinkMethod, to),
 ReachableTaintedCallGraph(NodeMethod, from, SinkMethod, to, SinkMethod) :-
     TaintedToInvocationVariable(from, NodeMethod, to, SinkMethod),
-    ApplicationMethod(NodeMethod),
+    // ApplicationMethod(NodeMethod),
     DefineSinkMethod(SinkMethod).
 
 /**
@@ -200,6 +200,20 @@ MethodToSinkMethodSummarizer(method, sink, rule) :-
     SinkSummarizerRule(sink, rule),
     rule = 1.
 
+/**
+ * this 和 param-one
+*/
+MethodToSinkMethodSummarizer(method, sink, rule) :-
+	ReachableTaintedToSinkeMethod(method, _, sink, this),
+	ReachableTaintedToSinkeMethod(method, _, sink, one),
+	ThisVar(sink, this),
+	FormalParam(0, sink, one),
+    SinkSummarizerRule(sink, rule),
+    rule = 10.
+
+/**
+ * 完全可控反射； 太难了
+*/
 MethodToSinkMethodSummarizer(method, sink, rule) :-
 	ReachableTaintedToSinkeMethod(method, _, sink, this),
 	ReachableTaintedToSinkeMethod(method, _, sink, one),
@@ -216,7 +230,7 @@ MethodToSinkMethodSummarizer(method, sink, rule) :-
 .decl MethodCallGraphSummarizer(from: Method, to: Method, sink: Method)
 
 MethodCallGraphSummarizer(from, sink, sink) :- 
-    MethodToSinkMethodSummarizer(from, sink, rule),
+    MethodToSinkMethodSummarizer(from, sink, _),
     CallGraphInSummarizer(from, sink).
 
 MethodCallGraphSummarizer(from, to, sink) :-

@@ -4,7 +4,7 @@
 # 导入文件
 DIR="$(dirname "$BASH_SOURCE")"
 
-source "${DIR}/../run-scripts/utils/config/doop_config.sh"
+source "${DIR}/../summary-run-scripts/utils/config/doop_config.sh"
 source "${DIR}/neo4j/neo4j-import.sh"
 
 run() {
@@ -16,7 +16,9 @@ run() {
 	mkdir -p $Neo4jImport
 
 	# Step 2: 生成 需要导入 neo4j 的 调用图
-	souffle --no-warn ${DIR}/call_graph/CallGraph.dl -F${DOOP_OUT}/${DOOP_ID}/database/ -D$Neo4jImport -j $JOBS
+	cmd="souffle --no-warn ${DIR}/call_graph/CallGraph.dl -F${DOOP_OUT}/${DOOP_ID}/database/ -D$Neo4jImport -j $JOBS"
+	echo $cmd
+	eval $cmd
 
 	# Step 3: 复制和修改调用图文件，并导入图数据库
 	import_neo4j_data $Neo4jImport
@@ -32,7 +34,7 @@ DOOP_OUT=$DOOP_OUT
 
 DOOP_ID=summary_com_alibaba_nacos_nacos_client_2_3_0
 DOOP_ID=summary_org_clojure_clojure_1_12_0_alpha5
-
+DOOP_ID=cn_hutool_hutool_all_5_8_23
 ########################################### End #########################################
 
 run $Neo4jImport $DOOP_OUT $DOOP_ID

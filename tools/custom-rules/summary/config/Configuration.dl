@@ -18,6 +18,7 @@
  * rule:
  * 0 	This
  * 1	ParamOne
+ * 10 	ParamOne-This
  * 120	ParamOne-Two-This
 */
 .decl SinkSummarizerRule(sink: Method, rule: number)
@@ -112,6 +113,18 @@ TaintedSinkMethod(source, sink) :-
 	ThisVar(sink, this),
 	FormalParam(0, sink, one),
 	FormalParam(1, sink, two).
+
+/**
+ * Refelect -> TemplatesImpl: getter
+*/
+DefineSinkMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+SinkSummarizerRule(sink, 10),
+TaintedSinkMethod(source, sink) :-
+	sink = "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>",
+	ReachabelSinkingMethod(source, _, sink, this),
+	ReachabelSinkingMethod(source, _, sink, one),
+	ThisVar(sink, this),
+	FormalParam(0, sink, one).
 
 /**
  * RMI , JNDI

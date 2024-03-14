@@ -49,6 +49,22 @@ TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, Rto) :-
 	RfromCtx = toCtx.
 
 /**
+ * Binop
+*/
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	toCtx = fromCtx,
+	TaintedTransferResult(fromCtx, _, fromCtx, from),
+	InterproceduralTransferAnalysis.BinopTransfer(from, to).
+
+/**
+ * to = array
+*/
+TaintedTransferResult(fromCtx, base, toCtx, to) :-
+	toCtx = fromCtx,
+	TaintedVarPointsTo(_, fromCtx, base),
+	LoadArrayIndex(base, to, in_method).
+
+/**
  * array <-> base
 */
 TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, base) :-
@@ -60,7 +76,8 @@ TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, base) :-
 .printsize TaintedToBaseInvocation
 
 TaintedToBaseInvocation(from, from_method, base, invocation) :-
-    TaintedTransferResult(from_method, from, from_method, base),
+    TaintedTransferResult(from_method, 
+	, from_method, base),
     !EndMethodInTransfer(from_method),
     (
         FormalParam(_, from_method, from);
@@ -88,6 +105,8 @@ Extension_Value(hctx, field_value, signature, in_method, base, to) :-
 */
 .decl JavaReflectMethod(Method: Method)
 JavaReflectMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+
+ParamToRetTaintTransferMethod("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
 
 /**
  * 需设计:
@@ -236,6 +255,7 @@ JavaReflectMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.
 	/**
 	* 多态问题，将摘要的结果进行 Merge:
 	* 丢失精度，但提高分析性能。
+	* 存在问题
 	*/
 	CallEdgeInSummarizer(in_mehtod, invocation, tomethod, tomethod) :-
 		Instruction_Method(invocation, in_mehtod),
@@ -350,35 +370,38 @@ JavaReflectMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.
 	/**
 	* 解决 AssignBinop Value
 	*/
-	// #define BinopReturnValue(operation, invocation) cat("<Binop ", cat(operation, cat(" value Assgined in ", cat(invocation, ">"))))
+	.decl BinopTransfer(from: symbol, to: symbol)
 
-	// mainAnalysis.VarPointsTo(hctx, value, ctx, to),
-	// MockValueConsMacro(value, type):-
-	// 	value = BinopReturnValue(operation, instruction),
-	// 	ctx = method,
-	// 	_OperatorAt(instruction, operation),
-	// 	isAssignBinop_Insn(instruction),
-	// 	Var_Type(to, type),
-	// 	Instruction_Method(instruction, method),
-	// 	AssignInstruction_To(instruction, to),
-	// 	mainAnalysis.isImmutableHContext(hctx).
+	BinopTransfer(from, to),
+	mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+		mainAnalysis.VarPointsTo(hctx, value, ctx, from),
+		_AssignOperFrom(instruction, _, from),
+		ctx = in_method,
+		_AssignBinop(instruction, _, to, in_method).
 
-	// /**
-	// * 解决 AssignUnop Value
-	// */
+	/**
+	* 解决 AssignUnop Value
+	* 见 soot-facts-generator generators/soot-fact-generator/src/main/java/org/clyze/doop/soot/FactWriter.java
+	* operation 有两种: len, ~
+	* len 需要 mock value, ～ 不需要可以使用之前的 value
+	*/
+	.decl UnopTransfer(from: symbol, to: symbol)
 
-	// #define UnopReturnValue(operation, invocation) cat("<Unop ", cat(operation, cat(" value Assgined in ", cat(invocation, ">"))))
-
-	// mainAnalysis.VarPointsTo(hctx, value, ctx, to),
-	// MockValueConsMacro(value, type) :-
-	// 	value = UnopReturnValue(operation, instruction),
-	// 	ctx = method,
-	// 	_OperatorAt(instruction, operation),
-	// 	isAssignUnop_Insn(instruction),
-	// 	Var_Type(to, type),
-	// 	Instruction_Method(instruction, method),
-	// 	AssignInstruction_To(instruction, to),
-	// 	mainAnalysis.isImmutableHContext(hctx).
+	UnopTransfer(from, to),
+	mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+		mainAnalysis.VarPointsTo(hctx, value, ctx, from),
+		_OperatorAt(instruction, "~"),
+		_AssignOperFrom(instruction, _, from),
+		 _AssignUnop(instruction, _, to, in_method).
+	
+	UnopTransfer(from, to),
+	MockValueConsMacro(value, "int"),
+	mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+		value = cat("<Unop ", cat("len", cat(" value Assgined in ", cat(instruction, ">")))),
+		mainAnalysis.VarPointsTo(hctx, _, ctx, from),
+		_OperatorAt(instruction, "len"),
+		_AssignOperFrom(instruction, _, from),
+		 _AssignUnop(instruction, _, to, in_method).
 
 	// /**
 	// * 解决 Expection Value，需不需要优化

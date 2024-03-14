@@ -50,7 +50,7 @@ run_summary() {
 
     # souffle
     SOUFFLE_JOBS="--souffle-jobs ${JOBS}"
-	SOUFFLE_PROFILE="--souffle-profile"
+	# SOUFFLE_PROFILE="--souffle-profile"
     SOUFFLE_MODE="--souffle-mode interpreted"
     SOUFFLE="${SOUFFLE_JOBS} ${SOUFFLE_PROFILE} ${SOUFFLE_MODE}"
 

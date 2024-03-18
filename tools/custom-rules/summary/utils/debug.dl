@@ -68,3 +68,6 @@ UnprocessedVariable(var) :-
 // 无效设置
 .output InValidVariableInTransfer
 .output EndObjectFieldInTransfer
+
+.output InterproceduralTransferAnalysis.CallEdgeInSummarizer
+.output InValidMethodInTransfer

@@ -18,7 +18,7 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 	TaintObjTransfer(fromCtx, from, toCtx, to).
 
 // base.field -> base
-TaintedTransferResult(fromCtx, from, toCtx, to) :-
+TaintedTransferResult(fromCtx, from, toCtx, to) :-	
 	toCtx = in_method,
 	fromCtx = in_method,
 	from = base,
@@ -62,7 +62,7 @@ TaintedTransferResult(fromCtx, from, toCtx, to) :-
 TaintedTransferResult(fromCtx, base, toCtx, to) :-
 	toCtx = fromCtx,
 	TaintedVarPointsTo(_, fromCtx, base),
-	LoadArrayIndex(base, to, in_method).
+	LoadArrayIndex(base, to, _).
 
 /**
  * array <-> base

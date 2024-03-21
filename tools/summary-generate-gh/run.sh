@@ -45,23 +45,22 @@ DOOP_ID=org_apache_dubbo_dubbo_3_2_9
 DOOP_ID=cn_hutool_hutool_all_5_8_23
 
 # 卡住了，net.sf.json.JSONObject 还是有点问题，无法直接使用
+# ok，可以了，找到利用链了
 DOOP_ID=org_zaproxy_zap_2_14_0
 
-# DOOP_ID=com_alibaba_fastjson_2_0_42
+DOOP_ID=com_alibaba_fastjson_2_0_42
 
-# # 有可能
-# DOOP_ID=org_jeecgframework_boot_jeecg_boot_starter_rabbitmq_3_6_0
+# 有可能
+DOOP_ID=org_jeecgframework_boot_jeecg_boot_starter_rabbitmq_3_6_0
 
-# # 也不太行，无法使用 Jackson 的调用链
-# DOOP_ID=org_keycloak_keycloak_core_23_0_3
+# 也不太行，无法使用 Jackson 的调用链
+DOOP_ID=org_keycloak_keycloak_core_23_0_3
 
-
-# # 没有仔细看，但调用链很奇葩，需要用到 scala 和 spring
-# DOOP_ID=org_apache_beam_beam_runners_spark_2_45_0
-
+# 没有仔细看，但调用链很奇葩，需要用到 scala 和 spring
+DOOP_ID=org_apache_beam_beam_runners_spark_2_45_0
 
 
-
+DOOP_ID=ai_h2o_h2o_core_3_44_0_3
 
 ########################################### End #########################################
 

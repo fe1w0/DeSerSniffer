@@ -1,8 +1,0 @@
-// 用于预处理的插桩工作，存储需要被插桩的Sink函数
-.decl OutputInstrumentationMethod(className: symbol, methodName: symbol, singature: symbol)
-
-OutputInstrumentationMethod(MethodDeclaringType, MethodSimpleName, MethodJVMDescriptor) :-
-    LeakingSinkMethod(_, method),
-    Method_DeclaringType(method, MethodDeclaringType),
-    Method_SimpleName(method, MethodSimpleName),
-    Method_JVMDescriptor(method, MethodJVMDescriptor).

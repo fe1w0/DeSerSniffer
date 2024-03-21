@@ -1,0 +1,258 @@
+/**
+ * PotentialType 主要为 函数泛化 提供支持。
+ * 认为可泛化点存在两个条件:
+ * 1. 被反序列化控制，即从 readObject 开始
+ * 2. PotentialType 为所有的的子类（含自身）
+ * 从 1、 2 中可以推断出，若存在泛化导致的污点分析，最直接的原因是因为反序列化导致的类型泛化，也即是 field 上的泛化问题
+ *（还有一种可能，控制流的不同，导致的泛化，但不是本研究的重点
+*/
+.decl PotentialType(type: symbol)
+
+/**
+ * PotentialEnd_Type 表示 在属性树中的 部分 End Node
+*/
+.decl PotentialEnd_Type(type: symbol)
+
+.decl PotenticalField(field: symbol)
+
+.decl PotentialOnlyType(type: symbol)
+
+.decl PotentialAllType(type: symbol)
+
+.decl AbortClass(type: symbol)
+
+.decl AllCollectionClass(class: symbol)
+
+.decl SubCollectionClass(class: symbol)
+
+.decl OriginalCollectionClass(class: symbol)
+
+.decl DenyEntryClass(class: ReferenceType)
+
+DenyEntryClass(class):-
+    // match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]lang[.]Thread.*|java[.]lang[.]ThreadGroup.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*|com[.]sun.*", class),
+    match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]lang[.]Thread.*|java[.]lang[.]ThreadGroup.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*", class),
+    _ClassType(class).
+
+OriginalCollectionClass(superclass) :-
+  (superclass = "java.util.Map";
+   superclass = "java.util.Collection";
+   superclass = "java.util.Iterable";
+   superclass = "java.util.Iterator";
+   superclass = "java.util.Comparator";
+   superclass = "java.util.Dictionary";
+   superclass = "java.util.Arrays";
+   superclass = "java.util.Objects";
+   superclass = "java.util.Collections").
+
+SubCollectionClass(class) :-
+  isClassType(class),
+  !DenyEntryClass(class),
+  basic.SubtypeOf(class, superclass),
+  (superclass = "java.util.Map";
+   superclass = "java.util.Collection";
+   superclass = "java.util.Iterable";
+   superclass = "java.util.Iterator";
+   superclass = "java.util.Comparator";
+   superclass = "java.util.Dictionary";
+   superclass = "java.util.Arrays";
+   superclass = "java.util.Objects";
+   superclass = "java.util.Collections").
+
+AllCollectionClass(class) :-
+    (
+        OriginalCollectionClass(class)
+        ;SubCollectionClass(class)
+    ).
+
+.decl DataStructureInnerClassPrefix(class_prefix: Type)
+
+DataStructureInnerClassPrefix(class_prefix) :-
+    SubCollectionClass(class),
+    class_prefix = cat(class, "$").
+
+.decl DataStructureInnerClass(class: Type)
+
+DataStructureInnerClass(inner_class) :-
+    DataStructureInnerClassPrefix(class_prefix),
+    isClassType(inner_class),
+    substr(inner_class, 0, strlen(class_prefix)) = class_prefix.
+
+/**
+ * Learning from https://docs.oracle.com/javase/8/docs/technotes/guides/collections/overview.html
+ * The collection interfaces are divided into two groups, java.util.Collection and java.util.Map
+*/
+.decl DataStructureMapClass(class: Type)
+.decl DataStructureCollectionClass(class: Type)
+
+/**
+ * DataStructureClass contains DataStructureMapClass and DataStructureCollectionClass.
+*/
+.decl DataStructureClass(class: Type)
+
+DataStructureMapClass(class) :-
+    isClassType(class),
+    !DenyEntryClass(class),
+    basic.SubtypeOf(class, superclass),
+    superclass = "java.util.Map".
+
+DataStructureCollectionClass(class) :-
+    isClassType(class),
+    !DenyEntryClass(class),
+    basic.SubtypeOf(class, superclass),
+    superclass = "java.util.Collection". 
+
+DataStructureClass(class) :-
+    (
+        DataStructureMapClass(class)
+        ;DataStructureCollectionClass(class)
+    ).
+
+.decl ApplicationClassPrefix(class_prefix: Type) 
+
+/**
+ * DataStructureMappingClass records data structure classes which using other data structure class as fields to storing data.
+*/
+.decl DataStructureMappingClass(class: Type, field_signature: symbol, field_type: Type)
+
+/**
+ * DataStructureMappingClass 需要包含详细且完善的field信息
+*/
+DataStructureMappingClass(class, field_signature, field_type) :-
+    _Field(field_signature, class, _, field_type),
+    DataStructureClass(class).
+
+DataStructureMappingClass(sub_class, field_signature, field_type) :-
+    DataStructureMappingClass(class, field_signature, field_type),
+    basic.SubtypeOfDifferent(sub_class, class).
+
+ApplicationClassPrefix(class_prefix) :-
+    ApplicationClass(class),
+    class_prefix = cat(class, "$").
+
+.decl AbortClassJavaLang(type: symbol)
+
+AbortClassJavaLang(type) :-
+    (type = "java.lang.Void"
+    ;type = "java.lang.Boolean"
+    ;type = "java.lang.Byte"
+    ;type = "java.lang.Character"
+    ;type = "java.lang.Double"
+    ;type = "java.lang.Float"
+    ;type = "java.lang.Integer"
+    ;type = "java.lang.Long"
+    ;type = "java.lang.Short"
+    // ;type = "java.lang.String"
+    ).
+
+.decl ApplicationClassInnerClass(class: Type)
+
+ApplicationClassInnerClass(inner_class) :-
+    ApplicationClassPrefix(class_prefix),
+    isClassType(inner_class),
+    substr(inner_class, 0, strlen(class_prefix)) = class_prefix.
+
+AbortClass(type) :-
+    DenyEntryClass(type).
+
+AbortClass(type) :-
+    AbortClassJavaLang(type).
+
+AbortClass(type) :-
+    Type_object(type).
+
+AbortClass(type) :-
+    Type_null(type).
+
+AbortClass(type) :-
+    isPrimitiveType(type).
+
+AbortClass(type) :-
+    AllCollectionClass(type).
+
+// Todo: 提取能力，过于弱小
+#ifndef ListReadObject
+
+// 从 反序列化的所有可行field 中，得到 潜在泛化能力的 Value
+PotenticalField(field_signature),
+PotentialType(potential_type) :-
+    DefineSourceMethod(method),
+    // 函数 存在于 哪些 class 中
+    Method_DeclaringType(method, class),
+    // field 存在于 哪些 class 中
+    // Field_DeclaringType 为 显式声明
+    // 但存在 field 继承的问题
+    Field_DeclaringType(field_signature, class),
+    // field 属于 什么类型
+    Field_Type(field_signature, field_type),
+    // potential_type 是 field_type 的子类
+    basic.SubtypeOf(potential_type, field_type),
+    !AbortClass(field_type),
+    !AbortClass(potential_type).
+
+// // 从 已探索的 Value中，将其对应的 field 再次设置为 PotentialType
+PotenticalField(next_field_signature),
+PotentialType(potential_type) :-
+    PotentialType(original_value_type),
+    Field_DeclaringType(next_field_signature, original_value_type),
+    Field_Type(next_field_signature, next_field_type),
+    basic.SubtypeOf(potential_type, next_field_type),
+    !AbortClass(next_field_type),
+    !AbortClass(potential_type).
+
+PotentialEnd_Type(next_field_type) :-
+    PotentialType(original_value_type),
+    Field_DeclaringType(next_field_signature, original_value_type),
+    Field_Type(next_field_signature, next_field_type),
+    (
+        AllCollectionClass(next_field_type);
+        Type_object(next_field_type)
+    ).
+
+PotentialEnd_Type(class) :-
+    DefineSourceMethod(method),
+    // 函数 存在于 哪些 class 中
+    Method_DeclaringType(method, class).
+
+PotentialEnd_Type(field_type) :-
+    DefineSourceMethod(method),
+    // 函数 存在于 哪些 class 中
+    Method_DeclaringType(method, class),
+    // field 存在于 哪些 class 中
+    // Field_DeclaringType 为 显式声明
+    // 但存在 field 继承的问题
+    Field_DeclaringType(field_signature, class),
+    // field 属于 什么类型
+    Field_Type(field_signature, field_type),
+    // potential_type 是 field_type 的子类
+    (
+        AllCollectionClass(field_type);
+        Type_object(field_type)
+    ).
+
+PotentialOnlyType(type) :-
+    PotentialType(type).
+
+PotentialOnlyType(type) :-
+    PotentialEnd_Type(type).
+
+PotentialAllType(type) :-
+    PotentialOnlyType(type).
+
+PotentialAllType(type) :-
+    (AllCollectionClass(type);
+    Type_object(type)).
+
+// .output AbortClass
+// .output DataStructureInnerClass
+// .output PotentialOnlyType
+// .output basic.SubtypeOf
+// .output SubCollectionClass
+// .output AllCollectionClass
+// .output Field_DeclaringType
+// .output PotentialType
+// .output PotenticalField
+// .output PotentialEnd_Type
+// .output PotentialAllType
+
+#endif

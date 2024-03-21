@@ -34,7 +34,7 @@ ENV DOOP_CACHE=/data/cache
 ENV DOOP_OUT=/data/out
 
 ## Install Doop
-RUN git clone https://github.com/plast-lab/doop-mirror.git /doop  && cd /doop && git checkout temp-push-to-mirror && ./gradlew installDist
+RUN git clone https://github.com/fe1w0/doop-mirror.git /doop  && cd /doop && git checkout temp-push-to-mirror && ./gradlew installDist
 ENV DOOP_HOME=/doop/build/install/doop
 ENV PATH="$PATH:$DOOP_HOME/bin"
 

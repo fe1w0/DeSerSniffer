@@ -1,0 +1,59 @@
+// -----------------------------------------------------------------------------
+// Start bottom - VarPointsTo analysis rules
+// -----------------------------------------------------------------------------
+
+/**
+ * 声明 ImMethod_WithInvocation
+*/
+.decl ImMethod_WithInvocation(method: Method)
+.printsize ImMethod_WithInvocation
+
+ImMethod_WithInvocation(in_method) :-
+	isMethodInvocation(instruction),
+	Instruction_Method(instruction, in_method).
+
+.decl ImMethod_WithoutInvocation(method: Method)
+.printsize ImMethod_WithoutInvocation
+
+ImMethod_WithoutInvocation(method):-
+	isMethod(method),
+	!ImMethod_WithInvocation(method).
+
+/**
+ * 声明 Bottom
+*/
+.decl BottomMethod(method: Method)
+
+BottomMethod(in_method) :-
+	ImMethod_WithoutInvocation(in_method).
+	
+/**
+ * 通过 ForcedReachable 强制产生, 上下文为 BottomMethod 的 指针信息
+ * 指针信息：包括，形式参数 和 this 指针
+ * 潜在问题，field 和 数组 上的指针信息可能会丢失
+*/
+mainAnalysis.ForcedReachable(method) :-
+	BottomMethod(method).
+
+.decl Target_Lost_Store_Target(base: symbol, signature: symbol, in_method: symbol, to: symbol)
+
+/**
+ * 没有 Store 
+*/
+Target_Lost_Store_Target(base, signature, in_method, to) :-
+	LoadInstanceField(base, signature, to, in_method),
+	!StoreInstanceField(_, base, signature, in_method),
+	BottomMethod(in_method).
+
+/**
+ * Store存在，但在后面 
+*/
+Target_Lost_Store_Target(base, signature, in_method, to) :-
+	load_index < store_index,
+	_LoadInstanceField(_, load_index, to, base, signature, in_method),
+	_StoreInstanceField(_, store_index, _, _, signature, in_method),
+	BottomMethod(in_method).
+
+// -----------------------------------------------------------------------------
+// End bottom - VarPointsTo analysis rules
+// -----------------------------------------------------------------------------

@@ -1,0 +1,418 @@
+// Step 1 : 列出所有需要摘要的函数
+#include "List-Targets.dl"
+
+// Step 2 : 计算 Bottom 中的 指针分析 和 污点分析 (摘要)
+#include "Bottom-VarPointsTo-analysis.dl"
+#include "Bottom-TaintTransfer-analysis.dl"
+
+// Step 2 : 计算 Node 中的 指针分析 和 污点分析 (摘要)
+#include "Node-VarPointsTo-analysis.dl"
+#include "Node-TaintTransfer-analysis.dl"
+
+/**
+ * 通过污点传播过程 
+*/
+.decl TaintedTransferResult(fromCtx: symbol, from: symbol, toCtx: symbol, to: symbol)
+
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintObjTransfer(fromCtx, from, toCtx, to).
+
+// base.field -> base
+TaintedTransferResult(fromCtx, from, toCtx, to) :-	
+	toCtx = in_method,
+	fromCtx = in_method,
+	from = base,
+	TaintedVarPointsTo(_, _, base),
+	Extension_Value(_, _, _, in_method, base, to).
+
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintedTransferResult(fromCtx, from, toCtx, tmp),
+	TaintedTransferResult(fromCtx, tmp, toCtx, to).
+	.plan 1:(2,1)
+
+// base.field <- from
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	TaintedVarPointsTo(_, fromCtx, from),
+	StoreInstanceField(from, base, _, in_method),
+	to = base,
+	toCtx = in_method.
+
+/**
+ * formal @this <-> actual @this
+*/
+TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, Rto) :-
+	TaintedTransferResult(fromCtx, from, toCtx, to),
+	ThisVar(fromCtx, from),
+	Rto = from,
+	RtoCtx = fromCtx,
+	Rfrom = to,
+	RfromCtx = toCtx.
+
+/**
+ * Binop
+*/
+TaintedTransferResult(fromCtx, from, toCtx, to) :-
+	toCtx = fromCtx,
+	TaintedTransferResult(fromCtx, _, fromCtx, from),
+	InterproceduralTransferAnalysis.BinopTransfer(from, to).
+
+/**
+ * to = array
+*/
+TaintedTransferResult(fromCtx, base, toCtx, to) :-
+	toCtx = fromCtx,
+	TaintedVarPointsTo(_, fromCtx, base),
+	LoadArrayIndex(base, to, _).
+
+/**
+ * array <-> base
+*/
+TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, base) :-
+	// base.array = from
+	TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, from),
+	mainAnalysis.OptStoreArrayIndex(from, base).
+
+.decl TaintedToBaseInvocation(from: symbol, from_method: Method, base: symbol, invocation: symbol)
+.printsize TaintedToBaseInvocation
+
+TaintedToBaseInvocation(from, from_method, base, invocation) :-
+    TaintedTransferResult(from_method, 
+	, from_method, base),
+    !EndMethodInTransfer(from_method),
+    (
+        FormalParam(_, from_method, from);
+        ThisVar(from_method, from)
+    ),
+    Instruction_Method(invocation, from_method),
+    MethodInvocation_Base(invocation, base).
+
+/**
+ * 在利用 ForcedReachable 计算函数内的指针时，需要对 this.field 进行 mock
+*/
+.decl Extension_Value(hctx: symbol, field_value: symbol, signature: symbol, method: Method, from_base: symbol, to: symbol)
+
+mainAnalysis.VarPointsTo(hctx, field_value, in_method, to),
+mainAnalysis.Value_isMock(field_value), isValue(field_value), mainAnalysis.Value_Type(field_value, value_type), mainAnalysis.Value_DeclaringType(field_value, declaring_type),
+Extension_Value(hctx, field_value, signature, in_method, base, to) :-
+	Target_Lost_Store_Target(base, signature, in_method, to),
+	mainAnalysis.isImmutableHContext(hctx),
+	field_value = cat(cat("<mock value for ", signature), cat(">:: ", in_method)),
+	Field_Type(signature, value_type),
+	Method_DeclaringType(in_method, declaring_type).
+
+/**
+ * Java 中的反射函数
+*/
+.decl JavaReflectMethod(Method: Method)
+JavaReflectMethod("<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+
+ParamToRetTaintTransferMethod("<java.lang.Class: java.lang.reflect.Method getMethod(java.lang.String,java.lang.Class[])>").
+
+/**
+ * 需设计:
+ * 变量传播摘要需要自动计算提供以下关系:
+ * - BaseToRetTaintTransferMethod
+ * - BaseToParamTaintTransferMethod
+ * - ParamToBaseTaintTransferMethod
+ * - ParamToRetTaintTransferMethod
+ * 未考虑:
+ * - ParamIndexToBaseTaintTransferMethod
+*/
+.comp MethodSummarizer {
+
+	/**
+	* base(this) 可以 传递到 index-th 参数
+	*/
+	.decl BaseToParamSummarizeMethod(index:number, method:Method)
+
+	BaseToParamTaintTransferMethod(method),
+	BaseToParamSummarizeMethod(index, method):-
+		!JavaReflectMethod(method),
+		TaintedTransferResult(method, from, method, to),
+		FormalParam(index, method, to),
+		ThisVar(method, from).
+
+	/**
+	* base(this) 可以传递到 return
+	*/
+	.decl BaseToRetSummarizeMethod(method: Method)
+
+	BaseToRetTaintTransferMethod(method),
+	BaseToRetSummarizeMethod(method) :-
+		TaintedTransferResult(method, from, method, to),
+		ReturnVar(to, method),
+		ThisVar(method, from).
+
+	/**
+	* index-th 可以传递到 return
+	*/
+	.decl ParamToRetSummarizeMethod(index:number, method:Method)
+
+	ParamToRetTaintTransferMethod(method),
+	ParamToRetSummarizeMethod(index, method) :-
+		TaintedTransferResult(method, from, method, to),
+		ReturnVar(to, method),
+		FormalParam(index, method, from).
+
+	/**	
+	* index-th 参数 可以传递到 base(this)
+	*/
+	.decl ParamToBaseSummarizeMethod(index:number, method:Method)
+
+	ParamToBaseTaintTransferMethod(index, method),
+	ParamToBaseSummarizeMethod(index, method) :-
+		!JavaReflectMethod(method),
+		TaintedTransferResult(method, from, method, to),
+		ThisVar(method, to),
+		FormalParam(index, method, from).
+}
+
+/**
+ * 采用 May 分析的方式，处理 Native 函数
+*/
+.comp NativeMethodSummarize {
+
+	.decl NativeMethod(method: Method)
+
+	NativeMethod(method) :-
+		Method_Modifier("native", method).
+
+	/**
+	* base(this) 可以 传递到 index-th 参数
+	*/
+	.decl BaseToParamSummarizeMethod(index:number, method:Method)
+
+	BaseToParamTaintTransferMethod(method),
+	BaseToParamSummarizeMethod(index, method):-
+		FormalParam(index, method, _),
+		!Method_Modifier("static", method),
+		NativeMethod(method).
+
+	/**
+	* base(this) 可以传递到 return
+	*/
+	.decl BaseToRetSummarizeMethod(method: Method)
+
+	BaseToRetTaintTransferMethod(method),
+	BaseToRetSummarizeMethod(method) :-
+		!Method_Modifier("static", method),
+		Method_ReturnType(method, _),
+		NativeMethod(method).
+
+	/**
+	* index-th 可以传递到 return
+	*/
+	.decl ParamToRetSummarizeMethod(index:number, method:Method)
+
+	ParamToRetTaintTransferMethod(method),
+	ParamToRetSummarizeMethod(index, method) :-
+		FormalParam(index, method, _),
+		Method_ReturnType(method, _),
+		NativeMethod(method).
+	
+	/**	
+	* index-th 参数 可以传递到 base(this)
+	*/
+	.decl ParamToBaseSummarizeMethod(index:number, method:Method)
+
+	ParamToBaseTaintTransferMethod(index, method),
+	ParamToBaseSummarizeMethod(index, method) :-
+		FormalParam(index, method, _),
+		!Method_Modifier("static", method),
+		NativeMethod(method).
+}
+
+/**
+ * 解决过程间的传播问题:
+ * 1. Merge 潜在调用的CallEdge的污点传播摘要信息
+ * 2. 解决两种特殊图问题, Recursion and circular calls
+*/
+.comp InterproceduralTransfer {
+
+	/**
+	* 摘要函数中的CallEdge，主要用过过程间摘要函数的污点传播过程，利用Bottom和Node中的传播摘要信息
+	*/
+	.decl CallEdgeInSummarizer(caller_ctx: symbol, caller_invocation: symbol, callee_ctx: symbol, callee_method: symbol)
+
+	/**
+	* 处理传统调用问题:
+	*/
+	mainAnalysis.OptVirtualMethodInvocationBase(invocation, base) :-
+		mainAnalysis.ForcedReachable(method),
+		Instruction_Method(invocation, method),
+		VirtualMethodInvocation_Base(invocation, base).
+
+	mainAnalysis.OptSuperMethodInvocationBase(invocation, base) :-
+		mainAnalysis.ForcedReachable(method),
+		Instruction_Method(invocation, method),
+		SuperMethodInvocation_Base(invocation, base).
+
+	mainAnalysis.OptSpecialMethodInvocationBase(invocation, base) :-
+		mainAnalysis.ForcedReachable(method),
+		Instruction_Method(invocation, method),
+		SpecialMethodInvocation_Base(invocation, base).
+
+	/**
+	* 多态问题，将摘要的结果进行 Merge:
+	* 丢失精度，但提高分析性能。
+	* 存在问题
+	*/
+	CallEdgeInSummarizer(in_mehtod, invocation, tomethod, tomethod) :-
+		Instruction_Method(invocation, in_mehtod),
+		TaintedToBaseInvocation(_, in_mehtod, base, invocation),
+		mainAnalysis.OptVirtualMethodInvocationBase(invocation, base),
+		Var_Type(base, var_type),
+		basic.SubtypeOf(sub_type, var_type),
+		basic.ResolveInvocation(sub_type, invocation, tomethod).
+	
+	/**
+	* 将影响 污点传播，以及指针传播
+	*/
+	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
+		mainAnalysis.configuration.ContextRequest(caller_ctx, _, caller_invocation, _, callee_method, 1),
+		callee_ctx = callee_method.
+
+	/**
+	* 需要考虑静态调用
+	*/
+	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
+		mainAnalysis.configuration.StaticContextRequest(caller_ctx, caller_invocation),
+		MethodInvocation_Method(caller_invocation, callee_method),
+		callee_ctx = callee_method.
+	
+	/**
+	* 需要考虑 Interface 的情况
+	*/
+	CallEdgeInSummarizer(caller_ctx, caller_invocation, callee_ctx, callee_method) :-
+		mainAnalysis.configuration.StaticContextRequest(caller_ctx, caller_invocation),
+		MethodInvocation_Method(caller_invocation, callee_method),
+		callee_ctx = callee_method.
+
+	/**
+	* 将 Ret = base.method(params,) 中的 Ret 进行 Mock_Value 设置
+	* 避免 污点摘要分析中的 value 影响到 Ret 的 Value
+	*/
+	MockValueConsMacro(value, varType),
+	mainAnalysis.VarPointsTo(hctx, value, callerCtx, var) :-
+		AssignReturnValue(invo, var),
+		Var_Type(var, varType),
+		callerCtx = in_method,
+		Instruction_Method(invo, in_method),
+		MethodInvocation_Method(invo, signature),
+		mainAnalysis.isImmutableHContext(hctx),
+		value = cat(cat(cat("<method-ret ", signature), " in "), invo).
+
+	/**
+	* 主要依靠 MethodInvocationInContext 来传递摘要
+	*/
+	MethodInvocationInContextInApplication(caller_ctx, caller_invocation, callee_method),
+	MethodInvocationInContext(caller_ctx, caller_invocation, callee_method) :-
+		CallEdgeInSummarizer(caller_ctx, caller_invocation, _, callee_method).
+	
+	/**
+	* 解决 Const 数值问题
+	*/
+	// .decl CreateNumberValue(const:symbol, constValue: symbol, type:Type, declaringType:ReferenceType)
+	// .output CreateNumberValue
+	// .printsize CreateNumberValue
+
+	// CreateNumberValue(const, constValue, type, className) :-
+	// 	constValue = cat("num-constant-", const),
+	// 	AssignNumConstant_Id(insn, const),
+	// 	NumConstantRaw(const, type),
+	// 	Instruction_Method(insn, meth),
+	// 	Method_DeclaringType(meth, className).
+
+	// mainAnalysis.VarPointsTo(hctx, constValue, toCtx, to),
+	// mainAnalysis.Value_Num(constValue, const, type),
+	// isValue(constValue),
+	// mainAnalysis.Value_Type(constValue, type),
+	// mainAnalysis.Value_DeclaringType(constValue, declaringType) :-
+	// 	toCtx = inmethod,
+	// 	Instruction_Method(insn, inmethod),
+	// 	CreateNumberValue(const, constValue, type, declaringType),
+	// 	(
+	// 		AssignNumConstant_Id(insn, const);
+    // 		AssignCastNumConstant_Id(insn, const)
+	// 	),
+	// 	AssignInstruction_To(insn, to),
+	// 	mainAnalysis.isImmutableHContext(hctx).
+
+	/**
+	* 解决 Native Value 问题
+	*/
+	#define NativeReturnValId(type, method) cat("<native ", cat(type, cat(" value allocated in ", cat(method, ">"))))
+
+	.decl NativeMethodReturningValue(m:Method, t:Type, return:Var, v:Value)
+
+	.decl ReachableNativeMethodInvocation(ctx:symbol, invo:MethodInvocation, nativeMethod:Method)
+
+	.decl _NativeMethodInvocation(invo:MethodInvocation, nativeMethod:Method)
+
+	_NativeMethodInvocation(invo, nativeMethod) :-
+		Method_Modifier("native", nativeMethod),
+		MethodInvocation_Method(invo, nativeMethod).
+
+	ReachableNativeMethodInvocation(ctx, invo, nativeMethod) :-
+		_NativeMethodInvocation(invo, nativeMethod),
+		mainAnalysis.ReachableContext(ctx, nativeMethod).
+
+	mainAnalysis.VarPointsTo(hctx, native_value, ctx, return),
+	NativeMethodReturningValue(m, t, return, native_value),
+	MockValueConsMacro(native_value, t),
+	mainAnalysis.ReachableValue(hctx, native_value) :-
+		native_value =  NativeReturnValId(t, m),
+		ctx = m,
+		NativeReturnVar(return, m),
+		Var_Type(return, t),
+		mainAnalysis.isImmutableHContext(hctx).
+
+	/**
+	* 解决 AssignBinop Value
+	*/
+	.decl BinopTransfer(from: symbol, to: symbol)
+
+	BinopTransfer(from, to),
+	mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+		mainAnalysis.VarPointsTo(hctx, value, ctx, from),
+		_AssignOperFrom(instruction, _, from),
+		ctx = in_method,
+		_AssignBinop(instruction, _, to, in_method).
+
+	/**
+	* 解决 AssignUnop Value
+	* 见 soot-facts-generator generators/soot-fact-generator/src/main/java/org/clyze/doop/soot/FactWriter.java
+	* operation 有两种: len, ~
+	* len 需要 mock value, ～ 不需要可以使用之前的 value
+	*/
+	.decl UnopTransfer(from: symbol, to: symbol)
+
+	UnopTransfer(from, to),
+	mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+		mainAnalysis.VarPointsTo(hctx, value, ctx, from),
+		_OperatorAt(instruction, "~"),
+		_AssignOperFrom(instruction, _, from),
+		 _AssignUnop(instruction, _, to, in_method).
+	
+	UnopTransfer(from, to),
+	MockValueConsMacro(value, "int"),
+	mainAnalysis.VarPointsTo(hctx, value, ctx, to) :-
+		value = cat("<Unop ", cat("len", cat(" value Assgined in ", cat(instruction, ">")))),
+		mainAnalysis.VarPointsTo(hctx, _, ctx, from),
+		_OperatorAt(instruction, "len"),
+		_AssignOperFrom(instruction, _, from),
+		 _AssignUnop(instruction, _, to, in_method).
+
+	// /**
+	// * 解决 Expection Value，需不需要优化
+	// */
+	// mainAnalysis.Instruction_Throws(hctx, value, callerCtx, invocation) :-
+	// 	mainAnalysis.ThrowPointsTo(hctx, value, calleeCtx, tomethod),
+	// 	CallEdgeInSummarizer(callerCtx, invocation, calleeCtx, tomethod).
+}
+
+.init InterproceduralTransferAnalysis = InterproceduralTransfer
+
+.init Summarizer = MethodSummarizer
+
+.init NativeSummarize = NativeMethodSummarize

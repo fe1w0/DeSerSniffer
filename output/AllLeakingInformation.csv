@@ -1,0 +1,18 @@
+Source	Sink
+<com.google.common.collect.CompactHashSet: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.concurrent.ConcurrentHashMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<org.apache.curator.shaded.com.google.common.collect.LinkedHashMultiset: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<com.google.common.collect.AbstractMapBasedMultiset: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.HashSet: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<org.jboss.netty.util.internal.LinkedTransferQueue: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.EnumMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.Hashtable: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<com.google.common.collect.CompactHashMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<org.apache.curator.shaded.com.google.common.collect.HashMultiset: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.HashMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.HashSet: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.Hashtable: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<cn.hutool.core.date.format.FastDateParser: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.concurrent.ConcurrentHashMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.EnumMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>
+<java.util.HashMap: void readObject(java.io.ObjectInputStream)>	<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>

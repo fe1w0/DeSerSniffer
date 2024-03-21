@@ -1,0 +1,62 @@
+// Output
+.output readObject.ListReadObjectMethod
+
+.output ReachableTaintedToSinkeMethod
+.output ReachableTaintedCallGraph
+
+// 最主要的输出
+.output ReachabelSinkingMethod
+.output TaintedSinkMethod
+.output MethodToSinkMethodSummarizer
+.output MethodCallGraphSummarizer
+
+/**
+ * 统计分析结果 
+*/
+.decl ProgramInfo(label: symbol, number: number)
+.output ProgramInfo
+
+ProgramInfo("BottomMethod", number) :-
+	number = count:{
+		BottomMethod(_)
+	}.
+
+ProgramInfo("NodeMethod", number) :-
+	number = count:{
+		NodeMethod(_)
+	}.
+
+ProgramInfo("ListReadObjectMethod", number) :-
+	number = count:{
+		readObject.ListReadObjectMethod(_)
+	}.
+
+ProgramInfo("TaintedSinkMethod", number) :-
+	number = count:{
+		TaintedSinkMethod(_, _)
+	}.	
+
+ProgramInfo("ReachabelSinkingMethod", number) :-
+	number = count:{
+		ReachabelSinkingMethod(_, _, _, _)
+	}.
+
+ProgramInfo("ReachableTaintedCallGraph", number) :-
+	number = count:{
+		ReachableTaintedCallGraph(_, _, _, _, _)
+	}.
+
+ProgramInfo("TaintedToInvocationVariable", number) :-
+	number = count:{
+		TaintedToInvocationVariable(_, _, _, _)
+	}.
+
+ProgramInfo("MethodToSinkMethodSummarizer", number) :-
+	number = count:{
+		MethodToSinkMethodSummarizer(_, _, _)
+	}.
+
+ProgramInfo("MethodCallGraphSummarizer", number) :-
+	number = count:{
+		MethodCallGraphSummarizer(_, _, _)
+	}.

@@ -1,0 +1,45 @@
+.type Method = symbol
+.type Label = symbol
+.type ReferenceType = symbol
+.type Type = symbol
+.type Var = symbol
+.type JVMDescriptor = symbol
+
+/**
+ * 表示那些SourceMethod, 可以事实上控制SinkMethod
+*/
+.decl TaintedSinkMethod(SourceMethod: Method, SinkMethod: Method)
+.input TaintedSinkMethod(filename="TaintedSinkMethod.csv")
+
+.decl MethodCallGraphSummarizer(from: Method, to: Method, sink: Method)
+.input MethodCallGraphSummarizer(filename="MethodCallGraphSummarizer.csv")
+
+.decl TmpCallGraph(FromMethod: Method, ToMethod: Method, SourceMethod: Method, SinkMethod: Method, neo4j_label: Label)
+.printsize TmpCallGraph
+
+
+TaintedSinkMethod("<cn.hutool.json.JSONConverter: java.lang.Object jsonToBean(java.lang.reflect.Type,java.lang.Object,boolean)>", "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
+
+TmpCallGraph(SourceMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
+	MethodCallGraphSummarizer(SourceMethod, ToMethod, SinkMethod),
+	TaintedSinkMethod(SourceMethod, SinkMethod),
+	neo4j_label = "CONNECTS_TO".
+
+TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
+	TmpCallGraph(_, FromMethod, SourceMethod, SinkMethod, neo4j_label),
+	MethodCallGraphSummarizer(FromMethod, ToMethod, SinkMethod).
+
+.decl CallGraph(FromMethod: Method, ToMethod: Method, label: Label, neo4j_label: Label)
+.output CallGraph(filename="CallGraph.csv")
+.printsize CallGraph
+
+CallGraph(FromMethod, ToMethod, label, neo4j_label) :-
+	label = cat(cat(SourceMethod, "->"), SinkMethod),
+	TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label).
+
+.decl Node(method: Method, neo4j_label: Label)
+.output Node(filename="Nodes.csv")
+.printsize Node
+
+Node(method, "Node") :-
+	TmpCallGraph(method, _, _, _, _) ; TmpCallGraph(_, method, _, _, _). 

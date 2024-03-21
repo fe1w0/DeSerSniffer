@@ -1,0 +1,186 @@
+// #ifndef EXCLUDE_IMPLICITLY_REACHABLE_CODE
+
+/**
+ * Implicitly reachable methods are invoked by the JVM on startup.
+ */
+
+#define IMPLICIT_REACHABLE(m) ImplicitReachable(m) :- isMethod(m)
+
+// IMPLICIT_REACHABLE("<java.lang.System: void initializeSystemClass()>").
+// IMPLICIT_REACHABLE("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.Runnable)>").
+// IMPLICIT_REACHABLE("<java.lang.Thread: void <init>(java.lang.ThreadGroup,java.lang.String)>").
+// IMPLICIT_REACHABLE("<java.lang.ThreadGroup: void <init>()>").
+// IMPLICIT_REACHABLE("<java.lang.Thread: void exit()>").
+// IMPLICIT_REACHABLE("<java.lang.ThreadGroup: void uncaughtException(java.lang.Thread,java.lang.Throwable)>").
+// IMPLICIT_REACHABLE("<java.lang.ClassLoader: void <init>()>").
+// IMPLICIT_REACHABLE("<java.lang.ClassLoader: java.lang.Class loadClassInternal(java.lang.String)>").
+// IMPLICIT_REACHABLE("<java.lang.ClassLoader: void checkPackageAccess(java.lang.Class,java.security.ProtectionDomain)>").
+// IMPLICIT_REACHABLE("<java.lang.ClassLoader: void addClass(java.lang.Class)>").
+// IMPLICIT_REACHABLE("<java.lang.ClassLoader: long findNative(java.lang.ClassLoader,java.lang.String)>").
+// IMPLICIT_REACHABLE("<java.security.PrivilegedActionException: void <init>(java.lang.Exception)>").
+
+/**
+ * TODO: this method does not seems to be implicitly reachable. There is a
+ * method Finalizer.runFinalization, but this method is invoked via a native call
+ * from Runtime.runFinalization. runFinalizer is invoked from the FinalizerThread,
+ * which the analysis should be able to figure out by itself.
+
+IMPLICIT_REACHABLE("<java.lang.ref.Finalizer: void runFinalizer()>").
+*/
+
+#ifndef MICRO
+
+// Make test entry points implicitly reachable by discovering their
+// annotations. This can also discover the entry points of
+// XCorpus.
+#ifdef DISCOVER_TESTS
+#include "../addons/testing/test-discovery.dl"
+
+ForcedReachable(?m) :- TestNGAnnotatedMethod(?m).
+ForcedReachable(?m) :- JUnitAnnotatedMethod(?m).
+ForcedReachable(?m) :- JUnitGenerator(?m).
+ForcedReachable(?m) :- JUnitTestMethod(?m, _).
+ForcedReachable(?m) :- EvoSuiteEntryPoint(?m).
+#endif // DISCOVER_TESTS
+
+// Contribute to the global summary relation.
+ApplicationEntryPoint(?meth) :-
+  ForcedReachable(?meth),
+  ApplicationMethod(?meth).
+
+.decl ForcedReachableContext(?ctx:configuration.Context, ?meth:Method)
+
+// Forced reachable methods are invoked by unknown callers.
+ForcedReachableContext(?ctx, ?method) :-
+  ForcedReachable(?method),
+  ?ctx = ?method.
+  
+//   isImmutableContext(?ctx).
+
+// Forced-reachable contexts are reachable contexts.
+ReachableContext(?ctx, ?meth) :-
+  ForcedReachableContext(?ctx, ?meth).
+
+// Formals of forced-reachable contexts, recorded here for mocking.
+.decl FormalOfForcedReachableContext(?ctx:configuration.Context, ?formal:Var, ?formalType:Type)
+FormalOfForcedReachableContext(?ctx, ?formal, ?formalType) :-
+  ForcedReachableContext(?ctx, ?meth),
+  FormalParam(_, ?meth, ?formal),
+  Var_Type(?formal, ?formalType).
+
+.decl ApplicationConcreteType(?type:ClassType)
+
+ApplicationConcreteType(?type) :-
+    ApplicationClass(?type),
+    !isInterfaceType(?type),
+    !ClassModifier("abstract", ?type).
+
+//anantoni: For now we want all concrete types that are going to be used as mock object types to be part of the application
+// Our fallback is the type itself, but that will only work in case it's not abstract
+// We need to monitor the cases where entry points have arguments with no concrete implementations
+
+.decl AllApplicationConcreteImplementations(?class:ClassType, ?type:Type)
+.decl TypeHasApplicationConcreteSubtypes(?type:Type)
+
+TypeHasApplicationConcreteSubtypes(?abstractType),
+AllApplicationConcreteImplementations(?class, ?abstractType) :-
+    ApplicationClass(?class),
+    basic.SubtypeOf(?class, ?abstractType),
+    ?abstractType != "java.lang.Object",
+    !ClassModifier("abstract", ?class).
+
+AllApplicationConcreteImplementations(?class, ?class) :- ConcreteClass(?class).
+
+.decl ServletParamType(?paramType:ReferenceType)
+ServletParamType(?paramType) :-
+  basic.SubtypeOf(?paramType, "javax.servlet.ServletRequest");
+  basic.SubtypeOf(?paramType, "javax.servlet.ServletResponse");
+  basic.SubtypeOf(?paramType, "org.springframework.http.HttpMethod");
+  basic.SubtypeOf(?paramType, "org.apache.commons.httpclient.HttpMethod");
+  basic.SubtypeOf(?paramType, "org.springframework.extensions.webscripts.WebScriptRequest");
+  basic.SubtypeOf(?paramType, "org.springframework.extensions.webscripts.WebScriptResponse");
+  basic.SubtypeOf(?paramType, "javax.servlet.http.HttpServletRequest");
+  basic.SubtypeOf(?paramType, "javax.servlet.http.HttpServletResponse");
+  basic.SubtypeOf(?paramType, "javax.servlet.http.HttpSessionEvent");
+  basic.SubtypeOf(?paramType, "javax.servlet.ServletContextEvent").
+
+// Special types implemented in the library also participate in mocking.
+.decl SpecialConcreteImplementations(?class:ClassType, ?type:ReferenceType)
+SpecialConcreteImplementations(?class, ?type) :-
+  isClassType(?class),
+  basic.SubtypeOf(?class, ?type),
+  ServletParamType(?type).
+
+.decl TypeToConcreteImplementation(?type:ReferenceType, ?class:ClassType)
+TypeToConcreteImplementation(?type, ?class) :-
+  AllApplicationConcreteImplementations(?class, ?type) ;
+  SpecialConcreteImplementations(?class, ?type).
+
+/**
+ *  Mock arguments for entry points
+ **/
+// REVIEW: this is imprecise, it assigns one or more mock arguments
+// for each parameter in a forced-reachable method.
+MockValueConsMacro(?mockObj, ?class),
+MockObjFromOpenProgramEntryPointArg(?mockObj),
+VarPointsTo(?hctx, ?mockObj, ?ctx, ?formal) :-
+  FormalOfForcedReachableContext(?ctx, ?formal, ?formalType),
+  ?class = ?formalType,
+//   TypeToConcreteImplementation(?formalType, ?class),
+  isImmutableHContext(?hctx),
+  ?mockObj = cat("<mock value for forced-reachable parameter ", cat(cat(?class, ">:: "), ?ctx)).
+//   ?mockObj = cat("<mock value for forced-reachable parameter ", cat(?class, ">")).
+
+// Helper/statistics relation.
+UnmockableFormalOfForcedReachableContext(?formal, ?formalType) :-
+  FormalOfForcedReachableContext(_, ?formal, ?formalType),
+  !TypeToConcreteImplementation(?formalType, _).
+
+/**
+ *  Mock receivers for entry points
+ **/
+MockValueConsMacro(?value, ?class),
+VarPointsTo(?hctx, ?value, ?ctx, ?receiver),
+MockObjFromOpenProgramEntryPointReceiver(?value),
+MockObject(?value, ?class) :-
+  ( ExercisedEntryPointMethod(?class, ?method)
+  ; (ForcedReachable(?method), Method_DeclaringType(?method, ?class))),
+  ThisVar(?method, ?receiver),
+//   ?value = MOCK_OBJECT_OF_TYPE(?class),
+  ?value = cat("<mock value for this ", cat(cat(?class, ">:: "), ?ctx)),
+  ?ctx = ?method,
+  mainAnalysis.isImmutableHContext(?hctx).
+
+
+/*
+ * The following rules handle the 'keep' specification, by
+ * forcing reachability and mocking of all "keep" methods.
+ */
+
+// 'keep'/'root' = make method reachable.
+ForcedReachable(?meth) :-
+  (KeepMethod(?meth) ; RootCodeElement(?meth)),
+  isMethod(?meth).
+
+// Not clear what ProGuard does with "keep" annotations for classes, but certainly
+// I've seen documented behavior in industrial code that expects it to keep no-arg
+// constructors.
+ForcedReachable(?meth) :-
+  KeepClass(?class),
+  basic.ClassConstructor(?meth, ?class),
+  !FormalParam(_, ?meth, _).
+
+// 'keep class members' / 'keep classes with members' = keep all class
+// methods if the class has a reachable method. We assume that 'keep
+// classes with members' has already been resolved and the tuples only
+// concern the types that apply.
+ForcedReachableContext(?ctx, ?method) :-
+  ( KeepClassMembers(?method) ; KeepClassesWithMembers(?method) ),
+  Method_DeclaringType(?method, ?type),
+  Method_DeclaringType(?someMethod, ?type),
+  Reachable(?someMethod),
+  isImmutableContext(?ctx).
+
+#endif // MICRO
+
+// #endif // EXCLUDE_IMPLICITLY_REACHABLE_CODE

@@ -1,0 +1,28 @@
+// 加载自定义宏
+#include "utils/micro.dl"
+// -----------------------------------------------------------------------------
+// Start Summary Analysis rules
+// -----------------------------------------------------------------------------
+
+// --- Initialization ---
+
+// 基本组件: 导入配置信息: SinkMethod, SourceMethod
+#include "config/Configuration.dl"
+
+// --- Summary Analysis ---
+
+// 基本组件: 根据method中的传播情况，实时增量新的传播摘要信息
+#include "summary/Method-Summarizer.dl"
+
+// Step 3: 处理分析结果
+#include "graph/ReachableTaintedCallGraph.dl"
+
+// --- Output ---
+#include "utils/output.dl"
+
+// --- Debug ---
+// #include "utils/debug.dl"
+
+// -----------------------------------------------------------------------------
+// End Summary Analysis rules
+// -----------------------------------------------------------------------------

@@ -1,0 +1,174 @@
+#include "class-initialization.dl"
+#include "finalization.dl"
+#include "implicit-reachable.dl"
+#include "native.dl"
+#include "reference.dl"
+#include "string-constants.dl"
+#include "threads.dl"
+
+#if defined(HEAPDLS) || defined(IMPORT_DYNAMIC_FACTS)
+#include "dynamicanalysis.dl"
+#endif // HEAPDLS, IMPORT_DYNAMIC_FACTS
+
+FakeInvocation_RegisterFinalize(?heapValue, ?invo) :-
+  FakeInvocation_RegisterFinalize0(?heapValue, ?invo).
+
+Value_isHeap(?heapValue),
+isValue(?heapValue),
+Value_Type(?heapValue, ?type) :-
+  isHeapAllocation(?heapValue),
+  HeapAllocation_Type(?heapValue, ?type).
+
+#ifdef ANDROID
+// Android "R" resource classes.
+.decl ResourceType(?className: ReferenceType)
+.output ResourceType
+ResourceType(?className) :-
+  isReferenceType(?className),
+  contains(".R$", ?className).
+
+// R resources only define integer ids.
+.output NumConstantRawInt
+NumConstantRawInt(?const, ?type) :- NumConstantRaw(?const, ?type), Type_int(?type).
+
+// Only create values for numeric constants in a static initializer
+// (or initial field value) inside a class whose name contains
+// ".R$". We are trying to capture just the constants in Android "R"
+// nested classes. REVIEW to generalize.
+// Numeric constants are prepended with *num-constant-* to distinguish
+// them from allocations that share the same string value.
+CreateIntValue(?const, ?type, ?className) :-
+  AssignNumConstant_Id(?insn, ?const),
+  NumConstantRawInt(?const, ?type),
+  Instruction_Method(?insn, ?meth),
+  Method_SimpleName(?meth, "<clinit>"),
+  Method_DeclaringType(?meth, ?className),
+  ResourceType(?className).
+CreateIntValue(?const, ?type, ?className) :-
+  FieldInitialValue(?fld, ?const),
+  NumConstantRawInt(?const, ?type),
+  Field_DeclaringType(?fld, ?className),
+  ResourceType(?className).
+#endif // ANDROID
+
+
+Value_isNonHeap(?value) :-
+  Value_isMock(?value) ;
+  Value_Num(?value, _, _).
+
+Value_Null(?nullheap) :-
+  HeapAllocation_Null(?nullheap).
+
+
+Value_DeclaringType(?heapValue, ?type) :-
+  AssignHeapAllocation(?heapValue, _, ?inmethod),
+  Method_DeclaringType(?inmethod, ?type),
+  isNormalHeap(?heapValue).
+
+Value_DeclaringType(?heapValue, "java.lang.System") :-
+  isClassHeap(?heapValue).
+
+Value_DeclaringType(?heapValue, "java.lang.String") :-
+  isStringConstant(?heapValue).
+
+Value_DeclaringType(?value, "java.lang.Object") :-
+  Value_Null(?value);
+  MainMethodArgArray(?value);
+  MainMethodArgArrayContent(?value).
+
+Value_DeclaringType(?heapValue, "java.lang.invoke.MethodHandle") :-
+  isMethodHandleConstant(?heapValue).
+
+Value_DeclaringType(?heapValue, "java.lang.invoke.MethodType") :-
+  isMethodTypeConstant(?heapValue).
+
+Value_DeclaringType(?heapValue, ?type) :-
+  SimulatedNativeAllocation(?heapValue, ?method),
+  Method_DeclaringType(?method, ?type).
+
+// Mark objects that are normal, i.e., not special
+NotSpecialObject(?value) :-
+  Value_isHeap(?value) ;
+  Value_isMock(?value) ;
+  Value_Num(?value, _, _).
+
+configuration.InitContextRequest("<<immutable-context>>").
+//configuration.InitContextRequest("<<initial-context>>").
+//configuration.InitContextRequest("<<jvm-startup-context>>").
+//configuration.InitContextRequest("<<clinit-context>>").
+
+isImmutableContext(?ctx),
+isContext(?ctx) :-
+  ?s = "<<immutable-context>>",
+  configuration.InitContextRequest(?s),
+  configuration.InitContextResponse(?s, ?ctx).
+
+/*isInitialContext(?ctx),
+isContext(?ctx) :-
+  ?s = "<<initial-context>>",
+  configuration.InitContextRequest(?s),
+  configuration.InitContextResponse(?s, ?ctx).
+
+isJVMStartupContext(?ctx),
+isContext(?ctx) :-
+  ?s = "<<jvm-startup-context>>",
+  configuration.InitContextRequest(?s),
+  configuration.InitContextResponse(?s, ?ctx).
+
+isClinitContext(?ctx),
+isContext(?ctx) :-
+  ?s = "<<clinit-context>>",
+  configuration.InitContextRequest(?s),
+  configuration.InitContextResponse(?s, ?ctx).
+*/
+// The main method is reachable
+ApplicationEntryPoint(?method),
+ReachableContext(?initialContext, ?method) :-
+  isImmutableContext(?initialContext),
+  basic.MainMethodDeclaration(?method).
+
+// Implicitly reachable methods are invoked by the JVM on startup.
+ReachableContext(?ctx, ?method) :-
+  isImmutableContext(?ctx),
+  ImplicitReachable(?method).
+
+// If a class needs to be initialized, then its class initializer is invoked
+// Note: InitializedClass already deals with superclasses that need initialization
+// modified:
+// ReachableContext(?clinitContext, ?clinit) :-
+//   isImmutableContext(?clinitContext),
+//   InitializedClass(?class),
+//   ClassInitializer(?class, ?clinit).
+
+configuration.InitHContextRequest("<<immutable-hcontext>>").
+//configuration.InitHContextRequest("<<jvm-startup-hcontext>>").
+
+isImmutableHContext(?hctx),
+isHContext(?hctx) :-
+  ?s = "<<immutable-hcontext>>",
+  configuration.InitHContextRequest(?s),
+  configuration.InitHContextResponse(?s, ?hctx).
+
+// modified:
+/*isJVMStartupHContext(?hctx),
+  isHContext(?hctx) :-
+  ?s = "<<jvm-startup-hcontext>>",
+  configuration.InitHContextRequest(?s),
+  configuration.InitHContextResponse(?s, ?hctx).*/
+
+// Create initial objects with their heap contexts
+
+// SystemThreadGroup(?hctx, ?alloc) :-
+//   isImmutableHContext(?hctx),
+//   ?alloc = "<<system-thread-group>>",
+//   isValue(?alloc).
+
+// MainThreadGroup(?hctx, ?alloc) :-
+//   isImmutableHContext(?hctx),
+//   ?alloc = "<<main-thread-group>>",
+//   isValue(?alloc).
+
+// MainThread(?hctx, ?alloc) :-
+//   isImmutableHContext(?hctx),
+//   ?alloc = "<<main-thread>>",
+//   isValue(?alloc).

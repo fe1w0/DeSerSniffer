@@ -1,0 +1,31 @@
+// -----------------------------------------------------------------------------
+// Start bottom - Targets analysis rules
+// -----------------------------------------------------------------------------
+
+/**
+ * 目标:
+ *  1. 列出所有的函数
+ * 实现:
+*/
+.decl TargetMethod(method: Method)
+
+TargetMethod(method) :-
+	isMethod(method).
+
+/**
+ * 目标:
+ *  2.1 对于每个函数来说，分别有两种污点源: a. 函数形式参数，b. 函数的对象指针 (包含对象字段)
+ * 实现:
+*/
+.decl TaintSourceVariable(variable: Var, in_method: Method)
+
+TaintSourceVariable(var, in_method) :-
+	(
+		FormalParam(_, in_method, var);
+		ThisVar(in_method, var)
+	),
+	TargetMethod(in_method).
+
+// -----------------------------------------------------------------------------
+// End bottom - Targets analysis rules
+// -----------------------------------------------------------------------------

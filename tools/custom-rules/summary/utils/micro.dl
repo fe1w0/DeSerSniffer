@@ -1,0 +1,56 @@
+/**
+ * 设置 MICRO_MOCK_VALUE_MICRO_ALL
+*/
+#define MICRO_MOCK_VALUE_MICRO_ALL(value, type, declaringType, hctx, ctx, to) \
+    isValue(value), \
+    isHeapAllocation(value), \
+    mainAnalysis.Value_isHeap(value), \
+    mainAnalysis.Value_isMock(value), \
+    mainAnalysis.Value_Type(value, type), \
+    mainAnalysis.Value_DeclaringType(value, declaringType), \
+    mainAnalysis.VarPointsTo(hctx, value, ctx, to)
+
+/**
+ * 设置 MICRO_MOCK_VALUE_MICRO_PART
+*/
+#define MICRO_MOCK_VALUE_MICRO_PART(value, type) \
+    mainAnalysis.Value_Type(value, type)
+
+.decl SourceValueAndMethod(value: symbol, method: symbol)
+
+/**
+ * 设置 MICRO_CUSTOM_TAINT
+*/
+
+// #define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \
+//     SourceValueAndMethod(invo, method), \
+//     mainAnalysis.ForcedReachable(method), \
+//     TaintedValue(value), \
+//     SourceFromTaintedValue(value, invo), \
+//     TaintSourceMethod(label, method), \
+//     LabelFromSource(invo, label)
+
+#define MICRO_CUSTOM_TAINT_ENTRY(method, invo, label, value, var) \
+    SourceValueAndMethod(invo, method), \
+    TaintedValue(value), \
+    SourceFromTaintedValue(value, invo), \
+    TaintSourceMethod(label, method), \
+    LabelFromSource(invo, label)
+
+/**
+ * MICRO_CUSTOM_TAINT 中:
+ * source -> method
+ * value -> mock value
+ * lable -> method
+*/
+#define MICRO_CUSTOM_TAINT(source, value, method, label) \
+    SourceValueAndMethod(source, method), \
+    TaintedValue(value), \
+    SourceFromTaintedValue(value, source), \
+	LabelFromSource(source, label)
+
+#define MockValueConsMacro(value, type) \
+   mainAnalysis.Value_isMock(value), \
+   isValue(value), \
+   mainAnalysis.Value_Type(value, type), \
+   mainAnalysis.Value_DeclaringType(value, "java.lang.Object")

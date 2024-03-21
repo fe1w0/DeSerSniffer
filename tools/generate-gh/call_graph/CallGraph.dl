@@ -1,0 +1,45 @@
+.type Method = symbol
+.type Label = symbol
+.type ReferenceType = symbol
+.type Type = symbol
+.type JVMDescriptor = symbol
+
+/**
+ * Todo: 
+ * - [ ] 实现任意 source - > sink 的调用图构建，即调用图切割功能，需要依赖 fromSourceCallGraph.csv
+ * - [x] 考虑 clinit 部分，从 soundness 考虑，直接将 clinit 复制到 每个类的函数调用中
+*/
+
+.decl fromSourceCallGraph(from_method: Method, to_method: Method, label: Label)
+.input fromSourceCallGraph(filename="fromSourceCallGraph.csv")
+
+.decl ClinitCallGrap(from_method: Method, to_method: Method)
+.input ClinitCallGrap(filename="ClinitCallGrap.csv")
+
+.decl CallGraph(from_method: Method, to_method: Method)
+.output CallGraph(filename="CallGraph.csv")
+.printsize CallGraph
+
+.decl Node(method: Method)
+.output Node(filename="Nodes.csv")
+.printsize Node
+
+.decl _Method(?method:Method, ?simplename:symbol, ?descriptor:symbol, ?declaringType:ReferenceType, ?returnType:Type, ?jvmDescriptor:JVMDescriptor, ?arity:number)
+.input _Method(filename="Method.facts")
+
+Node(method) :-
+	CallGraph(method, _) ; CallGraph(_, method). 
+
+CallGraph(from_method, to_method) :-
+	fromSourceCallGraph(from_method, to_method, _).
+
+.decl Extend_Clinit_CallGraph(from_method: Method, clinit_to_method: Method)
+.output Extend_Clinit_CallGraph
+.printsize Extend_Clinit_CallGraph
+
+// Extend_Clinit_CallGraph(to_method, clinit_to_method),
+// CallGraph(to_method, clinit_to_method) :-
+// 	CallGraph(_, to_method),
+// 	_Method(to_method, _, _, declaringType, _, _, _),
+// 	_Method(clinit_from_method, _, _, declaringType, _, _, _),
+// 	ClinitCallGrap(clinit_from_method, clinit_to_method).

@@ -1,0 +1,109 @@
+
+/**
+* ListReadObject flag 用于区分分析环节
+*/
+#define ListReadObject 1
+
+/**
+* LimitReadObject 用于限制，指输出 DirectSerializableClass， 注释可以输出 InheritSerializableClass
+*/
+#define LimitReadObject 1
+
+/**
+* ListReadObjectApplication 用于控制输出 DirectSerializableApplicationClass
+*/
+#define ListReadObjectApplication 1
+
+/**
+* ListReadObjectData 用于控制输出 DirectSerializableDataStructureClass
+*/
+#define ListReadObjectData 1
+
+/**
+ * 计算 ReadObject Method 
+*/
+
+.comp ReadObject {
+    /**
+    * ReadObject 函数
+    */
+    .decl ReadObjectMethod(method: Method)
+
+    ReadObjectMethod(method) :-
+        Method_SimpleName(method, "readObject"),
+        Method_ParamTypes(method, "java.io.ObjectInputStream"),
+        Method_ReturnType(method, "void").
+
+    /**
+    * DirectSerializableClass:
+    * 查找那些直接实现 void readObject(java.io.ObjectInputStream)
+    */
+    .decl DirectSerializableClass(class: ClassType)
+	
+    DirectSerializableClass(class) :-
+        basic.SupertypeOf("java.io.Serializable", class),
+        Method_DeclaringType(method, class),
+        ReadObjectMethod(method).
+
+    /**
+    * InheritSerializableClass:
+    * 查找那些间接实现 void readObject(java.io.ObjectInputStream)，需要排除 DirectSerializableClass
+    */
+    .decl InheritSerializableClass(class: ClassType)
+    InheritSerializableClass(class) :-
+        DirectSerializableClass(sup_class),
+        !DirectSerializableClass(class),
+        basic.SupertypeOf(sup_class, class).
+
+    .decl ListReadObjectMethod(Method: Method)
+
+    ListReadObjectMethod(method) :- 
+        ListReadObjectClass(class, _),
+        Method_DeclaringType(method, class),
+        ReadObjectMethod(method).
+
+    /**
+    * label 用于区分 DirectSerializableClass 和 InheritSerializableClass
+    */
+    .decl ListReadObjectClass(class: ClassType, label: symbol)
+
+    #ifdef LimitReadObject
+    #ifdef ListReadObjectApplication
+    ListReadObjectClass(class, label) :-
+        ApplicationClass(class),
+        DirectSerializableClass(class),
+        !DenyEntryClass(class),
+        !AbortClassJavaLang(class),
+        !DataStructureInnerClass(class),
+        !ApplicationClassInnerClass(class),
+        label = "DirectSerializableApplicationClass".
+    #endif
+
+    #ifdef ListReadObjectData
+    ListReadObjectClass(class, label) :-
+        DataStructureClass(class),
+        !ApplicationClass(class),
+        DirectSerializableClass(class),
+        !DenyEntryClass(class),
+        !AbortClassJavaLang(class),
+        !DataStructureInnerClass(class),
+        !ApplicationClassInnerClass(class),
+        label = "DirectSerializableDataStructureClass".
+    #endif
+    #endif
+
+    #ifndef LimitReadObject
+    ListReadObjectClass(class, label) :-
+        DirectSerializableClass(class),
+        (
+            label = "DirectSerializableDataStructureClass"
+            ; label = "DirectSerializableDataStructureClass"
+        ).
+
+    ListReadObjectClass(class, label) :-
+        InheritSerializableClass(class),
+        label = "InheritSerializableClass".
+    #endif
+}
+
+.init readObject = ReadObject

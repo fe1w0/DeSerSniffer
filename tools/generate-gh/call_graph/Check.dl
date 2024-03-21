@@ -1,0 +1,25 @@
+.type Node <: symbol
+.type Lable <: symbol
+
+.decl call_graph(A:Node, B:Node)
+.input call_graph(filename="CallGraph.csv")
+
+.decl Start(n: Node)
+Start("<java.util.HashMap: void readObject(java.io.ObjectInputStream)>").
+
+.decl End(n: Node)
+End("<java.io.FileOutputStream: void write(byte[])>").
+
+.decl Reaches(n: Node, nn: Node)
+
+Reaches(n, nn) :-
+	Start(n),
+	call_graph(n, nn).
+
+.decl Reachable()
+.output Reachable
+
+Reachable() :-
+	call_graph(n, nn),
+	Start(n),
+	End(nn).

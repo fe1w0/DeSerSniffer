@@ -1,0 +1,83 @@
+.decl OpenProgramEntryPoint(?method:Method)
+.decl PossibleOpenProgramEntryPoint(?method:Method)
+.decl ClassHasPossibleOpenProgramEntryPoint(?class:ReferenceType)
+
+.decl DenyEntryClass(class: ReferenceType)
+
+DenyEntryClass(class):-
+    match("sun[.].*|java[.]io.*|java[.]lang[.]reflect.*|java[.]lang[.]Thread.*|java[.]lang[.]ThreadGroup.*|java[.]security.*|java[.]util[.]stream.*|java[.]net.*|javax[.].*|jdk[.]internal.*|java[.]nio[.].*|com[.]sun.*", class),
+    _ClassType(class).
+
+// ClassHasPossibleOpenProgramEntryPoint(?class),
+// PossibleOpenProgramEntryPoint(?method) :-
+//   Method_Modifier("private", ?method),
+//   Method_DeclaringType(?method, ?class),
+//   TaintSourceMethod(_label, ?method),
+//   // DefineEntryPointSimpleMethod(?simpleMethodName),
+//   // Method_SimpleName(?method, ?simpleMethodName),
+//   ClassModifier("public", ?class),
+//   !DenyEntryClass(?class).
+
+// Find highest level in the naming hierarchy that contains public
+// methods.
+.decl PrefixAbove(class:ReferenceType, str:symbol, ?len:number)
+.decl PrefixBelow(class:ReferenceType, str:symbol)
+
+PrefixAbove(?classAbove, substr(?classAbove, 0, ?lastDotPos+1), ?lastDotPos+1) :-
+  ClassHasPossibleOpenProgramEntryPoint(?classAbove),
+  mainAnalysis.LastDot(?classAbove, ?lastDotPos).
+
+PrefixBelow(?classBelow, substr(?classBelow, 0, ?lastDotPos)) :-
+  ClassHasPossibleOpenProgramEntryPoint(?classBelow),
+  mainAnalysis.LastDot(?classBelow, ?lastDotPos).
+
+.decl ClassIsAboveOtherInNamingHierarchy(?classAbove:ReferenceType, ?classBelow:ReferenceType)
+
+ClassIsAboveOtherInNamingHierarchy(?classAbove, ?classBelow) :-
+  // One's prefix before "." is a proper prefix of the other's prefix before "."
+  PrefixAbove(?classAbove, ?prefixAbove, ?prefixLen),
+  PrefixBelow(?classBelow, ?prefixBelow),
+  substr(?prefixBelow, 0, ?prefixLen) = ?prefixAbove.
+
+.decl ClassWithTopLevelOpenProgramEntryPoint(?class:ReferenceType)
+.decl TopLevelApplicationClass(?class:ReferenceType)
+.decl ClassToConsider(?class:ReferenceType)
+.decl TopLevelOpenProgramEntryPoint(?method:Method)
+
+ClassWithTopLevelOpenProgramEntryPoint(?class) :-
+  ClassHasPossibleOpenProgramEntryPoint(?class),
+  !ClassIsAboveOtherInNamingHierarchy(_, ?class).
+
+TopLevelApplicationClass(?class) :-
+  ClassWithTopLevelOpenProgramEntryPoint(?class),
+  ApplicationClass(?class).
+
+ClassToConsider(?class) :-
+  TopLevelApplicationClass(?class).
+
+ClassToConsider(?class) :-
+  ApplicationClass(?class),
+  !TopLevelApplicationClass(_).
+
+TopLevelOpenProgramEntryPoint(?method) :-
+  PossibleOpenProgramEntryPoint(?method),
+  Method_DeclaringType(?method, ?class),
+  ClassToConsider(?class).
+
+#ifndef OPEN_PROGRAMS
+// The original definition that Neville had
+OpenProgramEntryPoint(?method) :-
+  PossibleOpenProgramEntryPoint(?method),
+  Method_DeclaringType(?method, ?class),
+  substr(?class, 0, 4) = "java".
+#else
+// The definition we currently want as default
+OpenProgramEntryPoint(?method) :-
+  PossibleOpenProgramEntryPoint(?method).
+//  TopLevelOpenProgramEntryPoint(?method).
+#endif // OPEN_PROGRAMS
+
+// Contribute to the global summary relation
+mainAnalysis.ApplicationEntryPoint(?meth) :-
+  OpenProgramEntryPoint(?meth),
+  ApplicationMethod(?meth).

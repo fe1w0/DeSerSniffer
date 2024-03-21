@@ -1,0 +1,38 @@
+// -----------------------------------------------------------------------------
+// Start Node - taint analysis rules
+// -----------------------------------------------------------------------------
+
+/**
+ * Bottom Method 中需要强制设置的污点源 
+*/
+.decl Node_Method_Forced_Source_Value(value: symbol, method: Method)
+
+Node_Method_Forced_Source_Value(value, method) :-
+	mainAnalysis.VarPointsTo(_, value, method, var),
+	NodeMethod(method),
+	TaintSourceVariable(var, method).
+
+MICRO_CUSTOM_TAINT(source, value, method, label) :-
+	Node_Method_Forced_Source_Value(value, method),
+	source = method,
+	label = method.
+
+// 处理 field
+MICRO_CUSTOM_TAINT(source, value, in_method, label):-
+	Extension_Value(_, field_value, _, in_method, _, _),
+	source = in_method,
+	value = field_value,
+	label = in_method,
+	NodeMethod(in_method).
+
+// 处理 array
+MICRO_CUSTOM_TAINT(source, value, in_method, label):-
+	AssignHeapAllocation(value, base, in_method),
+	StoreArrayIndex(_, base, in_method),
+	source = in_method,
+	label = in_method,
+	NodeMethod(in_method).
+
+// -----------------------------------------------------------------------------
+// End Node - taint analysis rules
+// -----------------------------------------------------------------------------

@@ -2,17 +2,19 @@
 .decl PossibleOpenProgramEntryPoint(?method:Method)
 .decl ClassHasPossibleOpenProgramEntryPoint(?class:ReferenceType)
 
-ClassHasPossibleOpenProgramEntryPoint(?class),
-PossibleOpenProgramEntryPoint(?method) :-
-  Method_DeclaringType(?method, ?class),
-  Method_Modifier("public", ?method),
-  ApplicationClass(?class),
-  DefineEntryPointSimpleMethod(?simpleMethodName),
-  Method_SimpleName(?method, simpleMethodName),
-  !Method_Modifier("abstract", ?method),
-//// Remove comment for original behavior
-//   !Method_Modifier("static", ?method),
-  !ClassModifier("private", ?class).
+// #define ENABLE_MINING 1
+
+// ClassHasPossibleOpenProgramEntryPoint(?class),
+// PossibleOpenProgramEntryPoint(?method) :-
+//   Method_Modifier("private", ?method),
+//   Method_DeclaringType(?method, ?class),
+//   #ifndef ENABLE_MINING
+//     ApplicationClass(?class),
+//   #endif
+//   DefineEntryPointSimpleMethod(?simpleMethodName),
+//   Method_SimpleName(?method, ?simpleMethodName),
+//   ClassModifier("public", ?class).
+  // !ClassModifier("private", ?class).
 
 // Find highest level in the naming hierarchy that contains public
 // methods.

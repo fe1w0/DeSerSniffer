@@ -20,12 +20,21 @@
 
 TaintedSinkMethod("<cn.hutool.json.JSONConverter: java.lang.Object jsonToBean(java.lang.reflect.Type,java.lang.Object,boolean)>", "<java.lang.reflect.Method: java.lang.Object invoke(java.lang.Object,java.lang.Object[])>").
 
+Node(SourceMethod, "Node"),
+Node(ToMethod, "Node"),
+CallGraph(SourceMethod, ToMethod, label, neo4j_label),
 TmpCallGraph(SourceMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
 	MethodCallGraphSummarizer(SourceMethod, ToMethod, SinkMethod),
 	TaintedSinkMethod(SourceMethod, SinkMethod),
+	label = SourceMethod,
+	// label = cat(cat(SourceMethod, "->"), SinkMethod),
 	neo4j_label = "CONNECTS_TO".
 
+Node(ToMethod, "Node"),
+CallGraph(FromMethod, ToMethod, label, neo4j_label),
 TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
+	label = SourceMethod,
+	// label = cat(cat(SourceMethod, "->"), SinkMethod),
 	TmpCallGraph(_, FromMethod, SourceMethod, SinkMethod, neo4j_label),
 	MethodCallGraphSummarizer(FromMethod, ToMethod, SinkMethod).
 
@@ -33,13 +42,13 @@ TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label) :-
 .output CallGraph(filename="CallGraph.csv")
 .printsize CallGraph
 
-CallGraph(FromMethod, ToMethod, label, neo4j_label) :-
-	label = cat(cat(SourceMethod, "->"), SinkMethod),
-	TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label).
+// CallGraph(FromMethod, ToMethod, label, neo4j_label) :-
+// 	label = cat(cat(SourceMethod, "->"), SinkMethod),
+// 	TmpCallGraph(FromMethod, ToMethod, SourceMethod, SinkMethod, neo4j_label).
 
 .decl Node(method: Method, neo4j_label: Label)
 .output Node(filename="Nodes.csv")
 .printsize Node
 
-Node(method, "Node") :-
-	TmpCallGraph(method, _, _, _, _) ; TmpCallGraph(_, method, _, _, _). 
+// Node(method, "Node") :-
+// 	TmpCallGraph(method, _, _, _, _) ; TmpCallGraph(_, method, _, _, _). 

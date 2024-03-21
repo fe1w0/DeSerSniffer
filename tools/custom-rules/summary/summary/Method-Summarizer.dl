@@ -76,8 +76,7 @@ TaintedTransferResult(RfromCtx, Rfrom, RtoCtx, base) :-
 .printsize TaintedToBaseInvocation
 
 TaintedToBaseInvocation(from, from_method, base, invocation) :-
-    TaintedTransferResult(from_method, 
-	, from_method, base),
+    TaintedTransferResult(from_method, from, from_method, base),
     !EndMethodInTransfer(from_method),
     (
         FormalParam(_, from_method, from);

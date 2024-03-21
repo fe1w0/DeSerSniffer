@@ -34,7 +34,35 @@ DOOP_OUT=$DOOP_OUT
 
 DOOP_ID=summary_com_alibaba_nacos_nacos_client_2_3_0
 DOOP_ID=summary_org_clojure_clojure_1_12_0_alpha5
+
+
+DOOP_ID=io_acryl_datahub_client_0_12_0_2
+
+# 没有什么希望
+DOOP_ID=org_apache_dubbo_dubbo_3_2_9
+
+# 没有什么希望
 DOOP_ID=cn_hutool_hutool_all_5_8_23
+
+# 卡住了，net.sf.json.JSONObject 还是有点问题，无法直接使用
+DOOP_ID=org_zaproxy_zap_2_14_0
+
+# DOOP_ID=com_alibaba_fastjson_2_0_42
+
+# # 有可能
+# DOOP_ID=org_jeecgframework_boot_jeecg_boot_starter_rabbitmq_3_6_0
+
+# # 也不太行，无法使用 Jackson 的调用链
+# DOOP_ID=org_keycloak_keycloak_core_23_0_3
+
+
+# # 没有仔细看，但调用链很奇葩，需要用到 scala 和 spring
+# DOOP_ID=org_apache_beam_beam_runners_spark_2_45_0
+
+
+
+
+
 ########################################### End #########################################
 
 run $Neo4jImport $DOOP_OUT $DOOP_ID

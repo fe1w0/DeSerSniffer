@@ -16,13 +16,14 @@ clear_result() {
     DOOP_LOGS=$DOOP_HOME/build/logs/
     echo "DOOP Logs: $DOOP_LOGS"
     echo "TMP Logs: /tmp/doop_*"
-    echo
 
     # 用户确认
     if [[ $1 == "-y" ]]; then
         REPLY="y"
+    elif [[ $1 == "-l" ]]; then
+        REPLY="l"
     else
-        read -p "Are you sure you want to clear all DOOP data? (y/N) " -n 1 -r
+        read -p "Are you sure you want to clear all DOOP data? (y/N), or just delete all log files (l)" -n 1 -r
         echo    # (optional) move to a new line
     fi
 
@@ -44,7 +45,9 @@ clear_result() {
 
 		mkdir -p $DOOP_OUT
 		mkdir -p $DOOP_CACHE
-        
+    elif [[ $REPLY =~ ^[lL]$ ]] ; then
+        rm -rf $DOOP_LOGS/*
+        rm -rf /tmp/doop_*
     else
         echo "Clear operation cancelled."
     fi
@@ -54,8 +57,8 @@ clear_result() {
 doop_config
 
 # 判断是否传入了 "-y" 参数
-if [[ $# -eq 1 && $1 == "-y" ]]; then
-    clear_result "-y"
+if [[ $# -eq 1 && ($1 == "-y" || $1 == "-l") ]]; then
+    clear_result $1
 else
     # 调用 clear_result 函数以执行清理
     clear_result
